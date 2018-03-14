@@ -22,7 +22,9 @@ cd front
 npm run build
 ```
 
-2. Cкопировать app.py и файлы из front/dist сюда [http://192.168.4.158:8888/tree/Demin/AutopilotDashboard](http://192.168.4.158:8888/tree/Demin/AutopilotDashboard)
+2. Закоммитить и запушить
+
+2. Сделать `git pull` здесь  [http://192.168.4.158:8888/tree/Demin/autopilot-dashboard](http://192.168.4.158:8888/tree/Demin/autopilot-dashboard)
 
 3. Перезапустить сервер: остановить Server.ipynb. Затем зайти в него и выполнить первый блок через ctrl+enter. Также можно выполнить команду в баше ```python app.py``` в этой папке.
 
