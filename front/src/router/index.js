@@ -11,6 +11,11 @@ export default new Router({
       path: '/',
       name: 'Stat',
       component: Stat
+    },
+    {
+      path: '/:projectId',
+      name: 'StatWithProject',
+      component: Stat
     }
   ]
 })
