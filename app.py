@@ -1,238 +1,333 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import Flask, abort, render_template, send_from_directory
+from flask import Flask, abort, url_for, render_template, request, Response, current_app, send_from_directory
 import json
-from datetime import datetime
 from flask_cors import CORS
+from clickhouse_driver import Client
+from backend_logic import *
+import codecs
+import os
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+import re
+from functools import wraps
+
 
 app = Flask(__name__, static_folder='./front/dist/static/', template_folder="./front/dist/")
 CORS(app)
 
+def check_auth(username, password):
+    if username == 'offeruser' and password == 'D_f$7u-SVX9v"h;j':
+        return True
+    return False
+
+def authenticate():
+    return Response(
+    'Некорректный логин и пароль. Пожалуйста, перезапустите браузер, и попробуйте ещё раз.', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+def writeLog(logEntry):
+    with codecs.open("log.txt", "a", "utf-8") as logFile:
+        json.dump(logEntry, logFile, ensure_ascii=False)
+        logFile.write('\n')
+
+@app.route("/api/GetRivals/", methods=['POST'])
+@requires_auth
+def get_rivals():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        ipStr = request.remote_addr
+        userName = 'unknown'
+        try: 
+            result = subprocess.run(['nbtscan', ipStr], stdout=subprocess.PIPE)
+            userName = result.stdout.decode('utf-8').split(ipStr)[2].split(' ')[2]
+        except:
+            pass
+#         try:
+        data = json.loads(request_text)
+        offerUrl = data['offerUrl']
+        offerid = offerUrl
+        if offerUrl[:7] == 'http://':
+            offerid = offerUrl[7:].split('/')[3]
+        elif '/' in offerUrl:
+            offerid = offerUrl.split('/')[3]
+        maxRivalsCount = int(data['maxRivalsCount'])
+        sqiDiffCoef = int(data['sqiDiffCoef'])
+        maxPos = int(data['maxPos'])
+        minCountInSerm = int(data['minCountInSerm'])
+        keywords, rivals, startDate, keywordsStr, regionsStr, regions = getRivalsAndData(offerid, maxRivalsCount, sqiDiffCoef, maxPos, minCountInSerm)
+        res = {
+            'keywords': keywords,
+            'rivals': rivals,
+            'startDate': startDate,
+            'keywordsStr': keywordsStr,
+            'regionsStr': regionsStr,
+            'regions': regions,
+            'offerid': offerid
+        }
+#         except:
+#             res = {'error': True}
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            'ip': request.remote_addr,
+            'userName': userName,
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetRivals',
+            "requestData": request_text.decode('utf-8')
+        })
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/GetKeywordsRivals/", methods=['POST'])
+@requires_auth
+def get_keywords_rivals():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        ipStr = request.remote_addr
+        userName = 'unknown'
+        try: 
+            result = subprocess.run(['nbtscan', ipStr], stdout=subprocess.PIPE)
+            userName = result.stdout.decode('utf-8').split(ipStr)[2].split(' ')[2]
+        except:
+            pass
+#         try:
+        data = json.loads(request_text)
+        keywords = data['keywords']
+        rivals = data['rivals']
+        maxPos = data['maxPos']
+        startDate = data['startDate']
+        keywordsStr = data['keywordsStr']
+        regionsStr = data['regionsStr']
+        regions = data['regions']
+        minCountInSerm = data['minCountInSerm']
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            'ip': request.remote_addr,
+            'userName': userName,
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetKeywordsRivals',
+            'rivals': rivals
+        })
+        all_keywords, notRivals = getKeywordsRivals(keywords, rivals, maxPos, startDate, keywordsStr, regionsStr, regions, minCountInSerm)
+#         except:
+#             res = {'error': True}
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            'ip': request.remote_addr,
+            'userName': userName,
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetKeywordsRivals'
+        })
+        return json.dumps({'keywords': all_keywords, 'notRivals': notRivals}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/GetKeywordsToRemove/", methods=['POST'])
+@requires_auth
+def get_keywords_to_remove():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        ipStr = request.remote_addr
+        userName = 'unknown'
+        try: 
+            result = subprocess.run(['nbtscan', ipStr], stdout=subprocess.PIPE)
+            userName = result.stdout.decode('utf-8').split(ipStr)[2].split(' ')[2]
+        except:
+            pass
+#         try:
+        data = json.loads(request_text)
+        keywords = data['keywords']
+        regions = data['regions']
+        minKeywordRivals = int(data['minKeywordRivals'])
+        res = getKeywordsToRemove(keywords, minKeywordRivals, regions)
+#         except:
+#             res = {'error': True}
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            'ip': request.remote_addr,
+            'userName': userName,
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetKeywordsToRemove'
+        })
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/GetSerm/", methods=['POST'])
+@requires_auth
+def get_serm():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        ipStr = request.remote_addr
+        userName = 'unknown'
+        try: 
+            result = subprocess.run(['nbtscan', ipStr], stdout=subprocess.PIPE)
+            userName = result.stdout.decode('utf-8').split(ipStr)[2].split(' ')[2]
+        except:
+            pass
+#         try:
+        data = json.loads(request_text)
+        keyword = data['keyword']
+        regionId = data['regionId']
+        searchEngine = data['searchEngine']
+        isMobile = data['isMobile']
+        maxPos = int(data['maxPos'])
+        startDate = data['startDate']
+        rivals = data['rivals']
+        regions = data['regions']
+        notRivals = data['notRivals']
+        res = getSerm(keyword, regionId, searchEngine, isMobile, maxPos, startDate, rivals, regions, notRivals)
+#         except:
+#             res = {'error': True}
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            'ip': request.remote_addr,
+            'userName': userName,
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetKeywordsToRemove'
+        })
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/ExportToExcel/", methods=['POST'])
+@requires_auth
+def export_to_excel():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        ipStr = request.remote_addr
+        userName = 'unknown'
+        try: 
+            result = subprocess.run(['nbtscan', ipStr], stdout=subprocess.PIPE)
+            userName = result.stdout.decode('utf-8').split(ipStr)[2].split(' ')[2]
+        except:
+            pass
+#         try:
+        data = json.loads(request_text)
+        offerid = data['offerid']
+        maxRivalsCount = data['maxRivalsCount']
+        keywords = data['keywords']
+        regions = data['regions']
+        minKeywordRivals = int(data['minKeywordRivals'])
+        sqiDiffCoef = int(data['sqiDiffCoef'])
+        maxPos = int(data['maxPos'])
+        minCountInSerm = int(data['minCountInSerm'])
+        keywordsToDelete = data['keywordsToDelete']
+        rivals = data['rivals']
+        filename = 'Rivals ' + offerid + ' ' + startTime.strftime('%d.%m.%y %H-%M-%S') + '.xlsx'
+        info = [{
+            'Id КП': offerid,
+            'Макс. кол-во конкурентов': maxRivalsCount,
+            'Макс. отклонение ИКС': sqiDiffCoef,
+            'Макс. позиция для поиска конкурентов': maxPos,
+            'Мин. кол-во раз, сколько сайт должен встречаться в выдаче, чтобы считаться конкурентом': minCountInSerm,
+            'Мин. кол-во конкурентов для запроса': minKeywordRivals
+        }]
+        keywordsToDeleteForExcel = []
+        for item in keywordsToDelete:
+            for key in item['keywordsToDelete']:
+                keywordsToDeleteForExcel.append({
+                    'Регион': item['region'],
+                    'Ключ для удаления': key
+                })
+        writer = pd.ExcelWriter('./downloadable_files/' + filename)
+        info_df = pd.DataFrame(info)
+        info_df.to_excel(writer, index=False, sheet_name='Метаданные', freeze_panes = (1,0))
+        regions_df = pd.DataFrame(regions)
+        regions_df.to_excel(writer, index=False, sheet_name='Регионы', freeze_panes = (1,0))
+        rivals_df = pd.DataFrame(rivals)
+        rivals_df.to_excel(writer, index=False, sheet_name='Конкуренты', freeze_panes = (1,0))
+        all_keywords_df = pd.DataFrame(keywords)
+        all_keywords_df.to_excel(writer, index=False, sheet_name='Запросы', freeze_panes = (1,0))
+        keywordsToDeleteForExcel_df = pd.DataFrame(keywordsToDeleteForExcel)
+        keywordsToDeleteForExcel_df.to_excel(writer, index=False, sheet_name='Запросы для удаления', freeze_panes = (1,0))
+        writer.save()
+#         except:
+#             res = {'error': True}
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            'ip': request.remote_addr,
+            'userName': userName,
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetKeywordsToRemove'
+        })
+        return filename
+
+@app.route("/api/GetDomainInfo/", methods=['POST'])
+@requires_auth
+def get_domain_info():
+    if request.method == "POST":
+        data = json.loads(request.data)
+        domain = data['domain']
+        sitePromise = requests.get('http://' + domain)
+        html = sitePromise.text
+        soup = BeautifulSoup(html, 'html.parser')
+        title = ''
+        description = ''
+        icon = 'http://' + domain + '/favicon.ico'
+        try:
+            title = soup.select('title')[0].get_text()
+        except:
+            pass
+        try:
+            description = soup.find("meta", {"name":"description"})['content']
+        except:
+            pass
+        try:
+            icon = soup.find_all(rel = re.compile("Icon|icon"))[0]['href']
+            if icon[0] != 'h':
+                icon = 'http://' + domain + icon
+        except:
+            pass
+        res = {
+            'title': title,
+            'description': description,
+            'icon': icon,
+            'domain': domain
+        }
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+    
 @app.route('/static/<path:path>')
+@requires_auth
 def send_files(path):
     return send_from_directory(app.static_folder, path)
 
-@app.route("/api/getStat/<projectId>")
-def get_stat(projectId):
-    projectId = int(projectId)
-    if projectId == None:
-        abort(404)
-    return json.dumps([
-        {
-            "projectId": projectId,
-            "domain": "refro.ru",
-            # выходные
-            "holidays": [
-                {
-                    "from": "17.01.2018",
-                    "to": "18.01.2018"
-                }
-            ],
-            # Данные для графика трафика по дням.
-            # Прогноз оптимизатора / 30.
-            # Если нет данных в какой-то день, null
-            "dayTraffic": [
-                {
-                    "name": "Оптимизатор",
-                    "data": {
-                        "19.01.2018": 10,
-                        "18.01.2018": None,
-                        "17.01.2018": 14
-                    }
-                },
-                {
-                    "name": "Мотор",
-                    "data": {
-                        "19.01.2018": 22,
-                        "18.01.2018": 18,
-                        "17.01.2018": 20
-                    }
-                },
-                {
-                    "name": "Факт (только Директ)",
-                    "data": {
-                        "19.01.2018": 12,
-                        "18.01.2018": 143,
-                        "17.01.2018": 121
-                    }
-                }
-            ],
-            # Данные для графика расходов по дням. Прогноз оптимизатора / 30. Если нет данных в какой-то день, null
-            "daySpend": [
-                {
-                    "name": "Оптимизатор",
-                    "data": {
-                        "19.01.2018": 332,
-                        "18.01.2018": None,
-                        "17.01.2018": 490
-                    }
-                },
-                {
-                    "name": "Мотор",
-                    "data": {
-                        "19.01.2018": 210,
-                        "18.01.2018": 232,
-                        "17.01.2018": 201
-                    }
-                },
-                {
-                    "name": "Факт (только Директ)",
-                    "data": {
-                        "19.01.2018": 221,
-                        "18.01.2018": 339,
-                        "17.01.2018": 329
-                    }
-                }
-            ],
-            # Данные для графика конверсий по дням.
-            # Прогноз оптимизатора на месяц, факт в сумме за текущий календарный месяц.
-            # Если нет данных в какой-то день, null
-            "dayConversions": [
-                {
-                    "name": "Оптимизатор",
-                    "data": {
-                        "19.01.2018": 1,
-                        "18.01.2018": None,
-                        "17.01.2018": 1
-                    }
-                },
-                {
-                    "name": "Факт (только Директ)",
-                    "data": {
-                        "19.01.2018": 0,
-                        "18.01.2018": 0,
-                        "17.01.2018": 1
-                    }
-                }
-            ],
-            # Данные для графика CPC по дням.
-            # Прогноз оптимизатора на месяц.
-            # Если нет данных в какой-то день, null
-            "cpc": [
-                {
-                    "name": "Оптимизатор",
-                    "data": {
-                        "19.01.2018": 23,
-                        "18.01.2018": None,
-                        "17.01.2018": 54
-                    }
-                },
-                {
-                    "name": "Факт (только Директ)",
-                    "data": {
-                        "19.01.2018": 144,
-                        "18.01.2018": 160,
-                        "17.01.2018": 131
-                    }
-                }
-            ],
-            # Данные для графика CPA по дням.
-            # Прогноз оптимизатора на месяц.
-            # Если нет данных в какой-то день, null
-            "cpa": [
-                {
-                    "name": "Оптимизатор",
-                    "data": {
-                        "19.01.2018": 23,
-                        "18.01.2018": None,
-                        "17.01.2018": 54
-                    }
-                },
-                {
-                    "name": "Факт (только Директ)",
-                    "data": {
-                        "19.01.2018": 144,
-                        "18.01.2018": 160,
-                        "17.01.2018": 131
-                    }
-                }
-            ],
-            # Данные для графика месячных расходов.
-            # Прогноз оптимизатора на конец месяца = прогноз оптимизатора / 30 * количество дней до конца календарного месяца.
-            # Бюджет из Мотора брать как себестоимость услуги рекламный трафик из текущего периода:
-                # SELECT p2.costplan * (1 - p2.margin / 100)
-                # FROM projectperiod AS p
-                # JOIN projectperioddetail AS p2 ON p.id=p2.projectperiodid
-                # WHERE p.projectid=2514764 AND p2.servicetype=2015 AND p.enddate IS NOT NULL
-                # ORDER BY p.enddate desc
-                # LIMIT 1
-            # Фактический расход суммируется за текущий календарный месяц
-            # Если нет данных в какой-то день, null
-            "monthSpend": [
-                {
-                    "name": "Оптимизатор",
-                    "data": {
-                        "19.01.2018": 16000,
-                        "18.01.2018": None,
-                        "17.01.2018": 16000
-                    }
-                },
-                {
-                    "name": "Мотор",
-                    "data": {
-                        "19.01.2018": 38000,
-                        "18.01.2018": 38000,
-                        "17.01.2018": 38000
-                    }
-                },
-                {
-                    "name": "Факт (только Директ)",
-                    "data": {
-                        "19.01.2018": 25332,
-                        "18.01.2018": 23234,
-                        "17.01.2018": 22123
-                    }
-                }
-            ],
-            # Данные для графика месячного трафика.
-            # Прогноз оптимизатора на конец месяца = прогноз оптимизатора / 30 * количество дней до конца календарного месяца.
-            # План трафика из Мотора брать из услуги рекламный трафик из текущего периода:
-                # SELECT p2.trafficplan
-                # FROM projectperiod AS p
-                # JOIN projectperioddetail AS p2 ON p.id=p2.projectperiodid
-                # WHERE p.projectid=2514764 AND p2.servicetype=2015 AND p.enddate IS NOT NULL
-                # ORDER BY p.enddate desc
-                # LIMIT 1
-            # Фактический трафик суммируется за текущий календарный месяц
-            # Если нет данных в какой-то день, null
-            "monthTraffic": [
-                {
-                    "name": "Оптимизатор",
-                    "data": {
-                        "19.01.2018": 641,
-                        "18.01.2018": None,
-                        "17.01.2018": 641
-                    }
-                },
-                {
-                    "name": "Мотор",
-                    "data": {
-                        "19.01.2018": 6923,
-                        "18.01.2018": 7323,
-                        "17.01.2018": 6923
-                    }
-                },
-                {
-                    "name": "Факт (только Директ)",
-                    "data": {
-                        "19.01.2018": 432,
-                        "18.01.2018": 434,
-                        "17.01.2018": 516
-                    }
-                }
-            ]
-        }
-    ]), 200, {'Content-Type': 'application/json; charset=utf-8'}
-
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
+@requires_auth
 def front(path):
     return render_template('index.html')
 
 @app.errorhandler(404)
+@requires_auth
 def page_not_found(e):
     return "Page not found", 404
 
+@app.route('/download/<path:filename>')
+@requires_auth
+def download(filename):
+    directory = os.path.join(current_app.root_path, './downloadable_files/')
+    return send_from_directory(directory=directory, filename=filename, as_attachment=True)
+
+@app.route('/test')
+@requires_auth
+def test():
+    return "Вы авторизованы"
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8899, debug=True)
+    app.run(host='0.0.0.0', port=8901, debug=True)
