@@ -247,11 +247,21 @@ def export_to_excel():
         writer = pd.ExcelWriter('./downloadable_files/' + filename)
         info_df = pd.DataFrame(info)
         info_df.to_excel(writer, index=False, sheet_name='Метаданные', freeze_panes = (1,0))
-        regions_df = pd.DataFrame(regions)
+        regions_df = pd.DataFrame(regions).rename(columns={'name': 'Регион'})['Регион'].to_frame()
         regions_df.to_excel(writer, index=False, sheet_name='Регионы', freeze_panes = (1,0))
-        rivals_df = pd.DataFrame(rivals)
+        rivals_df = pd.DataFrame(rivals).rename(columns={
+            'domain': 'Сайт',
+            'isExcluded': 'Не конкурент',
+            'countInSerm': 'Встречается в выдаче',
+        })[['Сайт', 'Не конкурент', 'Встречается в выдаче']]
         rivals_df.to_excel(writer, index=False, sheet_name='Конкуренты', freeze_panes = (1,0))
-        all_keywords_df = pd.DataFrame(keywords)
+        all_keywords_df = pd.DataFrame(keywords).rename(columns={
+            'keyword': 'Запрос',
+            'regionName': 'Регион',
+            'searchEngine': 'ПС',
+            'isMobile': 'Мобильная выдача',
+            'rivalsCount': 'Кол-во конкурентов'
+        })[['Запрос', 'Кол-во конкурентов', 'Регион', 'ПС', 'Мобильная выдача']]
         all_keywords_df.to_excel(writer, index=False, sheet_name='Запросы', freeze_panes = (1,0))
         keywordsToDeleteForExcel_df = pd.DataFrame(keywordsToDeleteForExcel)
         keywordsToDeleteForExcel_df.to_excel(writer, index=False, sheet_name='Запросы для удаления', freeze_panes = (1,0))
