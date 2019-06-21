@@ -1,20 +1,33 @@
+include:
+- "http://git.local/Infrastructure/gitlabci-templates/raw/master/notifications/fail-notify-group-and-author.yaml"
+- "http://git.local/Infrastructure/gitlabci-templates/raw/master/notifications/success-notify-group-and-author.yaml"
+
 stages:
 - build
 - deploy
+- notify
 variables:
   DOCKERHUB: dockerhub.local
   VERSION: $CI_COMMIT_REF_SUG-$CI_PIPELINE_ID  
   SERVICE: filter-rivals
+  SLACK_CHANNEL: 'nonexist-channel'
+  SLACK_CHANNEL_TARGET: 'techdep'
+
 build:
-  stage: build 
+  stage: build
+  tags:
+  - linux
+  - docker 
   script:
   - docker build . -t $DOCKERHUB/$SERVICE:$VERSION
 
 deploy-to-prod:
   stage: deploy
   when: manual
+  tags:
+  - helm
   only:
-  - tags
+  - master
   script:
   - helm-deploy $SERVICE $VERSION ./k8s production     
       --set dockerImage=$DOCKERHUB/$SERVICE:$VERSION        
@@ -22,9 +35,9 @@ deploy-to-prod:
 
 deploy-to-test:
   stage: deploy
-  when: manual
-  only:
-  - tags
+  when: manual  
+  tags:
+  - helm
   script:
   - helm-deploy $SERVICE $VERSION ./k8s development     
       --set dockerImage=$DOCKERHUB/$SERVICE:$VERSION        
