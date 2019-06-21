@@ -20,6 +20,7 @@ build:
   - docker 
   script:
   - docker build . -t $DOCKERHUB/$SERVICE:$VERSION
+  - docker push $DOCKERHUB/$SERVICE:$VERSION
 
 deploy-to-prod:
   stage: deploy
