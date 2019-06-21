@@ -284,8 +284,9 @@ def get_domain_info():
     if request.method == "POST":
         data = json.loads(request.data)
         domain = data['domain']
-        sitePromise = requests.get('http://' + domain)
-        html = sitePromise.text
+        r = requests.get('http://' + domain)
+        print(r.status_code)
+        html = r.text
         soup = BeautifulSoup(html, 'html.parser')
         title = ''
         description = ''

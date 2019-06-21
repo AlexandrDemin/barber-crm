@@ -101,7 +101,7 @@ export default {
       isValid: true,
       isLoaded: false,
       isLoading: false,
-      offerUrl: 'http://client.ingate.ru/Offers/offer/5cf52ce87e7680029cfa18d3/keywords',
+      offerUrl: 'http://client.ingate.ru/Offers/offer/5d0cc9587e76801f38a88cd0/keywords',
       maxRivalsCount: 100000,
       sqiDiffCoef: 100,
       maxPos: 10,
