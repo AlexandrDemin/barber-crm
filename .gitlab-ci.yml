@@ -8,7 +8,7 @@ stages:
 - notify
 variables:
   DOCKERHUB: dockerhub.local
-  VERSION: $CI_COMMIT_REF_SUG-$CI_PIPELINE_ID  
+  VERSION: $CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID  
   SERVICE: filter-rivals
   SLACK_CHANNEL: 'nonexist-channel'
   SLACK_CHANNEL_TARGET: 'techdep'
