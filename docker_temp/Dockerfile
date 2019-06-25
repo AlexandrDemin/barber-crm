@@ -1,21 +1,9 @@
-FROM python:3-alpine
+FROM ubuntu:latest
 MAINTAINER Alexander Demin <aleksandr.demin@ingate.ru>
 COPY . /
-RUN echo "http://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-RUN apk --update add --no-cache \ 
-    lapack-dev \ 
-    gcc \
-    freetype-dev \
-    postgresql-dev \
-    python3-dev
-
-RUN apk add python py-pip python-dev 
-
-# Install dependencies
-RUN apk add --no-cache --virtual .build-deps \
-    gfortran \
-    musl-dev \
-    g++
-RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
+RUN apt-get update \
+  && apt-get install -y libpq-dev python3-pip python3-dev \
+  && cd /usr/local/bin \
+  && ln -s /usr/bin/python3 python \
+  && pip3 install --upgrade pip
 RUN pip install -r requirements.txt
-RUN apk del .build-deps

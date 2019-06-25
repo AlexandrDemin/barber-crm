@@ -285,9 +285,8 @@ def get_domain_info():
         data = json.loads(request.data)
         domain = data['domain']
         r = requests.get('http://' + domain)
-        print(r.status_code)
-        html = r.text
-        soup = BeautifulSoup(html, 'html.parser')
+        encoding = r.encoding if 'charset' in r.headers.get('content-type', '').lower() else None
+        soup = BeautifulSoup(r.content, from_encoding=encoding)
         title = ''
         description = ''
         icon = 'http://' + domain + '/favicon.ico'
