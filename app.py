@@ -13,6 +13,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from functools import wraps
+import gc
 
 
 app = Flask(__name__, static_folder='./front/dist/static/', template_folder="./front/dist/")
@@ -304,6 +305,9 @@ def get_domain_info():
                 icon = 'http://' + domain + icon
         except:
             pass
+        soup = None
+        r = None
+        gc.collect()
         res = {
             'title': title,
             'description': description,
