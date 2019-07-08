@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! /home/devel/anaconda2/envs/py35/bin/python3.6
 # -*- coding: utf-8 -*-
 
 from clickhouse_driver import Client

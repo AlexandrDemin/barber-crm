@@ -56,6 +56,9 @@ export default {
       })
         .then(response => {
           this.data = response.data
+          if (typeof response.data === 'string') {
+            this.data = JSON.parse(response.data)
+          }
           this.errors = []
           this.isLoaded = true
           this.isLoading = false
