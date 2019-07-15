@@ -211,6 +211,7 @@ export default {
   .checkbox-padding {
     padding: 200px;
     margin: -200px;
+    transition: 0.2s;
   }
   .checkbox-padding input[type=checkbox] {
     margin: 0;
