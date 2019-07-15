@@ -72,7 +72,7 @@
                         <br>
                         <small>{{rival.description}}</small>
                     </td>
-                    <td class="text-right"><input type="checkbox" v-model="rival.isExcluded"></td>
+                    <td class="text-right checkbox-td"><label class="checkbox-padding"><input type="checkbox" v-model="rival.isExcluded"></label></td>
                     <td class="text-right">{{rival.countInSerm}}</td>
                     <td class="text-right">{{rival.sqi[0]}}</td>
                     <td class="text-right">{{rival.sqiDiff.toFixed(2)}}</td>
@@ -204,5 +204,15 @@ export default {
   }
   .error-text {
     color: crimson;
+  }
+  .checkbox-td {
+    overflow: hidden;
+  }
+  .checkbox-padding {
+    padding: 200px;
+    margin: -200px;
+  }
+  .checkbox-padding input[checkbox] {
+    margin: 0;
   }
 </style>
