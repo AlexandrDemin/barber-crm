@@ -212,7 +212,11 @@ export default {
     padding: 200px;
     margin: -200px;
   }
-  .checkbox-padding input[checkbox] {
+  .checkbox-padding input[type=checkbox] {
     margin: 0;
+  }
+  .checkbox-padding:hover {
+    background: #fafafa;
+    cursor: pointer;
   }
 </style>
