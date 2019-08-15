@@ -101,11 +101,12 @@ export default {
       isValid: true,
       isLoaded: false,
       isLoading: false,
-      offerUrl: 'http://client.ingate.ru/Offers/offer/5d0cc9587e76801f38a88cd0/keywords',
+      offerUrl: 'http://client.ingate.ru/Offers/offer/5d538b317e76808f64a3b501/keywords',
       maxRivalsCount: 100000,
       sqiDiffCoef: 100,
       maxPos: 10,
-      minCountInSerm: 6
+      minCountInSerm: 6,
+      mongoId: null
     }
   },
   computed: {
@@ -116,6 +117,7 @@ export default {
       rivalsData['sqiDiffCoef'] = this.sqiDiffCoef
       rivalsData['minKeywordRivals'] = this.minKeywordRivals
       rivalsData['maxRivalsCount'] = this.maxRivalsCount
+      rivalsData['mongoId'] = this.mongoId
       return rivalsData
     }
   },
@@ -130,13 +132,15 @@ export default {
           maxRivalsCount: this.maxRivalsCount,
           sqiDiffCoef: this.sqiDiffCoef,
           maxPos: this.maxPos,
-          minCountInSerm: this.minCountInSerm
+          minCountInSerm: this.minCountInSerm,
+          mongoId: this.mongoId
         })
           .then(response => {
             this.data = response.data
             this.errors = []
             this.isLoaded = true
             this.isLoading = false
+            this.mongoId = this.data['mongoId']
             for (var index in this.data['rivals']) {
               var domain = this.data['rivals'][index]['domain']
               if (!this.data['rivals'][index]['isOfferDomain']) {

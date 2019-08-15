@@ -34,7 +34,7 @@ import { HTTP } from '../api/api.js'
 
 export default {
   name: 'KeywordsToRemove',
-  props: ['keywords', 'regions', 'rivals', 'offerid', 'maxRivalsCount', 'sqiDiffCoef', 'maxPos', 'minCountInSerm'],
+  props: ['keywords', 'regions', 'rivals', 'offerid', 'maxRivalsCount', 'sqiDiffCoef', 'maxPos', 'minCountInSerm', 'mongoId'],
   data () {
     return {
       data: {},
@@ -52,7 +52,8 @@ export default {
       HTTP.post(`GetKeywordsToRemove/`, {
         keywords: this.keywords,
         regions: this.regions,
-        minKeywordRivals: this.minKeywordRivals
+        minKeywordRivals: this.minKeywordRivals,
+        mongoId: this.mongoId
       })
         .then(response => {
           this.data = response.data

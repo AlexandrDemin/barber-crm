@@ -6,7 +6,7 @@ import io
 import pandas as pd
 import numpy as np
 from pymongo import MongoClient
-from bson.objectid import ObjectId
+from bson import ObjectId
 from datetime import datetime, timedelta
 import psycopg2
 import requests
@@ -14,6 +14,7 @@ import time
 import json
 from requests_futures.sessions import FuturesSession
 import math
+import copy
 import urllib.parse
 session = FuturesSession()
 
@@ -362,3 +363,48 @@ def getSerm(keyword, regionId, searchEngine, isMobile, maxPos, startDate, rivals
             if notRival == s['domain']:
                 s['isExcluded'] = True
     return res
+
+def saveFilterRivalsObject(filter_rivals_object):
+    client = MongoClient('mongodb://192.168.10.77:27017/')
+    db = client.Offers
+    collection = db.filterRivals
+    local_copy = copy.deepcopy(filter_rivals_object)
+    result = collection.insert_one(local_copy)
+    result_id = result.inserted_id
+    print(result_id)
+    return str(result_id)
+
+def getFilterRivalsObject(object_id):
+    client = MongoClient('mongodb://192.168.10.77:27017/')
+    db = client.Offers
+    collection = db.filterRivals
+    result = collection.find({'_id': object_id})[0]
+    return result
+
+def saveKeywords(object_id, keywords):
+    client = MongoClient('mongodb://192.168.10.77:27017/')
+    db = client.Offers
+    collection = db.filterRivals
+    result = collection.update_one(
+        {'_id': ObjectId(object_id)},
+        {'$set': {
+                'keywordsWithData': keywords
+            }
+        }
+    )
+    raw_result = result.raw_result
+    return raw_result
+
+def saveKeywordsToRemove(object_id, keywords_to_remove):
+    client = MongoClient('mongodb://192.168.10.77:27017/')
+    db = client.Offers
+    collection = db.filterRivals
+    result = collection.update_one(
+        {'_id': ObjectId(object_id)},
+        {'$set': {
+                'keywordsToRemove': keywords_to_remove
+            }
+        }
+    )
+    raw_result = result.raw_result
+    return raw_result

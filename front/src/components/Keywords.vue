@@ -46,7 +46,7 @@ export default {
     keywordsToRemove: KeywordsToRemove,
     sermModal: SermModal
   },
-  props: ['keywords', 'rivals', 'maxPos', 'startDate', 'keywordsStr', 'regionsStr', 'regions', 'minCountInSerm', 'offerid', 'sqiDiffCoef', 'minKeywordRivals', 'maxRivalsCount'],
+  props: ['keywords', 'rivals', 'maxPos', 'startDate', 'keywordsStr', 'regionsStr', 'regions', 'minCountInSerm', 'offerid', 'sqiDiffCoef', 'minKeywordRivals', 'maxRivalsCount', 'mongoId'],
   data () {
     return {
       data: {},
@@ -70,6 +70,7 @@ export default {
       exportData['sqiDiffCoef'] = this.sqiDiffCoef
       exportData['minKeywordRivals'] = this.minKeywordRivals
       exportData['maxRivalsCount'] = this.maxRivalsCount
+      exportData['mongoId'] = this.mongoId
       return exportData
     }
   },
@@ -85,7 +86,8 @@ export default {
         keywordsStr: this.keywordsStr,
         regionsStr: this.regionsStr,
         regions: this.regions,
-        minCountInSerm: this.minCountInSerm
+        minCountInSerm: this.minCountInSerm,
+        mongoId: this.mongoId
       })
         .then(response => {
           this.data = response.data.keywords
