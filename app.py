@@ -92,7 +92,6 @@ def get_rivals():
             'method': 'GetRivals',
             "requestData": request_text.decode('utf-8')
         })
-        print(res)
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 @app.route("/api/GetKeywordsRivals/", methods=['POST'])
