@@ -371,7 +371,6 @@ def saveFilterRivalsObject(filter_rivals_object):
     local_copy = copy.deepcopy(filter_rivals_object)
     result = collection.insert_one(local_copy)
     result_id = result.inserted_id
-    print(result_id)
     return str(result_id)
 
 def getFilterRivalsObject(object_id):
