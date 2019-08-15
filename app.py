@@ -78,7 +78,8 @@ def get_rivals():
             'regions': regions,
             'offerid': offerid
         }
-        mongoId = saveFilterRivalsObject(res)
+        res_to_save = res
+        mongoId = saveFilterRivalsObject(res_to_save)
         res['mongoId'] = mongoId
 #         except:
 #             res = {'error': True}
@@ -91,6 +92,7 @@ def get_rivals():
             'method': 'GetRivals',
             "requestData": request_text.decode('utf-8')
         })
+        print(res)
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 @app.route("/api/GetKeywordsRivals/", methods=['POST'])
@@ -120,7 +122,7 @@ def get_keywords_rivals():
         all_keywords, notRivals = getKeywordsRivals(keywords, rivals, maxPos, startDate, keywordsStr, regionsStr, regions, minCountInSerm)
 #         except:
 #             res = {'error': True}
-        saveKeywords(mongoId, all_keywords)
+        saveKeywords(mongoId, all_keywords, rivals)
         endTime = datetime.now()
         writeLog({
             "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
@@ -154,7 +156,7 @@ def get_keywords_to_remove():
         res = getKeywordsToRemove(keywords, minKeywordRivals, regions)
 #         except:
 #             res = {'error': True}
-        saveKeywordsToRemove(mongoId, res)
+        saveKeywordsToRemove(mongoId, res, minKeywordRivals)
         endTime = datetime.now()
         writeLog({
             "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),

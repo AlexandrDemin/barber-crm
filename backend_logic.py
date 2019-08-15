@@ -371,6 +371,7 @@ def saveFilterRivalsObject(filter_rivals_object):
     local_copy = copy.deepcopy(filter_rivals_object)
     result = collection.insert_one(local_copy)
     result_id = result.inserted_id
+    print(result_id)
     return str(result_id)
 
 def getFilterRivalsObject(object_id):
@@ -380,28 +381,30 @@ def getFilterRivalsObject(object_id):
     result = collection.find({'_id': object_id})[0]
     return result
 
-def saveKeywords(object_id, keywords):
+def saveKeywords(object_id, keywords, rivals):
     client = MongoClient('mongodb://192.168.10.77:27017/')
     db = client.Offers
     collection = db.filterRivals
     result = collection.update_one(
         {'_id': ObjectId(object_id)},
         {'$set': {
-                'keywordsWithData': keywords
+                'keywordsWithData': keywords,
+                'rivals': rivals
             }
         }
     )
     raw_result = result.raw_result
     return raw_result
 
-def saveKeywordsToRemove(object_id, keywords_to_remove):
+def saveKeywordsToRemove(object_id, keywords_to_remove, minKeywordRivals):
     client = MongoClient('mongodb://192.168.10.77:27017/')
     db = client.Offers
     collection = db.filterRivals
     result = collection.update_one(
         {'_id': ObjectId(object_id)},
         {'$set': {
-                'keywordsToRemove': keywords_to_remove
+                'keywordsToRemove': keywords_to_remove,
+                'minKeywordRivals': minKeywordRivals
             }
         }
     )
