@@ -285,35 +285,8 @@ def get_domain_info():
     if request.method == "POST":
         data = json.loads(request.data)
         domain = data['domain']
-        r = requests.get('http://' + domain)
-        encoding = r.encoding if 'charset' in r.headers.get('content-type', '').lower() else None
-        soup = BeautifulSoup(r.content, from_encoding=encoding)
-        title = ''
-        description = ''
-        icon = 'http://' + domain + '/favicon.ico'
-        try:
-            title = soup.select('title')[0].get_text()
-        except:
-            pass
-        try:
-            description = soup.find("meta", {"name":"description"})['content']
-        except:
-            pass
-        try:
-            icon = soup.find_all(rel = re.compile("Icon|icon"))[0]['href']
-            if icon[0] != 'h':
-                icon = 'http://' + domain + icon
-        except:
-            pass
-        soup = None
-        r = None
-        gc.collect()
-        res = {
-            'title': title,
-            'description': description,
-            'icon': icon,
-            'domain': domain
-        }
+        r = requests.get('http://192.168.4.158:8911/' + domain)
+        res = r.json()
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
     
 @app.route('/static/<path:path>')
