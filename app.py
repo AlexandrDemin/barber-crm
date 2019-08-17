@@ -121,7 +121,7 @@ def get_keywords_rivals():
         all_keywords, notRivals = getKeywordsRivals(keywords, rivals, maxPos, startDate, keywordsStr, regionsStr, regions, minCountInSerm)
 #         except:
 #             res = {'error': True}
-        saveKeywords(mongoId, all_keywords, rivals)
+        saveKeywords(mongoId, all_keywords, rivals, notRivals)
         endTime = datetime.now()
         writeLog({
             "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
@@ -284,7 +284,7 @@ def export_to_excel():
 def get_domain_info():
     if request.method == "POST":
         data = json.loads(request.data)
-        domain = data['domain']
+        domain = data['domain'].replace('https://', '').replace('http://', '').replace('www.', '')
         r = requests.get('http://192.168.4.158:8911/' + domain)
         res = r.json()
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}

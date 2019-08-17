@@ -143,25 +143,23 @@ export default {
             this.mongoId = this.data['mongoId']
             for (var index in this.data['rivals']) {
               var domain = this.data['rivals'][index]['domain']
-              if (!this.data['rivals'][index]['isOfferDomain']) {
-                HTTP.post(`GetDomainInfo/`, {
-                  domain: domain
-                })
-                  .then(response => {
-                    var res = response.data
-                    var domain = res['domain']
-                    var rivals = this.data['rivals']
-                    for (index in rivals) {
-                      var rival = rivals[index]
-                      if (rival['domain'] === domain) {
-                        rival['title'] = res['title']
-                        rival['description'] = res['description']
-                        rival['icon'] = res['icon']
-                        this.$set(this.data['rivals'], index, rival)
-                      }
+              HTTP.post(`GetDomainInfo/`, {
+                domain: domain
+              })
+                .then(response => {
+                  var res = response.data
+                  var domain = res['domain']
+                  var rivals = this.data['rivals']
+                  for (index in rivals) {
+                    var rival = rivals[index]
+                    if (rival['domain'] === domain) {
+                      rival['title'] = res['title']
+                      rival['description'] = res['description']
+                      rival['icon'] = res['icon']
+                      this.$set(this.data['rivals'], index, rival)
                     }
-                  })
-              }
+                  }
+                })
             }
           })
           .catch(e => {
