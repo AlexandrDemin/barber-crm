@@ -393,33 +393,39 @@ def getFilterRivalsObjectByOfferId(offer_id):
     except:
         return None
 
-def saveKeywords(object_id, keywords, rivals, not_rivals):
+def saveKeywords(offerid, keywords, rivals, not_rivals):
     client = MongoClient('mongodb://192.168.10.77:27017/')
     db = client.Offers
     collection = db.filterRivals
-    result = collection.update_one(
-        {'_id': ObjectId(object_id)},
-        {'$set': {
-                'keywordsWithData': keywords,
-                'rivals': rivals,
-                'notRivals': not_rivals
+    existing = collection.count_documents({'offerid': offerid})
+    if existing > 0:
+        object_id = collection.find({'offerid': offerid})[0]['_id']
+        result = collection.update_one(
+            {'_id': ObjectId(object_id)},
+            {'$set': {
+                    'keywordsWithData': keywords,
+                    'rivals': rivals,
+                    'notRivals': not_rivals
+                }
             }
-        }
-    )
-    raw_result = result.raw_result
-    return raw_result
+        )
+        raw_result = result.raw_result
+        return raw_result
 
-def saveKeywordsToRemove(object_id, keywords_to_remove, minKeywordRivals):
+def saveKeywordsToRemove(offerid, keywords_to_remove, minKeywordRivals):
     client = MongoClient('mongodb://192.168.10.77:27017/')
     db = client.Offers
     collection = db.filterRivals
-    result = collection.update_one(
-        {'_id': ObjectId(object_id)},
-        {'$set': {
-                'keywordsToRemove': keywords_to_remove,
-                'minKeywordRivals': minKeywordRivals
+    existing = collection.count_documents({'offerid': offerid})
+    if existing > 0:
+        object_id = collection.find({'offerid': offerid})[0]['_id']
+        result = collection.update_one(
+            {'_id': ObjectId(object_id)},
+            {'$set': {
+                    'keywordsToRemove': keywords_to_remove,
+                    'minKeywordRivals': minKeywordRivals
+                }
             }
-        }
-    )
-    raw_result = result.raw_result
-    return raw_result
+        )
+        raw_result = result.raw_result
+        return raw_result

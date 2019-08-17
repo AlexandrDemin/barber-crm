@@ -44,7 +44,7 @@ def writeLog(logEntry):
         logFile.write('\n')
 
 @app.route("/api/GetRivals/", methods=['POST'])
-# @requires_auth
+@requires_auth
 def get_rivals():
     if request.method == "POST":
         startTime = datetime.now()
@@ -58,12 +58,11 @@ def get_rivals():
             pass
 #         try:
         data = json.loads(request_text)
-        offerUrl = data['offerUrl']
-        offerid = offerUrl
-        if offerUrl[:7] == 'http://':
-            offerid = offerUrl[7:].split('/')[3]
-        elif '/' in offerUrl:
-            offerid = offerUrl.split('/')[3]
+        offerid = data['offerid']
+        if offerid[:7] == 'http://':
+            offerid = offerid[7:].split('/')[3]
+        elif '/' in offerid:
+            offerid = offerid.split('/')[3]
         maxRivalsCount = int(data['maxRivalsCount'])
         sqiDiffCoef = int(data['sqiDiffCoef'])
         maxPos = int(data['maxPos'])
@@ -78,8 +77,7 @@ def get_rivals():
             'regions': regions,
             'offerid': offerid
         }
-        res_to_save = res
-        mongoId = saveFilterRivalsObject(res_to_save)
+        mongoId = saveFilterRivalsObject(res)
         res['mongoId'] = mongoId
 #         except:
 #             res = {'error': True}
@@ -117,11 +115,11 @@ def get_keywords_rivals():
         regionsStr = data['regionsStr']
         regions = data['regions']
         minCountInSerm = data['minCountInSerm']
-        mongoId = data['mongoId']
+        offerid = data['offerid']
         all_keywords, notRivals = getKeywordsRivals(keywords, rivals, maxPos, startDate, keywordsStr, regionsStr, regions, minCountInSerm)
 #         except:
 #             res = {'error': True}
-        saveKeywords(mongoId, all_keywords, rivals, notRivals)
+        saveKeywords(offerid, all_keywords, rivals, notRivals)
         endTime = datetime.now()
         writeLog({
             "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
@@ -129,7 +127,7 @@ def get_keywords_rivals():
             'userName': userName,
             "requestSeconds": (endTime-startTime).total_seconds(),
             'method': 'GetKeywordsRivals',
-            'mongoId': mongoId
+            'offerid': offerid
         })
         return json.dumps({'keywords': all_keywords, 'notRivals': notRivals}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
@@ -151,11 +149,11 @@ def get_keywords_to_remove():
         keywords = data['keywords']
         regions = data['regions']
         minKeywordRivals = int(data['minKeywordRivals'])
-        mongoId = data['mongoId']
+        offerid = data['offerid']
         res = getKeywordsToRemove(keywords, minKeywordRivals, regions)
 #         except:
 #             res = {'error': True}
-        saveKeywordsToRemove(mongoId, res, minKeywordRivals)
+        saveKeywordsToRemove(offerid, res, minKeywordRivals)
         endTime = datetime.now()
         writeLog({
             "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
@@ -163,7 +161,7 @@ def get_keywords_to_remove():
             'userName': userName,
             "requestSeconds": (endTime-startTime).total_seconds(),
             'method': 'GetKeywordsToRemove',
-            'mongoId': mongoId
+            'offerid': offerid
         })
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 

@@ -6,8 +6,8 @@
             <label>
                 Ссылка на КП
                 <br>
-                <small>Например, <a @click="setOfferUrl('http://client.ingate.ru/Offers/offer/5cdd6e3d7e76803de48abc1a/keywords')">
-                    http://client.ingate.ru/Offers/offer/5cdd6e3d7e76803de48abc1a/keywords
+                <small>Например, <a @click="setOfferUrl('http://client.ingate.ru/Offers/offer/5d56807f7e76808f64a3b555/keywords')">
+                    http://client.ingate.ru/Offers/offer/5d56807f7e76808f64a3b555/keywords
                 </a>
                 </small>
             </label>
@@ -101,12 +101,7 @@ export default {
       isValid: true,
       isLoaded: false,
       isLoading: false,
-      offerUrl: 'http://client.ingate.ru/Offers/offer/5d538b317e76808f64a3b501/keywords',
-      maxRivalsCount: 100000,
-      sqiDiffCoef: 100,
-      maxPos: 10,
-      minCountInSerm: 6,
-      mongoId: null
+      offerUrl: ''
     }
   },
   computed: {
@@ -117,30 +112,79 @@ export default {
       rivalsData['sqiDiffCoef'] = this.sqiDiffCoef
       rivalsData['minKeywordRivals'] = this.minKeywordRivals
       rivalsData['maxRivalsCount'] = this.maxRivalsCount
-      rivalsData['mongoId'] = this.mongoId
+      rivalsData['offerid'] = this.offerid
       return rivalsData
+    },
+    maxRivalsCount: {
+      get () {
+        return this.$store.state.maxRivalsCount
+      },
+      set (value) {
+        this.$store.commit('updateStore', {'name': 'maxRivalsCount', 'value': value})
+      }
+    },
+    sqiDiffCoef: {
+      get () {
+        return this.$store.state.sqiDiffCoef
+      },
+      set (value) {
+        this.$store.commit('updateStore', {'name': 'sqiDiffCoef', 'value': value})
+      }
+    },
+    maxPos: {
+      get () {
+        return this.$store.state.maxPos
+      },
+      set (value) {
+        this.$store.commit('updateStore', {'name': 'maxPos', 'value': value})
+      }
+    },
+    minCountInSerm: {
+      get () {
+        return this.$store.state.minCountInSerm
+      },
+      set (value) {
+        this.$store.commit('updateStore', {'name': 'minCountInSerm', 'value': value})
+      }
+    },
+    offerid: {
+      get () {
+        return this.$store.state.offerid
+      },
+      set (value) {
+        this.$store.commit('updateStore', {'name': 'offerid', 'value': value})
+      }
+    }
+  },
+  watch: {
+    offerUrl () {
+      var offerid = this.offerUrl
+      if (offerid.slice(0, 7) === 'http://') {
+        offerid = offerid.slice(7, offerid.length).split('/')[3]
+      } else if (offerid.includes('/')) {
+        offerid = offerid.split('/')[3]
+      }
+      this.offerid = offerid
     }
   },
   methods: {
     validateAndFetch: function () {
       this.errors = []
-      if (this.offerUrl.length > 0) {
+      if (this.offerid.length > 0) {
         this.isValid = true
         this.isLoading = true
         HTTP.post(`GetRivals/`, {
-          offerUrl: this.offerUrl,
+          offerid: this.offerid,
           maxRivalsCount: this.maxRivalsCount,
           sqiDiffCoef: this.sqiDiffCoef,
           maxPos: this.maxPos,
-          minCountInSerm: this.minCountInSerm,
-          mongoId: this.mongoId
+          minCountInSerm: this.minCountInSerm
         })
           .then(response => {
             this.data = response.data
             this.errors = []
             this.isLoaded = true
             this.isLoading = false
-            this.mongoId = this.data['mongoId']
             for (var index in this.data['rivals']) {
               var domain = this.data['rivals'][index]['domain']
               HTTP.post(`GetDomainInfo/`, {
