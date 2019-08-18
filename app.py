@@ -56,7 +56,6 @@ def get_rivals():
             userName = result.stdout.decode('utf-8').split(ipStr)[2].split(' ')[2]
         except:
             pass
-#         try:
         data = json.loads(request_text)
         offerid = data['offerid']
         if offerid[:7] == 'http://':
@@ -77,10 +76,12 @@ def get_rivals():
             'regions': regions,
             'offerid': offerid
         }
-        mongoId = saveFilterRivalsObject(res)
-        res['mongoId'] = mongoId
-#         except:
-#             res = {'error': True}
+        res_to_save = res
+        res_to_save['maxRivalsCount'] = maxRivalsCount
+        res_to_save['sqiDiffCoef'] = sqiDiffCoef
+        res_to_save['maxPos'] = maxPos
+        res_to_save['minCountInSerm'] = minCountInSerm
+        saveFilterRivalsObject(res_to_save)
         endTime = datetime.now()
         writeLog({
             "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
@@ -89,6 +90,34 @@ def get_rivals():
             "requestSeconds": (endTime-startTime).total_seconds(),
             'method': 'GetRivals',
             "requestData": request_text.decode('utf-8')
+        })
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+ 
+@app.route("/api/LoadData/", methods=['POST'])
+@requires_auth
+def load_data():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        ipStr = request.remote_addr
+        userName = 'unknown'
+        try: 
+            result = subprocess.run(['nbtscan', ipStr], stdout=subprocess.PIPE)
+            userName = result.stdout.decode('utf-8').split(ipStr)[2].split(' ')[2]
+        except:
+            pass
+        data = json.loads(request_text)
+        offerid = data['offerid']
+        res = getFilterRivalsObjectByOfferId(offerid)
+        res.pop('_id', None)
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            'ip': request.remote_addr,
+            'userName': userName,
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'LoadData',
+            "offerid": offerid
         })
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
@@ -218,14 +247,14 @@ def export_to_excel():
 #         try:
         data = json.loads(request_text)
         offerid = data['offerid']
-        maxRivalsCount = data['maxRivalsCount']
+        maxRivalsCount = int(data['maxRivalsCount'])
         keywords = data['keywords']
         regions = data['regions']
         minKeywordRivals = int(data['minKeywordRivals'])
         sqiDiffCoef = int(data['sqiDiffCoef'])
         maxPos = int(data['maxPos'])
         minCountInSerm = int(data['minCountInSerm'])
-        keywordsToDelete = data['keywordsToDelete']
+        keywordsToRemove = data['keywordsToRemove']
         rivals = data['rivals']
         filename = 'Rivals ' + offerid + ' ' + startTime.strftime('%d.%m.%y %H-%M-%S') + '.xlsx'
         info = [{
@@ -237,7 +266,7 @@ def export_to_excel():
             'Мин. кол-во конкурентов для запроса': minKeywordRivals
         }]
         keywordsToDeleteForExcel = []
-        for item in keywordsToDelete:
+        for item in keywordsToRemove:
             for key in item['keywordsToDelete']:
                 keywordsToDeleteForExcel.append({
                     'Регион': item['region'],
@@ -308,11 +337,6 @@ def page_not_found(e):
 def download(filename):
     directory = os.path.join(current_app.root_path, './downloadable_files/')
     return send_from_directory(directory=directory, filename=filename, as_attachment=True)
-
-@app.route('/test')
-@requires_auth
-def test():
-    return "Вы авторизованы"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8901, debug=True)

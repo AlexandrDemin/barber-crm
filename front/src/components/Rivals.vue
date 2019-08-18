@@ -4,37 +4,37 @@
     <form class="rivals-form">
         <div class="large-12 cell">
             <label>
-                Ссылка на КП
+                ID КП или ссылка
                 <br>
                 <small>Например, <a @click="setOfferUrl('http://client.ingate.ru/Offers/offer/5d56807f7e76808f64a3b555/keywords')">
                     http://client.ingate.ru/Offers/offer/5d56807f7e76808f64a3b555/keywords
                 </a>
                 </small>
             </label>
-            <input v-model="offerUrl" type="text" autofocus="autofocus" autocomplete="on" v-on:keyup.enter="validateAndFetch"/>
+            <input v-bind:disabled="isLoading" v-model="offerUrl" type="text" autofocus="autofocus" autocomplete="on" v-on:keyup.enter="validateAndFetch"/>
         </div>
         <div class="large-12 cell">
             <label>Не считать конкурентом, если встречается в выдаче реже этого числа раз</label>
-            <input v-model="minCountInSerm" type="text" autocomplete="on" v-on:keyup.enter="validateAndFetch"/>
+            <input v-bind:disabled="isLoading" v-model="minCountInSerm" type="text" autocomplete="on" v-on:keyup.enter="validateAndFetch"/>
         </div>
         <div class="large-12 cell">
             <label>Максимальное количество конкурентов</label>
-            <input v-model="maxRivalsCount" type="text" autocomplete="on" v-on:keyup.enter="validateAndFetch"/>
+            <input v-bind:disabled="isLoading" v-model="maxRivalsCount" type="text" autocomplete="on" v-on:keyup.enter="validateAndFetch"/>
         </div>
         <div class="large-12 cell">
             <label>Максимальное отклонение Яндекс ИКС конкурентов (количество раз)</label>
-            <input v-model="sqiDiffCoef" type="text" autocomplete="on" v-on:keyup.enter="validateAndFetch"/>
+            <input v-bind:disabled="isLoading" v-model="sqiDiffCoef" type="text" autocomplete="on" v-on:keyup.enter="validateAndFetch"/>
         </div>
         <div class="large-12 cell">
             <label>Максимальная позиция для поиска конкурентов</label>
-            <input v-model="maxPos" type="text" autocomplete="on" v-on:keyup.enter="validateAndFetch"/>
+            <input v-bind:disabled="isLoading" v-model="maxPos" type="text" autocomplete="on" v-on:keyup.enter="validateAndFetch"/>
         </div>
-        <div class="alert-box alert" v-if="!isValid">
-          Укажи ссылку на КП.
-          <a href="#" class="close" v-on:click="makeValid">&times;</a>
+        <div class="callout alert" v-if="!isValid">
+          Необходимо указать ID или ссылку на КП
+          <button href="#" class="close-button" v-on:click="makeValid">&times;</button>
         </div>
         <div class="large-12 cell">
-            <button class="button primary" type="button" v-on:click="validateAndFetch">Получить данные по конкурентам</button>
+            <button v-bind:disabled="isLoading" class="button primary" type="button" v-on:click="validateAndFetch">Получить данные по конкурентам</button>
         </div>
     </form>
     <div class="rivals" v-if="isLoading || isLoaded">
@@ -45,7 +45,7 @@
       </div>
       <p v-if="isLoading">Загрузка...<br>Получение данных может занять несколько минут.</p>
       <div v-if="isLoaded && !isLoading">
-          <div v-for="rival in data.rivals" :key="rival.domain">
+          <div v-for="rival in rivals" :key="rival.domain">
               <div v-if="rival.isOfferDomain">
                   <p>Домен КП: <a :href="'http://' + rival.domain" target="_blank">{{rival.domain}}</a></p>
                   <p>Встречается в топ {{maxPos}}: {{rival.countInSerm}}</p>
@@ -64,7 +64,7 @@
                   </tr>
               </thead>
               <tbody>
-                <tr v-if="!rival.isOfferDomain" v-for="rival in data.rivals" :key="rival.title + rival.domain">
+                <tr v-if="!rival.isOfferDomain" v-for="rival in rivals" :key="rival.title + rival.domain">
                     <td>
                         <a :href="'http://' + rival.domain" target="_blank"><img width="16" height="16" :src="rival.icon">&nbsp;{{rival.domain}}</a>
                         <br>
@@ -72,7 +72,7 @@
                         <br>
                         <small>{{rival.description}}</small>
                     </td>
-                    <td class="text-right checkbox-td"><label class="checkbox-padding"><input type="checkbox" v-model="rival.isExcluded"></label></td>
+                    <td class="text-right checkbox-td"><label class="checkbox-padding"><input type="checkbox" v-bind:checked="rival.isExcluded" v-on:change="updateRivalIsExcluded(rival)"></label></td>
                     <td class="text-right">{{rival.countInSerm}}</td>
                     <td class="text-right">{{rival.sqi[0]}}</td>
                     <td class="text-right">{{rival.sqiDiff.toFixed(2)}}</td>
@@ -81,12 +81,11 @@
           </table>
       </div>
     </div>
-    <keywords v-if="isLoaded && !isLoading" v-bind="rivalsData"></keywords>
+    <keywords v-if="isLoaded && !isLoading"></keywords>
   </div>
 </template>
 
 <script>
-import { HTTP } from '../api/api.js'
 import Keywords from '@/components/Keywords'
 
 export default {
@@ -96,24 +95,57 @@ export default {
   },
   data () {
     return {
-      data: {},
-      errors: [],
-      isValid: true,
-      isLoaded: false,
-      isLoading: false,
-      offerUrl: ''
+      offerUrl: this.$route.params.offerid
+    }
+  },
+  mounted: function () {
+    if (this.$route.params.offerid) {
+      var offerid = this.$route.params.offerid
+      this.offerid = offerid
+      this.isLoading = true
+      this.$store.dispatch('loadData', offerid)
     }
   },
   computed: {
-    rivalsData: function () {
-      var rivalsData = this.data
-      rivalsData['maxPos'] = this.maxPos
-      rivalsData['minCountInSerm'] = this.minCountInSerm
-      rivalsData['sqiDiffCoef'] = this.sqiDiffCoef
-      rivalsData['minKeywordRivals'] = this.minKeywordRivals
-      rivalsData['maxRivalsCount'] = this.maxRivalsCount
-      rivalsData['offerid'] = this.offerid
-      return rivalsData
+    errors: {
+      get () {
+        return this.$store.state.rivalsState.errors
+      },
+      set (value) {
+        var rivalsState = this.$store.state.rivalsState
+        rivalsState.errors = value
+        this.$store.commit('updateStore', {'name': 'rivalsState', 'value': rivalsState})
+      }
+    },
+    isValid: {
+      get () {
+        return this.$store.state.rivalsState.isValid
+      },
+      set (value) {
+        var rivalsState = this.$store.state.rivalsState
+        rivalsState.isValid = value
+        this.$store.commit('updateStore', {'name': 'rivalsState', 'value': rivalsState})
+      }
+    },
+    isLoaded: {
+      get () {
+        return this.$store.state.rivalsState.isLoaded
+      },
+      set (value) {
+        var rivalsState = this.$store.state.rivalsState
+        rivalsState.isLoaded = value
+        this.$store.commit('updateStore', {'name': 'rivalsState', 'value': rivalsState})
+      }
+    },
+    isLoading: {
+      get () {
+        return this.$store.state.rivalsState.isLoading
+      },
+      set (value) {
+        var rivalsState = this.$store.state.rivalsState
+        rivalsState.isLoading = value
+        this.$store.commit('updateStore', {'name': 'rivalsState', 'value': rivalsState})
+      }
     },
     maxRivalsCount: {
       get () {
@@ -154,17 +186,25 @@ export default {
       set (value) {
         this.$store.commit('updateStore', {'name': 'offerid', 'value': value})
       }
+    },
+    rivals: {
+      get () {
+        return this.$store.state.rivals
+      }
     }
   },
   watch: {
     offerUrl () {
       var offerid = this.offerUrl
-      if (offerid.slice(0, 7) === 'http://') {
+      if (offerid && offerid.slice(0, 7) === 'http://') {
         offerid = offerid.slice(7, offerid.length).split('/')[3]
-      } else if (offerid.includes('/')) {
+      } else if (offerid && offerid.includes('/')) {
         offerid = offerid.split('/')[3]
       }
       this.offerid = offerid
+    },
+    '$route' (to, from) {
+      this.offerUrl = this.$route.params.offerid
     }
   },
   methods: {
@@ -173,45 +213,8 @@ export default {
       if (this.offerid.length > 0) {
         this.isValid = true
         this.isLoading = true
-        HTTP.post(`GetRivals/`, {
-          offerid: this.offerid,
-          maxRivalsCount: this.maxRivalsCount,
-          sqiDiffCoef: this.sqiDiffCoef,
-          maxPos: this.maxPos,
-          minCountInSerm: this.minCountInSerm
-        })
-          .then(response => {
-            this.data = response.data
-            this.errors = []
-            this.isLoaded = true
-            this.isLoading = false
-            for (var index in this.data['rivals']) {
-              var domain = this.data['rivals'][index]['domain']
-              HTTP.post(`GetDomainInfo/`, {
-                domain: domain
-              })
-                .then(response => {
-                  var res = response.data
-                  var domain = res['domain']
-                  var rivals = this.data['rivals']
-                  for (index in rivals) {
-                    var rival = rivals[index]
-                    if (rival['domain'] === domain) {
-                      rival['title'] = res['title']
-                      rival['description'] = res['description']
-                      rival['icon'] = res['icon']
-                      this.$set(this.data['rivals'], index, rival)
-                    }
-                  }
-                })
-            }
-          })
-          .catch(e => {
-            this.errors = []
-            this.errors.push(e)
-            this.isLoaded = true
-            this.isLoading = false
-          })
+        this.$router.replace('/' + this.offerid)
+        this.$store.dispatch('getRivals')
       } else {
         this.isValid = false
         this.isLoading = false
@@ -223,13 +226,13 @@ export default {
     setOfferUrl: function (offerUrl) {
       this.offerUrl = offerUrl
     },
+    updateRivalIsExcluded: function (rival) {
+      rival.isExcluded = !rival.isExcluded
+      this.$store.commit('updateRival', rival)
+    },
     toggleAllisExcluded: function (e) {
       var isChecked = e.target.checked
-      for (var index in this.data.rivals) {
-        var rival = this.data.rivals[index]
-        rival.isExcluded = isChecked
-        this.$set(this.data.rivals, index, rival)
-      }
+      this.$store.dispatch('toggleAllisExcluded', isChecked)
     }
   }
 }
