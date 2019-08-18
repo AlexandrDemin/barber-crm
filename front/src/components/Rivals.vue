@@ -47,7 +47,7 @@
       <div v-if="isLoaded && !isLoading">
           <div v-for="rival in rivals" :key="rival.domain">
               <div v-if="rival.isOfferDomain">
-                  <p>Домен КП: <a :href="'http://' + rival.domain" target="_blank">{{rival.domain}}</a></p>
+                  <p>Домен КП: <a :href="'http://' + rival.domain" target="_blank" v-on:click="updateRivalOpenedSite(rival)">{{rival.domain}}</a></p>
                   <p>Встречается в топ {{maxPos}}: {{rival.countInSerm}}</p>
                   <p>Яндекс ИКС: {{rival.sqi[0]}}</p>
                   <p>Данные только по десктопной выдаче.</p>
@@ -66,7 +66,7 @@
               <tbody>
                 <tr v-if="!rival.isOfferDomain" v-for="rival in rivals" :key="rival.title + rival.domain">
                     <td>
-                        <a :href="'http://' + rival.domain" target="_blank"><img width="16" height="16" :src="rival.icon">&nbsp;{{rival.domain}}</a>
+                        <a :href="'http://' + rival.domain" target="_blank" v-on:click="updateRivalOpenedSite(rival)"><img width="16" height="16" :src="rival.icon">&nbsp;{{rival.domain}}</a>
                         <br>
                         {{rival.title}}
                         <br>
@@ -228,6 +228,10 @@ export default {
     },
     updateRivalIsExcluded: function (rival) {
       rival.isExcluded = !rival.isExcluded
+      this.$store.commit('updateRival', rival)
+    },
+    updateRivalOpenedSite: function (rival) {
+      rival.openedSite = true
       this.$store.commit('updateRival', rival)
     },
     toggleAllisExcluded: function (e) {
