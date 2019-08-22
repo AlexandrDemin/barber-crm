@@ -27,11 +27,14 @@ def getRivalsAndData(offerid, maxRivalsCount, sqiDiffCoef, maxPos, minCountInSer
     keywords = []
     keywordTexts = []
     for keyword in offer['KeywordsToSave']:
+        text = keyword[1]['Text']
         keywords.append({
             'id': keyword[0],
             'text': keyword[1]['Text']
         })
-        keywordTexts.append(keyword[1]['Text'])
+        if "'" in text:
+            text = text.replace("'", "''")
+        keywordTexts.append(text)
     keywordsStr = u"'" + u"', '".join(keywordTexts) + u"'"
 
     # Получить дату создания из КП
