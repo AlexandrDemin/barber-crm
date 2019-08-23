@@ -27,7 +27,7 @@ def getRivalsAndData(offerid, maxRivalsCount, sqiDiffCoef, maxPos, minCountInSer
     keywords = []
     keywordTexts = []
     for keyword in offer['KeywordsToSave']:
-        text = keyword[1]['Text']
+        text = keyword[1]['Text'].lower()
         keywords.append({
             'id': keyword[0],
             'text': keyword[1]['Text']
