@@ -1,4 +1,4 @@
-web: filter-rivals
+web: apra-web
 pathes:
 - /
 port: 8901
