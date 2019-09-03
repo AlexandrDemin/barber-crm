@@ -1,15 +1,19 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Rivals from '@/components/Rivals'
+import Projects from '@/components/Projects'
 
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
-      path: '/:offerid?',
-      name: 'Rivals',
-      component: Rivals
+      path: '/',
+      name: 'Projects',
+      component: Projects,
+      meta: {
+        title: 'Мои проекты'
+      }
     }
   ]
 })
