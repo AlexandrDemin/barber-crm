@@ -1,10 +1,10 @@
 <template>
   <header class="app-header">
-    <div class="grid-x grid-container">
-      <div class="large-6 cell">
-        <img src="static/logo.svg" class="app-logo">
+    <div class="grid-x grid-container fluid">
+      <div class="small-4 cell">
+        <a href=""><img src="static/logo.svg" class="app-logo"></a>
       </div>
-      <div class="large-6 cell text-right user">demo.user</div>
+      <div class="cell auto text-right user">demo.user</div>
     </div>
   </header>
 </template>
@@ -19,12 +19,12 @@ export default {
  .app-header {
     box-shadow: 0px 1px 2px rgba(23, 61, 99, 0.15);
     padding: 10px 0;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
  }
  .app-logo {
-    height:48px;
+    height:38px;
  }
  .user {
-  padding-top:10px;
+  padding-top:8px;
  }
 </style>

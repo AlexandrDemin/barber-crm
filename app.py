@@ -6,6 +6,7 @@ from flask_cors import CORS
 from backend_logic import *
 import os
 from functools import wraps
+import time
 
 app = Flask(__name__, static_folder='./front/dist/static/', template_folder="./front/dist/")
 CORS(app)
@@ -49,31 +50,21 @@ def get_projects():
         })
         return json.dumps(projects, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
  
-@app.route("/api/LoadData/", methods=['POST'])
+@app.route("/api/GetProject/", methods=['POST'])
 @requires_auth
-def load_data():
+def get_project():
     if request.method == "POST":
         startTime = datetime.now()
         request_text = request.data
-        ipStr = request.remote_addr
-        userName = 'unknown'
-        try: 
-            result = subprocess.run(['nbtscan', ipStr], stdout=subprocess.PIPE)
-            userName = result.stdout.decode('utf-8').split(ipStr)[2].split(' ')[2]
-        except:
-            pass
         data = json.loads(request_text)
-        offerid = data['offerid']
-        res = getFilterRivalsObjectByOfferId(offerid)
-        res.pop('_id', None)
+        projectId = data['projectId']
+        res = getProject(projectId)
         endTime = datetime.now()
         writeLog({
             "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
-            'ip': request.remote_addr,
-            'userName': userName,
             "requestSeconds": (endTime-startTime).total_seconds(),
-            'method': 'LoadData',
-            "offerid": offerid
+            'method': 'GetProject',
+            "projectId": projectId
         })
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
     
@@ -100,4 +91,4 @@ def download(filename):
     return send_from_directory(directory=directory, filename=filename, as_attachment=True)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8901, debug=True)
+    app.run(host='0.0.0.0', port=8903, debug=True)

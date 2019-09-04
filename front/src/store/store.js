@@ -9,10 +9,29 @@ export default new Vuex.Store({
   state: {
     projectsState: {
       errors: [],
-      isValid: true,
       isLoaded: false,
       isLoading: false,
       projects: []
+    },
+    projectState: {
+      errors: [],
+      isLoaded: false,
+      isLoading: false,
+      project: null
+    }
+  },
+  getters: {
+    getStatusColor: (state) => (status) => {
+      if (status === 'active') {
+        return '#69E2B2'
+      }
+      return '#DCE0E5'
+    },
+    getStatusText: (state) => (status) => {
+      if (status === 'active') {
+        return 'Активен'
+      }
+      return 'Остановлен'
     }
   },
   mutations: {
@@ -29,6 +48,15 @@ export default new Vuex.Store({
   },
   actions: {
     getProjects (context) {
+      context.commit('updateStore', {
+        'name': 'projectsState',
+        'value': {
+          errors: [],
+          isLoaded: false,
+          isLoading: true,
+          projects: []
+        }
+      })
       HTTP.post(`GetProjects/`, {})
         .then(response => {
           var data = response.data
@@ -38,7 +66,6 @@ export default new Vuex.Store({
               errors: [],
               isLoaded: true,
               isLoading: false,
-              isValid: true,
               projects: data
             }
           })
@@ -49,8 +76,44 @@ export default new Vuex.Store({
             'value': {
               errors: [e],
               isLoaded: true,
+              isLoading: false
+            }
+          })
+        })
+    },
+    getProject (context, projectId) {
+      context.commit('updateStore', {
+        'name': 'projectState',
+        'value': {
+          errors: [],
+          isLoaded: false,
+          isLoading: true,
+          project: {}
+        }
+      })
+      HTTP.post(`GetProject/`, {
+        'projectId': projectId
+      })
+        .then(response => {
+          var data = response.data
+          context.commit('updateStore', {
+            'name': 'projectState',
+            'value': {
+              errors: [],
+              isLoaded: true,
               isLoading: false,
-              isValid: true
+              project: data
+            }
+          })
+        })
+        .catch(e => {
+          context.commit('updateStore', {
+            'name': 'projectState',
+            'value': {
+              errors: [e],
+              isLoaded: true,
+              isLoading: false,
+              project: {}
             }
           })
         })

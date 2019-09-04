@@ -19,9 +19,10 @@ import codecs
 def getProjects():
     client = MongoClient('mongodb://192.168.10.77:27017/')
     db = client.Offers
-    apra_projects = db.apraProjects
+    apra_projects = db.apraProject
     projects = []
     for project in apra_projects.find({}):
+        project['_id'] = str(project['_id'])
         projects.append(project)
     return projects
 
@@ -29,9 +30,10 @@ def getProjects():
 def getProject(projectid):
     client = MongoClient('mongodb://192.168.10.77:27017/')
     db = client.Offers
-    apra_projects = db.apraProjects
+    apra_projects = db.apraProject
     try:
-        project = apra_projects.find({"projectId": projectid})[0]
+        project = apra_projects.find({"projectId": int(projectid)})[0]
+        project['_id'] = str(project['_id'])
         return project
     except:
         return None
@@ -40,7 +42,7 @@ def getProject(projectid):
 def saveKeywords(offerid, keywords, rivals, not_rivals):
     client = MongoClient('mongodb://192.168.10.77:27017/')
     db = client.Offers
-    collection = db.filterRivals
+    collection = db.apraProject
     existing = collection.count_documents({'offerid': offerid})
     if existing > 0:
         object_id = collection.find({'offerid': offerid})[0]['_id']
