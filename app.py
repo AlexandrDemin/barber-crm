@@ -1,3 +1,4 @@
+#! /home/devel/anaconda2/envs/py35/bin/python3.6
 # -*- coding: utf-8 -*-
 
 from flask import Flask, abort, url_for, render_template, request, Response, current_app, send_from_directory
