@@ -34,31 +34,31 @@ export default {
         case 'seooffer':
           return this.project.seoOfferHref
         case 'semcore':
-          return ''
+          return '#/project/' + this.project.projectId + '/Semcore'
         case 'contextoffer':
-          return ''
+          return this.project.contextOfferHref
         case 'terec':
-          return ''
+          return '#/project/' + this.project.projectId + '/Terec'
         case 'metatags':
-          return ''
+          return '#/project/' + this.project.projectId + '/MetaTags'
         case 'trafficforecast':
-          return ''
+          return '#/project/' + this.project.projectId + '/TrafficForecast'
         case 'timetotopforecast':
-          return ''
+          return '#/project/' + this.project.projectId + '/TimeToTopForecast'
         case 'conversionforecast':
-          return ''
+          return '#/project/' + this.project.projectId + '/ConversionForecast'
         case 'textgeneration':
-          return ''
+          return '#/project/' + this.project.projectId + '/TextGeneration'
         case 'tonalityforecast':
-          return ''
+          return '#/project/' + this.project.projectId + '/TonalityForecast'
         case 'clientreport':
-          return ''
+          return '#/project/' + this.project.projectId + '/ClientReport'
         case 'siteaudit':
-          return ''
+          return '#/project/' + this.project.projectId + '/SiteAudit'
         case 'filterrivals':
-          return ''
+          return '#/project/' + this.project.projectId + '/FilterRivals'
         case 'socialseo':
-          return ''
+          return '#/project/' + this.project.projectId + '/SocialSeo'
         default:
           return tool
       }
