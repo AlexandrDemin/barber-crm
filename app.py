@@ -8,9 +8,12 @@ from backend_logic import *
 import os
 from functools import wraps
 import time
+from werkzeug.utils import secure_filename
+import pandas as pd
 
 app = Flask(__name__, static_folder='./front/dist/static/', template_folder="./front/dist/")
 CORS(app)
+app.config['UPLOAD_FOLDER'] = './uploads/'
 
 def check_auth(username, password):
     if username == 'demo.user' and password == 'demo':
@@ -66,6 +69,79 @@ def get_project():
             "requestSeconds": (endTime-startTime).total_seconds(),
             'method': 'GetProject',
             "projectId": projectId
+        })
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/GetSemcore/", methods=['POST'])
+@requires_auth
+def get_semcore():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        data = json.loads(request_text)
+        domain = data['domain']
+        directions = data['priority']
+        regions = data['regions']
+        max_count = data['maxQueries']
+        minus_words = data['minusWords']
+        minus_phrases = data['minusPhrases']
+        res = getSemCore(domain, directions, regions, max_count, minus_words, minus_phrases)
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetSemcore'
+        })
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/DownloadSemcore/", methods=['POST'])
+@requires_auth
+def download_semcore():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        data = json.loads(request_text)
+        sem_core = data['semCore']
+        df = pd.DataFrame(sem_core)
+        filename = 'semcore.xlsx'
+        df.to_excel('./downloadable_files/' + filename)
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetSemcore'
+        })
+        return json.dumps({'filename': filename}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/GetConversionForecast/", methods=['POST'])
+@requires_auth
+def get_conversion_forecast():
+    if request.method == "POST":
+        startTime = datetime.now()
+        file = request.files['file']
+        df = pd.read_excel(file)
+        res = getConversionForecast(df['Запросы'].tolist())
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetConversionForecast'
+        })
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/GetTopTimeForecast/", methods=['POST'])
+@requires_auth
+def get_time_to_top_forecast():
+    if request.method == "POST":
+        startTime = datetime.now()
+        file = request.files['file']
+        df = pd.read_excel(file)
+        res = getTopTimeForecast(df['Запросы'].tolist())
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetTopTimeForecast'
         })
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
     
