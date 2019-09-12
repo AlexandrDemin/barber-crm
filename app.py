@@ -80,11 +80,11 @@ def get_semcore():
         request_text = request.data
         data = json.loads(request_text)
         domain = data['domain']
-        directions = data['priority']
+        directions = data['priority'].split('\n')
         regions = data['regions']
         max_count = data['maxQueries']
-        minus_words = data['minusWords']
-        minus_phrases = data['minusPhrases']
+        minus_words = data['minusWords'].split('\n')
+        minus_phrases = data['minusPhrases'].split('\n')
         res = getSemCore(domain, directions, regions, max_count, minus_words, minus_phrases)
         endTime = datetime.now()
         writeLog({
@@ -109,7 +109,53 @@ def download_semcore():
         writeLog({
             "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
             "requestSeconds": (endTime-startTime).total_seconds(),
-            'method': 'GetSemcore'
+            'method': 'DownloadSemcore'
+        })
+        return json.dumps({'filename': filename}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/GetTerec/", methods=['POST'])
+@requires_auth
+def get_terec():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        data = json.loads(request_text)
+        urls = data['urls'].split('\n')
+        queries = data['queries'].split('\n')
+        res = {}
+        for url in urls:
+            url_res = getTerec(url, queries)
+            res[url] = getTerec(url, queries)
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetTerec'
+        })
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/DownloadTerec/", methods=['POST'])
+@requires_auth
+def download_terec():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        data = json.loads(request_text)
+        terec = data['terec']
+        terec_words = []
+        for url in terec:
+            for word in terec[url]:
+                word['url'] = url
+                terec_words.append(word)
+        print(terec_words)
+        df = pd.DataFrame(terec_words)
+        filename = 'terec' + str(random.random())[2:] + '.xlsx'
+        df.to_excel('./downloadable_files/' + filename)
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'DownloadTerec'
         })
         return json.dumps({'filename': filename}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 

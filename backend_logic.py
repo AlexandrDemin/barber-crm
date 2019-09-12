@@ -61,17 +61,17 @@ def getSemCore(domain, directions = [], regions = [3], max_count = 300, minus_wo
     return req.json()['result']['Queries']
 
 # Терек
-def getTerec(url, queries):
+def getTerec(site_url, queries):
     url = 'http://192.168.10.55:12345/NewTeRecService'
     data = {
         "method":"Analyze",
         "params" : {
-            "url": url,
+            "url": site_url,
             "queries": queries
         }
     }
     req = requests.post(url, data=json.dumps(data, ensure_ascii=False).encode("utf-8"))
-    return req.text #.json()['result']
+    return req.json()['result']['WordsInfo']
 
 # Мета-теги
 def getMetatags(domain, queries):
