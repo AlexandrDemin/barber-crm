@@ -13,7 +13,6 @@ import pandas as pd
 
 app = Flask(__name__, static_folder='./front/dist/static/', template_folder="./front/dist/")
 CORS(app)
-app.config['UPLOAD_FOLDER'] = './uploads/'
 
 def check_auth(username, password):
     if username == 'demo.user' and password == 'demo':
@@ -103,7 +102,7 @@ def download_semcore():
         data = json.loads(request_text)
         sem_core = data['semCore']
         df = pd.DataFrame(sem_core)
-        filename = 'semcore.xlsx'
+        filename = 'semcore ' + str(random.random())[2:] + '.xlsx'
         df.to_excel('./downloadable_files/' + filename)
         endTime = datetime.now()
         writeLog({
@@ -147,7 +146,6 @@ def download_terec():
             for word in terec[url]:
                 word['url'] = url
                 terec_words.append(word)
-        print(terec_words)
         df = pd.DataFrame(terec_words)
         filename = 'terec' + str(random.random())[2:] + '.xlsx'
         df.to_excel('./downloadable_files/' + filename)
@@ -175,6 +173,25 @@ def get_conversion_forecast():
         })
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
+@app.route("/api/DownloadConversionForecast/", methods=['POST'])
+@requires_auth
+def download_conversion():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        data = json.loads(request_text)
+        data = data['data']
+        df = pd.DataFrame(data)
+        filename = 'conversions ' + str(random.random())[2:] + '.xlsx'
+        df.to_excel('./downloadable_files/' + filename)
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'DownloadConversionForecast'
+        })
+        return json.dumps({'filename': filename}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
 @app.route("/api/GetTopTimeForecast/", methods=['POST'])
 @requires_auth
 def get_time_to_top_forecast():
@@ -190,7 +207,169 @@ def get_time_to_top_forecast():
             'method': 'GetTopTimeForecast'
         })
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
-    
+
+@app.route("/api/DownloadTimeToTopForecast/", methods=['POST'])
+@requires_auth
+def download_time_to_top():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        data = json.loads(request_text)
+        data = data['data']
+        df = pd.DataFrame(data)
+        filename = 'time to top ' + str(random.random())[2:] + '.xlsx'
+        df.to_excel('./downloadable_files/' + filename)
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'DownloadTimeToTopForecast'
+        })
+        return json.dumps({'filename': filename}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/GetTrafficForecast/", methods=['POST'])
+@requires_auth
+def get_traffic():
+    if request.method == "POST":
+        startTime = datetime.now()
+        file = request.files['file']
+        df = pd.read_excel(file)
+        traffic_data = df.to_dict('records')
+        res = []
+        for item in traffic_data:
+            res.append({
+                'query': item['Запрос'],
+                'demand': item['Спрос'],
+                'targetPosition': item['Целевая позиция'],
+                'traffiForecast': round(getTrafficForecast([item['Спрос']], item['Целевая позиция'])[0], 2)
+            })
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetTrafficForecast'
+        })
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/DownloadTrafficForecast/", methods=['POST'])
+@requires_auth
+def download_traffic():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        data = json.loads(request_text)
+        data = data['data']
+        df = pd.DataFrame(data)
+        filename = 'traffic ' + str(random.random())[2:] + '.xlsx'
+        df.to_excel('./downloadable_files/' + filename)
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'DownloadTrafficForecast'
+        })
+        return json.dumps({'filename': filename}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/GetAdTexts/", methods=['POST'])
+@requires_auth
+def get_ad_texts():
+    if request.method == "POST":
+        startTime = datetime.now()
+        file = request.files['file']
+        domain = request.form['domain']
+        df = pd.read_excel(file)
+        texts_data = df.to_dict('records')
+        queries = []
+        for item in texts_data: {
+            queries.append({
+               "QueryCleanForm": item['Запрос'],
+               "QueryNormalWords": item['Запрос'].split(' '),
+               "Url": item['Страница'],
+               'NeedGenerateText': True
+           })
+        }
+        res = getAdTexts(domain, queries)
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetAdTexts'
+        })
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/DownloadAdTexts/", methods=['POST'])
+@requires_auth
+def download_ad_texts():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        data = json.loads(request_text)
+        data = data['data']
+        df = pd.DataFrame(data)
+        filename = 'ad texts ' + str(random.random())[2:] + '.xlsx'
+        df.to_excel('./downloadable_files/' + filename)
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'DownloadAdTexts'
+        })
+        return json.dumps({'filename': filename}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/GetMetaTags/", methods=['POST'])
+@requires_auth
+def get_meta_tags():
+    if request.method == "POST":
+        startTime = datetime.now()
+        file = request.files['file']
+        domain = request.form['domain']
+        df = pd.read_excel(file)
+        texts_data = df.to_dict('records')
+        queries = []
+        for item in texts_data: {
+            queries.append({
+               "Query": item['Запрос'],
+               "Url": item['Страница'],
+               'RegionId': item['ID региона']
+           })
+        }
+        print(queries)
+        res = getMetatags(domain, queries)
+        print(res)
+        for query, texts in zip(queries, res):
+            texts['Query'] = query['Query']
+            texts['RegionId'] = query['RegionId']
+            if texts['Description'] == '':
+                texts['Description'] = query['Query']
+            if texts['Title'] == '':
+                texts['Title'] = query['Query']
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'GetMetaTags'
+        })
+        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route("/api/DownloadMetaTags/", methods=['POST'])
+@requires_auth
+def download_meta_tags():
+    if request.method == "POST":
+        startTime = datetime.now()
+        request_text = request.data
+        data = json.loads(request_text)
+        data = data['data']
+        df = pd.DataFrame(data)
+        filename = 'ad texts ' + str(random.random())[2:] + '.xlsx'
+        df.to_excel('./downloadable_files/' + filename)
+        endTime = datetime.now()
+        writeLog({
+            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
+            "requestSeconds": (endTime-startTime).total_seconds(),
+            'method': 'DownloadMetaTags'
+        })
+        return json.dumps({'filename': filename}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
 @app.route('/static/<path:path>')
 @requires_auth
 def send_files(path):

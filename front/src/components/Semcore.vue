@@ -1,6 +1,6 @@
 <template>
   <div class="main grid-container fluid">
-    <breadcrumbs v-bind="{'header': 'Генерация семантического ядра', 'crumbs': [{'text': 'Мои проекты', 'link': ''}, {'text': project.domain, 'link': '#/project/' + project.projectId}]}"></breadcrumbs>
+    <breadcrumbs v-if="project" v-bind="{'header': 'Генерация семантического ядра', 'crumbs': [{'text': 'Мои проекты', 'link': ''}, {'text': project.domain, 'link': '#/project/' + project.projectId}]}"></breadcrumbs>
     <div class="project" v-if="isLoading || isLoaded">
       <div v-if="isLoaded && errors.length > 0" v-for="error in errors" :key="error" class="callout alert">
         <h5>Ошибка получения данных с сервера</h5>

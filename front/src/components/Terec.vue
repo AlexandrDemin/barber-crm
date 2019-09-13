@@ -1,6 +1,6 @@
 <template>
   <div class="main grid-container fluid">
-    <breadcrumbs v-bind="{'header': 'TEREC LSI', 'crumbs': [{'text': 'Мои проекты', 'link': ''}, {'text': project.domain, 'link': '#/project/' + project.projectId}]}"></breadcrumbs>
+    <breadcrumbs v-if="project" v-bind="{'header': 'TEREC LSI', 'crumbs': [{'text': 'Мои проекты', 'link': ''}, {'text': project.domain, 'link': '#/project/' + project.projectId}]}"></breadcrumbs>
     <div class="project" v-if="isLoading || isLoaded">
       <div v-if="isLoaded && errors.length > 0" v-for="error in errors" :key="error" class="callout alert">
         <h5>Ошибка получения данных с сервера</h5>
@@ -45,8 +45,8 @@
               </tbody>
             </table>
           </div>
-          <div class="cell small-12">
-            <button v-if="terec && isGenerated" class="button primary" type="button" v-on:click="downloadTerec">Выгрузить в .xlsx</button>
+          <div class="cell small-12" v-if="terec && isGenerated">
+            <button class="button primary" type="button" v-on:click="downloadTerec">Выгрузить в .xlsx</button>
           </div>
         </div>
         <iframe v-if="filename" :src="'download/' + filename" style='display: none;'></iframe>

@@ -83,8 +83,8 @@ def getMetatags(domain, queries):
             "requests": queries
         }
     }
-    print(json.dumps(data, ensure_ascii=False)) 
     req = requests.post(url, data=json.dumps(data, ensure_ascii=False).encode("utf-8"))
+    print(req.text)
     return req.json().get('result')
 
 # Прогноз трафика
@@ -158,4 +158,8 @@ def getAdTexts(domain, queries):
        ]
     }
     req = requests.post(url, data=json.dumps(data, ensure_ascii=False).encode("utf-8"))
-    return req.json()['result']
+    res = req.json()['result']
+    for item in res:
+        if item['Text'] == 'Не смогли сгенерировать текст':
+            item['Text'] = item['Query'][0].upper() + item['Query'][1:] + '. Низкие цены. Большой выбор.'
+    return res

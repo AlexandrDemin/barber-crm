@@ -1,6 +1,6 @@
 <template>
   <div class="main grid-container fluid">
-    <breadcrumbs v-bind="{'header': 'Прогноз конверсии по запросам', 'crumbs': [{'text': 'Мои проекты', 'link': ''}, {'text': project.domain, 'link': '#/project/' + project.projectId}]}"></breadcrumbs>
+    <breadcrumbs v-if="project" v-bind="{'header': 'Прогноз конверсии по запросам', 'crumbs': [{'text': 'Мои проекты', 'link': ''}, {'text': project.domain, 'link': '#/project/' + project.projectId}]}"></breadcrumbs>
     <div class="project" v-if="isLoading || isLoaded">
       <div v-if="isLoaded && errors.length > 0" v-for="error in errors" :key="error" class="callout alert">
         <h5>Ошибка получения данных с сервера</h5>
@@ -28,6 +28,10 @@
               </tr>
             </tbody>
           </table>
+          <div class="cell small-12">
+            <button class="button primary" type="button" v-on:click="download">Выгрузить в .xlsx</button>
+          </div>
+          <iframe v-if="filename" :src="'download/' + filename" style='display: none;'></iframe>
         </div>
       </div>
     </div>
@@ -52,7 +56,8 @@ export default {
     return {
       file: '',
       data: '',
-      error: ''
+      error: '',
+      filename: ''
     }
   },
   methods: {
@@ -80,6 +85,21 @@ export default {
           this.error = e
         })
       this.$refs.file.value = ''
+    },
+    download: function () {
+      this.filename = ''
+      HTTP.post(
+        `DownloadConversionForecast/`,
+        {
+          data: this.data
+        }
+      )
+        .then(response => {
+          this.filename = response.data.filename
+        })
+        .catch(e => {
+          this.error = e
+        })
     }
   },
   computed: {
