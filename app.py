@@ -38,9 +38,11 @@ def writeLog(logEntry):
         json.dump(logEntry, logFile, ensure_ascii=False)
         logFile.write('\n')
 
-@app.route("/api/Test/", methods=['POST'])
+@app.route("/api/Test/", methods=['POST', 'GET'])
 @requires_auth
 def get_projects():
+    if request.method == "GET":
+        return 'Please, use HTTP POST for this API'
     if request.method == "POST":
         startTime = datetime.now()
         data = json.loads(request.data)
