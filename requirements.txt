@@ -1,11 +1,3 @@
 flask
-flask-cors
-clickhouse-driver
 pandas
-bs4
-psycopg2
-requests-futures
 requests
-bson
-pymongo
-numpy
