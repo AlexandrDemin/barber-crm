@@ -16,5 +16,5 @@ import random
 # Получить проекты
 def getData():
     return {
-            "message": "Дратути"
-        }
+	    "message": "Дратути"
+	}
