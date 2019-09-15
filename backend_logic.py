@@ -3,11 +3,7 @@
 
 import io
 import pandas as pd
-import numpy as np
-from pymongo import MongoClient
-from bson import ObjectId
 from datetime import datetime, timedelta
-import psycopg2
 import requests
 import time
 import json
