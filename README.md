@@ -4,6 +4,11 @@
 ## Разработка
 Бэк на Python Flask. Фронт на Vue.js.
 
+Установка зависимостей:
+```
+pip3 install -r requirements.txt
+```
+
 Запуск веба:
 ```
 python -m app
