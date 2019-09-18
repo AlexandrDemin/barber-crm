@@ -1,10 +1,10 @@
 # CRM для барбершопа
 
-Простая CRM для барбершопа на python flask и vue.js
+Простая CRM для барбершопа на python3 flask и vue.js
 
 ## Разработка
 
-Бэк на Python Flask. Фронт на Vue.js.
+Бэк на Python3 Flask. Фронт на Vue.js.
 
 Установка зависимостей:
 
@@ -15,7 +15,7 @@ pip3 install -r requirements.txt
 Запуск веба:
 
 ```
-python -m app
+python3 -m app
 ```
 
 Билд фронта:
@@ -40,7 +40,7 @@ API по принципу JSON RPC. Все вызовы через POST запр
 
 ```
 {
-    “error”: “Человеческое описание ошибки”,
+    "error": "Человеческое описание ошибки",
     "stackTrace": stacktrace
 }
 ```
@@ -49,8 +49,8 @@ API по принципу JSON RPC. Все вызовы через POST запр
 
 ```
 {
-…
-    “Info”: “Текст предупреждения”
+    …
+    "Info": "Текст предупреждения"
 }
 ```
 
@@ -60,9 +60,9 @@ API по принципу JSON RPC. Все вызовы через POST запр
 
 ```
 {
-    1: “officeAdmin”,
-    2: “manager”,
-    3: “master”
+    1: "officeAdmin",
+    2: "manager",
+    3: "master"
 }
 ```
 
@@ -70,8 +70,8 @@ API по принципу JSON RPC. Все вызовы через POST запр
 
 ```
 {
-    1: “works”,
-    2: “doesntWork”
+    1: "works",
+    2: "doesntWork"
 }
 ```
 
@@ -79,8 +79,8 @@ API по принципу JSON RPC. Все вызовы через POST запр
 
 ```
 {
-    1: “works”,
-    2: “doesntWork”
+    1: "works",
+    2: "doesntWork"
 }
 ```
 
@@ -88,8 +88,8 @@ API по принципу JSON RPC. Все вызовы через POST запр
 
 ```
 {
-    1: “open”,
-    2: “closed”
+    1: "open",
+    2: "closed"
 }
 ```
 
@@ -97,10 +97,10 @@ API по принципу JSON RPC. Все вызовы через POST запр
 
 ```
 {
-    1: “service”,
-    2: “itemSell”,
-    3: “spend”,
-    4: “employeePayment”
+    1: "service",
+    2: "itemSell",
+    3: "spend",
+    4: "employeePayment"
 }
 ```
 
@@ -126,9 +126,9 @@ api/GetUserData/
 
 ```
 {
-    “name”: “Имя пользователя”,
-    “pictureUrl”: “ссылка на фотку юзера”,
-    “roles”: [“массив ролей пользователя из Roles”]
+    "name": "Имя пользователя",
+    "pictureUrl": "ссылка на фотку юзера",
+    "roles": ["массив ролей пользователя из Roles"]
 }
 ```
 
@@ -161,22 +161,22 @@ api/GetCurrentSession/
 ```
 {
     "id": id смены,
-    “dateOpened”: “дата и время открытия смены в формате dd.mm.yyyy HH:MM“,
-    “dateClosed”: null,
-    “employees”: [ //Список мастеров и админов с часами работы
+    "dateOpened": "дата и время открытия смены в формате dd.mm.yyyy HH:MM",
+    "dateClosed": null,
+    "employees": [ //Список мастеров и админов с часами работы
         {
-            “Id”: id сотрудника,
-            “name”: “имя сотрудника”,
-            “role”: роль пользователя из Roles. Может быть officeAdmin или master (1 или 3 соответственно)
-            “pictureUrl”: “ссылка на фотку сотрудника”,
-            “workHours”: количество рабочих часов
+            "Id": id сотрудника,
+            "name": "имя сотрудника",
+            "role": роль пользователя из Roles. Может быть officeAdmin или master (1 или 3 соответственно)
+            "pictureUrl": "ссылка на фотку сотрудника",
+            "workHours": количество рабочих часов
         }
     ],
-    “officeId”: id отделения,
-    “state”: состояние смены из SessionState (по логике метода, здесь всегда должно быть open),
-    “Operations”: [ // массив операций, проведённых за смену
+    "officeId": id отделения,
+    "state": состояние смены из SessionState (по логике метода, здесь всегда должно быть open),
+    "Operations": [ // массив операций, проведённых за смену
         {
-            “operationType”: OperationType,
+            "operationType": OperationType,
             … // все параметры операции в зависимости от типа
         }
     ] 
@@ -217,22 +217,22 @@ api/GetSession/
 ```
 {
     "id": id смены,
-    “dateOpened”: “дата и время открытия смены в формате dd.mm.yyyy HH:MM“,
-    “dateClosed”: “дата и время закрытия смены в формате dd.mm.yyyy HH:MM“,
-    “employees”: [ //Список мастеров и админов с часами работы
+    "dateOpened": "дата и время открытия смены в формате dd.mm.yyyy HH:MM",
+    "dateClosed": "дата и время закрытия смены в формате dd.mm.yyyy HH:MM",
+    "employees": [ //Список мастеров и админов с часами работы
         {
-            “Id”: id сотрудника,
-            “name”: “имя сотрудника”,
-            “role”: роль пользователя из Roles. Может быть officeAdmin или master (1 или 3 соответственно)
-            “pictureUrl”: “ссылка на фотку сотрудника”,
-            “workHours”: количество рабочих часов
+            "Id": id сотрудника,
+            "name": "имя сотрудника",
+            "role": роль пользователя из Roles. Может быть officeAdmin или master (1 или 3 соответственно)
+            "pictureUrl": "ссылка на фотку сотрудника",
+            "workHours": количество рабочих часов
         }
     ],
-    “officeId”: id отделения,
-    “state”: состояние смены из SessionState,
-    “Operations”: [ // массив операций, проведённых за смену. Если withOperations
+    "officeId": id отделения,
+    "state": состояние смены из SessionState,
+    "Operations": [ // массив операций, проведённых за смену. Если withOperations
         {
-            “operationType”: OperationType,
+            "operationType": OperationType,
             … // все параметры операции в зависимости от типа
         }
     ] 
@@ -339,16 +339,16 @@ api/OpenSession/
 
 ```
 {
-    “dateOpened”: “дата и время открытия смены в формате dd.mm.yyyy HH:MM“,
-    “employees”: [ //Список мастеров и админов с часами работы
+    "dateOpened": "дата и время открытия смены в формате dd.mm.yyyy HH:MM",
+    "employees": [ //Список мастеров и админов с часами работы
         {
-            “Id”: id сотрудника,
-            “name”: “имя сотрудника”,
-            “role”: роль пользователя из Roles. Может быть officeAdmin или master (1 или 3 соответственно)
-            “workHours”: количество рабочих часов
+            "Id": id сотрудника,
+            "name": "имя сотрудника",
+            "role": роль пользователя из Roles. Может быть officeAdmin или master (1 или 3 соответственно)
+            "workHours": количество рабочих часов
         }
     ],
-    “officeId”: id отделения
+    "officeId": id отделения
 }
 ```
 
@@ -386,7 +386,7 @@ api/CloseSession/
 ```
 {
     "id": id смены
-    “officeId”: id отделения
+    "officeId": id отделения
 }
 ```
 
@@ -430,9 +430,9 @@ api/GetServicesPrices/
 ```
 [
     {
-        “Id”: id услуги,
-        “name”: название услуги,
-        “prices” {
+        "Id": id услуги,
+        "name": название услуги,
+        "prices" {
             id категории мастера: цена,
             ...
         }
@@ -482,7 +482,7 @@ Data:
 ```
 [
     {
-        “Id”: id операции
+        "Id": id операции
     }
 ]
 ```
