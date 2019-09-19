@@ -93,6 +93,15 @@ API по принципу JSON RPC. Все вызовы через POST запр
 }
 ```
 
+#### ClientState
+
+```
+{
+    1: "active",
+    2: "lost"
+}
+```
+
 #### OperationType
 
 ```
@@ -101,6 +110,22 @@ API по принципу JSON RPC. Все вызовы через POST запр
     2: "itemSell",
     3: "spend",
     4: "employeePayment"
+}
+```
+
+#### ContactType
+
+```
+{
+    1: "phone",
+    2: "email",
+    3: "vk",
+    4: "instagram",
+    5: "facebook",
+    6: "telegram",
+    7: "whatsapp",
+    8: "viber",
+    9: "other"
 }
 ```
 
@@ -291,7 +316,9 @@ api/GetAdmins/
         "id": id юзера,
         "name": имя юзера,
         "photoUrl": url фотографии юзера,
-        "status": UserState
+        "state": UserState,
+        "servicesPercent": процент от продажи услуг,
+        "goodsPercent": процент от продажи товаров
     }
 ]
 ```
@@ -320,7 +347,10 @@ api/GetMasters/
         "id": id юзера,
         "name": имя юзера,
         "photoUrl": url фотографии юзера,
-        "status": UserState
+        "state": UserState,
+        "categoryId": id категории мастера,
+        "servicesPercent": процент от продажи услуг,
+        "goodsPercent": процент от продажи товаров
     }
 ]
 ```
@@ -530,7 +560,7 @@ api/GetServiceOperation/
     "masterId": id мастера,
     "clientId": id клиента,
     "cashSum": Сумма налички,
-    "cashlessSum": Сумма безнала,
+    "cashlessSum": Суммsа безнала,
     "discountSum": Сумма скидки,
     "score": Оценка клиента от 1 до 10 или null,
     "review": Отзыв клиента,
@@ -544,6 +574,340 @@ api/GetServiceOperation/
 ```
 {
     "error": "Нет операции по услуге с таким id."
+    "stackTrace": stackTrace
+}
+```
+
+#### EditGoodsOperation
+
+Создание / редактирование операции по продаже товара.
+
+##### URL
+
+```
+api/EditGoodsOperation/
+```
+
+##### Вход
+
+```
+{
+    "officeId": id отделения,
+    "sessionId": id смены,
+    "type": Тип товара,
+    "datetime": Дата и время продажи в формате dd.mm.yyyy HH:MM,
+    "adminId": id администратора,
+    "masterId": id мастера,
+    "clientId": id клиента,
+    "cashSum": Сумма налички,
+    "cashlessSum": Сумма безнала,
+    "discountSum": Сумма скидки,
+    "comment": Комментарий
+}
+```
+
+##### Выход
+
+Если сохранение прошло успешно
+
+```
+[
+    {
+        "Id": id операции
+    }
+]
+```
+
+Если произошла ошибка
+
+```
+{
+    "error": "Произошла ошибка при сохранении операции."
+    "stackTrace": stackTrace
+}
+```
+
+#### GetGoodsOperation
+
+Возвращает операцию по продаже товара.
+
+##### URL
+
+```
+api/GetGoodsOperation/
+```
+
+##### Вход
+
+```
+{
+    "id": id операции по продаже товара
+}
+```
+
+##### Выход
+
+Если есть операция с таким id
+
+```
+{
+    "id": id операции,
+    "officeId": id отделения,
+    "sessionId": id смены,
+    "type": Тип товара,
+    "datetime": Дата и время продажи в формате dd.mm.yyyy HH:MM,
+    "adminId": id администратора,
+    "masterId": id мастера,
+    "clientId": id клиента,
+    "cashSum": Сумма налички,
+    "cashlessSum": Сумма безнала,
+    "discountSum": Сумма скидки,
+    "comment": Комментарий
+}
+```
+
+Если произошла ошибка
+
+```
+{
+    "error": "Нет операции по услуге с таким id."
+    "stackTrace": stackTrace
+}
+```
+
+#### EditSpendOperation
+
+Создание / редактирование операции по расходу.
+
+##### URL
+
+```
+api/EditSpendOperation/
+```
+
+##### Вход
+
+```
+{
+    "officeId": id отделения,
+    "sessionId": id смены,
+    "type": Тип расхода,
+    "datetime": Дата и время расхода в формате dd.mm.yyyy HH:MM,
+    "sum": Сумма,
+    "comment": Комментарий
+}
+```
+
+##### Выход
+
+Если сохранение прошло успешно
+
+```
+[
+    {
+        "Id": id операции
+    }
+]
+```
+
+Если произошла ошибка
+
+```
+{
+    "error": "Произошла ошибка при сохранении операции."
+    "stackTrace": stackTrace
+}
+```
+
+#### GetSpendOperation
+
+Возвращает операцию по расходу.
+
+##### URL
+
+```
+api/GetSpendOperation/
+```
+
+##### Вход
+
+```
+{
+    "id": id операции по расходу
+}
+```
+
+##### Выход
+
+Если есть операция с таким id
+
+```
+{
+    "id": id операции,
+    "officeId": id отделения,
+    "sessionId": id смены,
+    "type": Тип расхода,
+    "datetime": Дата и время расхода в формате dd.mm.yyyy HH:MM,
+    "sum": Сумма,
+    "comment": Комментарий
+}
+```
+
+Если произошла ошибка
+
+```
+{
+    "error": "Нет операции по услуге с таким id."
+    "stackTrace": stackTrace
+}
+```
+
+#### GetSessionsWithOperations
+
+Возвращает список сессий с операциями. Сессии выбираются по фильтру. Любое из полей в фильтре может быть null, тогда фильтр по этому полю не накладывается. Смены отсортированы по убыванию даты открытия (сначала новые). Операции отсортированы по возрастанию даты (сначала старые).
+
+##### URL
+
+```
+api/GetSessionsWithOperations/
+```
+
+##### Вход
+
+```
+{
+    "dateFrom": дата от в формате dd.mm.yyyy. HH:MM,
+    "dateTo": дата до в формате dd.mm.yyyy. HH:MM,
+    "operationType": [массив OperationType],
+    "employeeIds": [массив id сотрудников],
+    "clientIds": [массив id клиентов]
+}
+```
+
+##### Выход
+
+```
+[
+    {
+        "id": id смены,
+        "dateOpened": "дата и время открытия смены в формате dd.mm.yyyy HH:MM",
+        "dateClosed": "дата и время закрытия смены в формате dd.mm.yyyy HH:MM",
+        "employees": [ //Список мастеров и админов с часами работы
+            {
+                "Id": id сотрудника,
+                "name": "имя сотрудника",
+                "role": роль пользователя из Roles. Может быть officeAdmin или master (1 или 3 соответственно)
+                "pictureUrl": "ссылка на фотку сотрудника",
+                "workHours": количество рабочих часов
+            }
+        ],
+        "officeId": id отделения,
+        "state": состояние смены из SessionState,
+        "Operations": [ // массив операций, проведённых за смену. Если withOperations
+            {
+                "operationType": OperationType,
+                … // все параметры операции в зависимости от типа
+            }
+        ] 
+    }
+]
+```
+
+#### EditClient
+
+Создание / редактирование клиента.
+
+##### URL
+
+```
+api/EditClient/
+```
+
+##### Вход
+
+Files: фото клиента
+
+Data:
+
+```
+{
+    "name": имя клиента,
+    "state": ClientState,
+    "contacts": [ // Контакты. Может быть несколько одного типа
+        {
+            "type": ContactType,
+            "value": "значение контакта. Любая строка"
+            "comment": "Комментарий. Любая строка"
+        }
+    ],
+    "comment": коментарий
+}
+```
+
+##### Выход
+
+Если сохранение прошло успешно
+
+```
+[
+    {
+        "Id": id клиента
+    }
+]
+```
+
+Если произошла ошибка
+
+```
+{
+    "error": "Произошла ошибка при сохранении операции."
+    "stackTrace": stackTrace
+}
+```
+
+#### GetClient
+
+Возвращает клиента.
+
+##### URL
+
+```
+api/GetClient/
+```
+
+##### Вход
+
+```
+{
+    "id": id клиента
+}
+```
+
+##### Выход
+
+Если есть клиент с таким id
+
+```
+{
+    "id": id клиента,
+    "name": имя клиента,
+    "state": ClientState,
+    "contacts": [ // Контакты
+        {
+            "type": ContactType,
+            "value": значение контакта
+            "comment": комментарий
+        }
+    ],
+    "comment": коментарий
+}
+```
+
+Если произошла ошибка
+
+```
+{
+    "error": "Нет клиента с таким id."
     "stackTrace": stackTrace
 }
 ```
