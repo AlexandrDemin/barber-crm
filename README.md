@@ -501,7 +501,23 @@ Data:
     "discountSum": Сумма скидки,
     "score": Оценка клиента от 1 до 10 или null,
     "review": Отзыв клиента,
-    "comment": Комментарий
+    "comment": Комментарий,
+    "goods": [ // список проданных товаров
+        {
+            "type": Тип товара,
+            "cashSum": Сумма налички,
+            "cashlessSum": Сумма безнала,
+            "discountSum": Сумма скидки,
+            "comment": Комментарий
+        }
+    ],
+    "spends": [ // список расходов
+        {
+            "type": Тип расхода,
+            "sum": Сумма,
+            "comment": Комментарий
+        }
+    ]
 }
 ```
 
@@ -670,7 +686,7 @@ api/GetGoodsOperation/
 
 ```
 {
-    "error": "Нет операции по услуге с таким id."
+    "error": "Нет операции по продаже товара с таким id."
     "stackTrace": stackTrace
 }
 ```
@@ -757,10 +773,100 @@ api/GetSpendOperation/
 
 ```
 {
-    "error": "Нет операции по услуге с таким id."
+    "error": "Нет операции по расходу с таким id."
     "stackTrace": stackTrace
 }
 ```
+
+#### EditEmployeePaymentOperation
+
+Создание / редактирование операции по выплате сотруднику.
+
+##### URL
+
+```
+api/EditEmployeePaymentOperation/
+```
+
+##### Вход
+
+```
+{
+    "officeId": id отделения,
+    "sessionId": id смены,
+    "employeeId": id сотрудника,
+    "type": Тип выплаты сотруднику,
+    "datetime": Дата и время выплаты в формате dd.mm.yyyy HH:MM,
+    "sum": Сумма,
+    "comment": Комментарий
+}
+```
+
+##### Выход
+
+Если сохранение прошло успешно
+
+```
+[
+    {
+        "Id": id операции
+    }
+]
+```
+
+Если произошла ошибка
+
+```
+{
+    "error": "Произошла ошибка при сохранении операции."
+    "stackTrace": stackTrace
+}
+```
+
+#### GetEmployeePaymentOperation
+
+Возвращает операцию по выплате сотруднику.
+
+##### URL
+
+```
+api/GetEmployeePaymentOperation/
+```
+
+##### Вход
+
+```
+{
+    "id": id операции по выплате сотруднику
+}
+```
+
+##### Выход
+
+Если есть операция с таким id
+
+```
+{
+    "id": id операции,
+    "officeId": id отделения,
+    "sessionId": id смены,
+    "employeeId": id сотрудника,
+    "type": Тип выплаты сотруднику,
+    "datetime": Дата и время выплаты в формате dd.mm.yyyy HH:MM,
+    "sum": Сумма,
+    "comment": Комментарий
+}
+```
+
+Если произошла ошибка
+
+```
+{
+    "error": "Нет операции по выплате сотруднику с таким id."
+    "stackTrace": stackTrace
+}
+```
+
 
 #### GetSessionsWithOperations
 
@@ -910,4 +1016,42 @@ api/GetClient/
     "error": "Нет клиента с таким id."
     "stackTrace": stackTrace
 }
+```
+
+#### GetClients
+
+Возвращает список клиентов по фильтру. Если фильтр пустой, возвращает всех клиентов.
+
+##### URL
+
+```
+api/GetClients/
+```
+
+##### Вход
+
+```
+{
+    "q": часть имени или контакта клиента 
+}
+```
+
+##### Выход
+
+```
+[
+    {
+        "id": id клиента,
+        "name": имя клиента,
+        "state": ClientState,
+        "contacts": [ // Контакты
+            {
+                "type": ContactType,
+                "value": значение контакта
+                "comment": комментарий
+            }
+        ],
+        "comment": коментарий
+    }
+]
 ```
