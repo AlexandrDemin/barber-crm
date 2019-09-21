@@ -1,0 +1,133 @@
+/*
+Global transition
+*/
+
+html * {
+    transition: 0.1s;
+}
+
+html *:hover {
+    transition: 0.1s;
+}
+
+/*
+Main menu
+*/
+
+.main-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background: #F3F2F1;
+}
+.main-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.main-menu ul li {
+    padding-top: 17px;
+    height: 100px;
+    width: 100px;
+    background: transparent;
+    text-align: center;
+}
+.main-menu ul li.selected {
+    background: #1C457D;
+}
+.main-menu ul li.selected label {
+    color: #FDFCFC;
+}
+.main-menu ul li:not(.selected):hover,
+.main-menu ul li.hovered:not(.selected) {
+    background: #FDFCFC;
+    cursor: pointer;
+}
+.main-menu ul li:not(.selected) label:hover {
+    cursor: pointer;
+}
+
+/*
+Submenu
+*/
+
+.main-menu.submenu-shown {
+    width: 350px;
+    z-index: 100;
+    box-shadow: 0 0px 30px rgba(56,52,46,.2);
+}
+.main-menu ul.submenu {
+    position: fixed;
+    left: 100px;
+    top: 0px;
+    background: #F3F2F1;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 250px;
+    height: 100vh;
+}
+.main-menu ul.submenu li {
+    border-bottom: 1px solid #C4BEB6;
+    height: auto;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+.main-menu ul.submenu li a {
+    display: block;
+    padding: 10px 14px;
+}
+.main-menu ul.submenu li a:hover {
+    background: #FDFCFC;
+    cursor: pointer;
+}
+.main-menu ul.submenu li a,
+.main-menu ul.submenu li a:hover,
+.main-menu ul.submenu li a:active,
+.main-menu ul.submenu li a:visited {
+    color: #38342E;
+}
+.main-menu .submenu.shown {
+    display: block;
+}
+.main-menu .submenu.hidden {
+    display: none;
+}
+.main-menu.translucent-theme ul.submenu {
+    background: rgba(253, 252, 252, 0.5);
+}
+.main-menu.translucent-theme ul.submenu li a:hover {
+    background: rgba(253, 252, 252, 0.8);
+}
+
+/*
+Translucent theme
+*/
+
+.translucent-theme-back {
+    background: url('wp.jpg');
+    background-size: cover;
+    height: 100vh;
+    overflow: auto;
+    background-position: center;
+}
+
+.translucent-theme-block {
+    background: rgba(253, 252, 252, 0.9);
+    /*backdrop-filter: blur(50px);*/
+    border-radius: 5px;
+    box-shadow: 0 15px 30px rgba(56,52,46,.2);
+}
+
+.main-menu.translucent-theme {
+    background: rgba(253, 252, 252, 0.2);
+    backdrop-filter: blur(50px);
+}
+
+.main-menu.translucent-theme ul li:not(.selected):hover,
+.main-menu.translucent-theme ul li.hovered:not(.selected) {
+    background: rgba(243,242,241,.8);
+}
