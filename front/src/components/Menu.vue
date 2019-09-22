@@ -142,7 +142,7 @@ export default {
   }
   @media (max-width: 40em), (orientation: portrait) {
     .session-content {
-      margin: 30px 30px 100px;
+      margin: 30px 20px 100px;
     }
     .main-menu {
       position: fixed;
@@ -157,14 +157,23 @@ export default {
       border: none;
       top: unset;
     }
+    .main-menu ul {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+    }
     .main-menu ul li {
-      padding: 10px;
+      padding: 10px 5px;
       height: auto;
-      display: inline-block;
-      width: auto;
+      display: block;
+      flex: 1;
+      width: unset;
       margin: 0;
-      font-size: 14px;
+      font-size: 12px;
       border: none;
+    }
+    .main-menu ul li label {
+      font-size: 11px;
     }
     .main-menu .main-menu-icon {
       max-width: 20px;
@@ -172,14 +181,19 @@ export default {
     }
     .main-menu.submenu-shown {
       width: 100%;
+      overflow: auto;
+      height: auto;
     }
     .main-menu ul.submenu {
       position: static;
       width: 100%;
-      height: 100%;
+      overflow: auto;
+      height: unset;
     }
     .main-menu ul.submenu li {
       text-align: center;
+      display: block;
+      font-size: 1rem;
     }
   }
 </style>
