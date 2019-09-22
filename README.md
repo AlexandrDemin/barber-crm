@@ -501,6 +501,7 @@ Data:
     "cashSum": Сумма налички,
     "cashlessSum": Сумма безнала,
     "discountSum": Сумма скидки,
+    "bonusSum": Сумма премии,
     "score": Оценка клиента от 1 до 10 или null,
     "review": Отзыв клиента,
     "comment": Комментарий,
@@ -578,8 +579,9 @@ api/GetServiceOperation/
     "masterId": id мастера,
     "clientId": id клиента,
     "cashSum": Сумма налички,
-    "cashlessSum": Суммsа безнала,
+    "cashlessSum": Сумма безнала,
     "discountSum": Сумма скидки,
+    "bonusSum": Сумма премии продавца,
     "score": Оценка клиента от 1 до 10 или null,
     "review": Отзыв клиента,
     "photoUrls": [список ссылок на фотографии стрижки],
@@ -620,6 +622,7 @@ api/EditGoodsOperation/
     "cashSum": Сумма налички,
     "cashlessSum": Сумма безнала,
     "discountSum": Сумма скидки,
+    "bonusSum": Сумма премии продавца,
     "comment": Комментарий
 }
 ```
@@ -672,7 +675,7 @@ api/GetGoodsOperation/
     "id": id операции,
     "officeId": id отделения,
     "sessionId": id смены,
-    "type": Тип товара,
+    "type": [Типы товаров],
     "datetime": Дата и время продажи в формате dd.mm.yyyy HH:MM,
     "adminId": id администратора,
     "masterId": id мастера,
@@ -680,6 +683,7 @@ api/GetGoodsOperation/
     "cashSum": Сумма налички,
     "cashlessSum": Сумма безнала,
     "discountSum": Сумма скидки,
+    "bonusSum": Сумма премии продавца,
     "comment": Комментарий
 }
 ```
