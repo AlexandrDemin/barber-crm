@@ -172,7 +172,9 @@ api/GetCurrentSession/
 ##### Вход
 
 ```
-{}
+{
+"officeId": id отделения
+}
 ```
 
 ##### Выход
