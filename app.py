@@ -39,22 +39,22 @@ def writeLog(logEntry):
         logFile.write('\n')
         
 def connect(host,database,user,password,query):
-        conn = psycopg2.connect(host=host,database=database, user=user, password=query)
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        try:
-            cur.execute(query)
-            result = cur.fetchall()
-            cur.close()
-            conn.close()
-            
-            if len(result_data) == 0:
-                return {'error':'Нет таких данных'}
-            else:
-                result = result_data[0]
-                return result
+    conn = psycopg2.connect(host=host,database=database, user=user, password=query)
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        cur.execute(query)
+        result = cur.fetchall()
+        cur.close()
+        conn.close()
 
-        except Exception as e:
-            return [{'Error':e}]
+        if len(result_data) == 0:
+            return {'error':'Нет таких данных'}
+        else:
+            result = result_data[0]
+            return result
+
+    except Exception as e:
+        return [{'Error':e}]
 
 @app.route("/api/Test/", methods=['POST', 'GET'])
 @requires_auth
