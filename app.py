@@ -37,6 +37,24 @@ def writeLog(logEntry):
     with codecs.open("log.txt", "a", "utf-8") as logFile:
         json.dump(logEntry, logFile, ensure_ascii=False)
         logFile.write('\n')
+        
+def connect(host,database,user,password,query):
+        conn = psycopg2.connect(host="localhost",database="barbers", user="read_only", password="User_ro")
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        try:
+            cur.execute(query)
+            result = cur.fetchall()
+            cur.close()
+            conn.close()
+            
+            if len(result_data) == 0:
+                return {'error':'Нет таких данных'}
+            else:
+                result = result_data[0]
+                return result
+
+        except Exception as e:
+            return [{'Error':e}]
 
 @app.route("/api/Test/", methods=['POST', 'GET'])
 @requires_auth
@@ -77,6 +95,30 @@ def page_not_found(e):
 def download(filename):
     directory = os.path.join(current_app.root_path, './downloadable_files/')
     return send_from_directory(directory=directory, filename=filename, as_attachment=True)
+
+@app.route('/api/GetUserData/', methods=['POST'])
+def GetUserData():
+    if request.method == 'POST':
+        data = request.get_json()
+        login = data['login']
+        query = f"""select name,"pictureUrl",roles from _user where login = '{login}'"""                
+        result = connect("localhost","barbers","read_only","User_ro",query)
+        return result
+
+#добавить операции
+@app.route('/api/GetCurrentSession/', methods=['POST'])
+def GetCurrentSession():
+    if request.method == 'POST':
+        data = request.get_json()
+        officeid = data['id']        
+        query = f"""select * from session where state = 'open' and "officeId" = {officeid}"""               
+        result_data = connect("localhost","barbers","read_only","User_ro",query)
+        
+        if len(result_data) == 0:
+            return {'error':'Нет таких данных'}
+        else:
+            return result_data[0]
+        
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
