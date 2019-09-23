@@ -10,6 +10,8 @@ from functools import wraps
 import time
 from werkzeug.utils import secure_filename
 import pandas as pd
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__, static_folder='./front/dist/static/', template_folder="./front/dist/")
 CORS(app)
