@@ -54,7 +54,7 @@ name TEXT NOT NULL,
 "pictureUrl" TEXT,
 roles TEXT [],
 salary FLOAT(2) NOT NULL,
-"servicesPercent" FLOAT(2),    
+"servicePercent" FLOAT(2),    
 "goodsPercent" FLOAT(2) NOT NULL,
 "categoryId" INT,
 state TEXT NOT NULL,
@@ -62,15 +62,15 @@ state TEXT NOT NULL,
 "controlRating" FLOAT(2),
 login TEXT,
 password TEXT,
-contacts JSONB);
+contacts JSONB []);
 
 CREATE TABLE SERVICEOPERATION(
 id SERIAL PRIMARY KEY NOT NULL,
 "officeId" INT,
 "sessionId" INT,
 "serviceId" INT NOT NULL,
-"startdatetime" TIMESTAMP NOT NULL,
-"finishdatetime" TIMESTAMP NOT NULL,
+"startDatetime" TIMESTAMP NOT NULL,
+"finishDatetime" TIMESTAMP NOT NULL,
 "adminId" INT NOT NULL,
 "masterId" INT NOT NULL,    
 "clientId" INT,
@@ -83,7 +83,7 @@ id SERIAL PRIMARY KEY NOT NULL,
 "review" TEXT, 
 "photoUrls" TEXT [],
 "comment" TEXT, 
-"controlrating" FLOAT(2));
+"controlRating" FLOAT(2));
 
 
 CREATE TABLE GOODSOPERATION(
@@ -110,8 +110,7 @@ id SERIAL PRIMARY KEY NOT NULL,
 datetime TIMESTAMP NOT NULL,
 sum FLOAT(2),
 "cashSum" FLOAT(2),
-"card" FLOAT(2),
-"cashlessSum" INT NOT NULL,
+"cashlessSum" INT,
 "comment" TEXT);
 
 CREATE TABLE EMPLOYEEPAYMENT(
@@ -120,11 +119,10 @@ id SERIAL PRIMARY KEY NOT NULL,
 "sessionId" INT,
 "employeeId" INT NOT NULL,
 "datetime" TIMESTAMP NOT NULL,
-"totalSpent" FLOAT(2),
+type TEXT NOT NULL,
 sum FLOAT(2),
 "cashSum" FLOAT(2),
-"card" FLOAT(2),
-"cashlessSum" INT NOT NULL,
+"cashlessSum" INT,
 "comment" TEXT);
 
 CREATE TABLE SESSION(
@@ -133,7 +131,6 @@ id SERIAL PRIMARY KEY NOT NULL,
 "dateOpened" TIMESTAMP NOT NULL,
 "dateClosed" TIMESTAMP,
 state TEXT NOT NULL,
-"userId" INT NOT NULL,
 employees JSON [],
 "openCash" FLOAT(2) NOT NULL,
 "closeCash" FLOAT(2),
@@ -146,7 +143,7 @@ employees JSON [],
 CREATE TABLE SERVICE(
 id SERIAL PRIMARY KEY NOT NULL,
 name TEXT NOT NULL,
-prices JSONB [] NOT NULL,
+prices JSONB NOT NULL,
 state TEXT NOT NULL);
 
 CREATE ROLE read_only WITH LOGIN PASSWORD 'User_ro';
@@ -164,256 +161,250 @@ GRANT ALL PRIVILEGES ON DATABASE barbers to admin;
 # In[ ]:
 
 
-usr = {'name':'_user','data':[{ # id:1,
-'name':'Иванов Диего Михайлович',
-'pictureUrl':'www.mysite.com',
-'roles':['officeAdmin'],
-'currentdepartmentid':1,
-'salary':100000,
-'goodshare':0.1,
-'qualification':'null',
-'status':'working',
-'clientrating':'null',
-'controlrating':'null',
-'login':'login',
-'password':'password'},
-{ # id:2,
-'name':'Парикмахеров Парикмахер Парикмахерович',
-'pictureUrl':'www.wikipedia.org',
-'roles':['manager'],
-'currentdepartmentid':1,
-'salary':200000,
-'goodshare':0.1,
-'qualification':'null',
-'status':'working',
-'clientrating':'null',
-'controlrating':'null',
-'login':'login2',
-'password':'password2'},
-{ # id:3,
-'name':'Морковная Залупа Павловна',
-'pictureUrl':'www.vk.com',
-'roles':['master'],
-'currentdepartmentid':1,
-'salary':50000,
-'goodshare':0.1,
-'qualificationid':1,
-'status':'working',
-'clientrating':10,
-'controlrating':10,
-'login':'login3',
-'password':'password3'},
-{ # id:4,
-'name':'Барберов Бородач Ножницевич',
-'pictureUrl':'www.ingate.ru',
-'roles':['master'],
-'currentdepartmentid':1,
-'salary':50000,
-'goodshare':0.1,
-'qualificationid':2,
-'status':'working',
-'clientrating':10,
-'controlrating':10,
-'login':'login3',
-'password':'password3'}]
-}
-
-bq = {'name':'barberqualification','data':[{ #'id':1,
-'name':'Старший мастер',
-'serviceshare': 0.5,
-'status':'active'},
-{ #'id':2,
-'name':'Младший мастер',
-'serviceshare': 0.2,
-'status':'active'}]}
-
-cl = {'name':'client','data':[{ #id:1,
-'name':'Клиентов Клиент Клиентович',
-'contacts':{
-    'phone':'+79996669966',
-    'mail':'mail@mail.com',
-    'vk':'vk.com'
-            }
-   },{ #id:2,
-'name':'Клиентов Клиент Клиентович',
-'contacts':{
-    'phone':'+79009009090',
-    'mail':'mail2@mail.com',
-    'vk':'vk2.com'
-            }
-   }]
-}
-
-srvc = {'name':'service','data':[{ #'id':1,
-'name':'Стрижка мужская',
-'prices': [500.00,600.00,700.00,800.00],
-'status':'active'},
-{ #'id':2,
-'name':'Стрижка женская',
-'prices':[1000.00,1100.00,1200.00,1300.00],
-'status':'active'}]}
-
-srvops = {'name':'serviceoperation','data':[{ #'id':1,
-'clientid':1,
-'officeid':1,
-'startdatetime':'2018-12-31 11:00:00.00',
-'finishdatetime':'2018-12-31 12:00:00.00',
-'serviceid':1,
-'totalrevenue':'null',
-'cash':'null',
-'card':'null',
-'discount':'null',
-'photoUrl':['www.ingate.ru'],
-'userid':3,
-'clientrating':9,
-'controlrating':9},
-{ #'id':2,
-'clientid':2,
-'officeid':1,
-'startdatetime':'2018-12-31 12:00:00.00',
-'finishdatetime':'2018-12-31 13:00:00.00',
-'serviceid':2,
-'totalrevenue':'null',
-'cash':'null',
-'card':'null',
-'discount':'null',
-'photoUrls':['www.ingate.ru'],
-'userid':4,
-'clientrating':10,
-'controlrating':10}]
-}
-
-gd = {'name':'good','data':[{ #'id':1,
-'name':'Шампунь',
-'price':500.00,
-'status':'active'},
-{ #'id':2,
-'name':'Кока-кола',
-'price':100.00,
-'status':'active'}]
-}
-
-gdops = {'name':'goodoperation','data':[{ #'id':1,
-'clientid':1,
-'officeid':1,
-'datetime':'2018-12-31 12:00:00.00',
-'goodid':1,
-'totalrevenue':'null',
-'cash':'null',
-'card':'null',
-'discount':'null',
-'userid':3},
-{ #'id':2,
-'clientid':2,
-'office':1,
-'datetime':'2018-12-31 13:00:00.00',
-'goodid':2,
-'totalrevenue':'null',
-'cash':'null',
-'card':'null',
-'discount':'null',
-'userid':1}]}
-
-exptp = {'name':'expensetype','data':[{ #'id':1,
-'name':'Уборка',
-'defaultprice':5000,
-'status':'active'},
-{ #'id':2,
-'name':'Аренда',
-'defaultprice':'null',
-'status':'active'}]}
-
-exp = {'name':'expenses','data':[{ #'id':1,
-'officeid':1,
-'datetime':'2018-12-30 09:00:00.00',
-'goodid':1,  
-'totalspent':5000,
-'cash':1000,
-'card':4000,
-'userid':1},
-{ #'id':2,
-'officeid':1,
-'datetime':'2018-12-30 09:00:00.00',
-'goodid':1,  
-'totalspent':10000,
-'cash':5000,
-'card':5000,
-'userid':2}]
-}
-
-prsnlpmt = {'name':'personnelpayment','data':[{ #'id':1,
-'officeid':1,
-'datetime':'2018-12-30 09:00:00.00',
-'userid':3,
-'type':'ndfl',
-'totalspent':1000,
-'comment':''},
-{ #'id':2,
-'officeid':1,
-'datetime':'2018-12-30 09:00:00.00',
-'userid':4,
-'type':'penalty',
-'totalspent':-300,
-'comment':'Сломал ножницы'}]
-}
-
-ofc = {'name':'office','data':[{ #'id':1,
+ofc = {'name':'office','data':[{ #'Id':1,
 'name':'Тула 1',
 'city':'Тула',
 'address':'г. Тула, ул. Демонстрации, 51',
 'coordinatex':0.1,
 'coordinatey':0.1,
-'status':'open'},
-{ #'id':2,
+'state':'open'},
+{ #'Id':2,
 'name':'Воронеж 1',
 'city':'Воронеж',
 'address':'somewhere',
-'coordinatex':0.1,
-'coordinatey':0.1,
-'status':'open'}]
+'coordinatex':0.2,
+'coordinatey':0.2,
+'state':'open'}]
 }
 
-ssn = {'name':'session','data':[{ #'id':1,
-'officeid':1,
-'opendate':'2018-12-30 09:00:00.00',
-'closedate':'2018-12-30 23:00:00.00',
-'status':'closed',
-'userid':1,
-'barbers':[
-        {'userid':3,'starttime':'10:00','endtime':'18:00'},
-        {'userid':4,'starttime':'14:00','endtime':'22:00'}
-        ],
-'admins':[
-        {'userid':1,'starttime':'09:00','endtime':'23:00'}
-        ],
-'opencash':20000,
-'closecash':30000 ,
-'totalincomecash':10000 ,
-'totalincomecashless':10000,
-'totalincome':20000,
-'totalexpense':5000,
-'totalprofit':15000    
+bq = {'name':'barbercategory','data':[{ #'Id':1,
+'name':'Старший мастер',
+'servicePercent': 0.5,
+'state':'active'},
+{ #'Id':2,
+'name':'Младший мастер',
+'servicePercent': 0.2,
+'state':'active'}]}
+
+gd = {'name':'good','data':[{ #'Id':1,
+'name':'Шампунь',
+'price':500.00,
+'state':'active'},
+{ #'Id':2,
+'name':'Кока-кола',
+'price':100.00,
+'state':'active'}]
+}
+
+exptp = {'name':'spendtype','data':[{ #'Id':1,
+'name':'Уборка',
+'defaultPrice':5000,
+'state':'active'},
+{ #'Id':2,
+'name':'Аренда',
+'defaultPrice':'null',
+'state':'active'}]}
+
+cl = {'name':'client','data':[{ #Id:1,
+    'name':'Клиентов Клиент Клиентович',
+    'contacts':[{
+        'phone':'+79996669966',
+        'mail':'mail@mail.com',
+        'vk':'vk.com'
+                }]
+   },
+    { #Id:2,
+    'name':'Клиентов Клиент Клиентович',
+    'contacts':[{
+        'phone':'+79009009090',
+        'mail':'mail2@mail.com',
+        'vk':'vk2.com'
+                }]
+   }]
+}
+
+usr = {'name':'_user','data':[{ # Id:1,
+'name':'Иванов Диего Михайлович',
+'pictureUrl':'www.mysite.com',
+'roles':['officeAdmin'],
+'salary':100000,
+'servicePercent':0.1,
+'goodsPercent':0.1,
+'categoryId':'null',
+'state':'working',
+'clientRating':'null',
+'controlRating':'null',
+'login':'login',
+'password':'password'},
+{ # Id:2,
+'name':'Парикмахеров Парикмахер Парикмахерович',
+'pictureUrl':'www.wikipedia.org',
+'roles':['manager'],
+'salary':200000,
+'servicePercent':0.1,
+'goodsPercent':0.1,
+'categoryId':'null',
+'state':'working',
+'clientRating':'null',
+'controlRating':'null',
+'login':'login2',
+'password':'password2'},
+{ # Id:3,
+'name':'Морковная Залупа Павловна',
+'pictureUrl':'www.vk.com',
+'roles':['master'],
+'salary':50000,
+'servicePercent':0.1,
+'goodsPercent':0.1,
+'categoryId':1,
+'state':'working',
+'clientRating':10,
+'controlRating':10,
+'login':'login3',
+'password':'password3'},
+{ # Id:4,
+'name':'Барберов Бородач Ножницевич',
+'pictureUrl':'www.ingate.ru',
+'roles':['master'],
+'salary':50000,
+'servicePercent':0.1,
+'goodsPercent':0.1,
+'categoryId':2,
+'state':'working',
+'clientRating':10,
+'controlRating':10,
+'login':'login3',
+'password':'password3'}]
+}
+
+srvops = {'name':'serviceoperation','data':[{ #'Id':1,
+    'officeId':1,
+    'sessionId':1,
+    'serviceId':1,
+    'startDatetime':'2018-12-31 11:00:00.00',
+    'finishDatetime':'2018-12-31 12:00:00.00',    
+    'adminId':1,    
+    'masterId':4,    
+    'clientId':1,
+    'photoUrls':['www.ingate.ru'],
+    'clientRating':'null',
+    'controlRating':'null'},
+{ #'Id':2,
+    'officeId':1,
+    'sessionId':1,
+    'serviceId':2,    
+    'startDatetime':'2018-12-31 12:00:00.00',
+    'finishDatetime':'2018-12-31 13:00:00.00',
+    'adminId':1,    
+    'masterId':3,    
+    'clientId':2,
+    'photoUrls':['www.ingate.ru'],
+    'clientRating':10,
+    'controlRating':10}]
+}
+
+gdops = {'name':'goodsoperation','data':[{ #'Id':1,
+    'clientId':1,
+    'officeId':1,
+    'sessionId':1,
+    'adminId':1,    
+    'masterId':4,
+    'datetime':'2018-12-31 12:00:00.00',
+    'goodsIds':[1]
 },
-{ #'id':2,
-'officeid':1,
-'opendate':'2018-12-31 09:00:00.00',
-'closedate':'null',
-'status':'open',
-'userid':1,
-'barbers':[
-        {'userid':3,'starttime':'10:00','endtime':'18:00'},
-        {'userid':4,'starttime':'14:00','endtime':'22:00'}
+{ #'Id':2,
+    'clientId':1,
+    'officeId':1,
+    'sessionId':1,
+    'adminId':1,    
+    'masterId':4,
+    'datetime':'2018-12-31 13:00:00.00',
+    'goodsIds':[1]
+}]}
+
+exp = {'name':'spendoperations','data':[{ #'Id':1,
+    'officeId':1,
+    'sessionId':1,
+    'datetime':'2018-12-30 09:00:00.00',
+    'expenseTypeId':1,  
+    'sum':5000,
+    'cashSum':1000,
+    'cashlessSum':4000
+},
+{ #'Id':2,
+    'officeId':1,
+    'sessionId':1,
+    'datetime':'2018-12-30 09:00:00.00',
+    'expenseTypeId':1,  
+    'sum':10000,
+    'cashSum':5000,
+    'cashlessSum':5000
+}]}
+
+prsnlpmt = {'name':'employeepayment','data':[{ #'Id':1,
+    'officeId':1,
+    'datetime':'2018-12-30 09:00:00.00',
+    'sessionId':1,
+    'employeeId':3,
+    'type':'ndfl',
+    'sum':1000,
+    'comment':'null'
+},
+{ #'Id':2,
+    'officeId':1,
+    'datetime':'2018-12-30 09:00:00.00',
+    'sessionId':1,
+    'employeeId':4,
+    'type':'penalty',
+    'sum':-300,
+    'comment':'Сломал ножницы'
+}]}
+
+
+srvc = {'name':'service','data':[{ #'Id':1,
+'name':'Стрижка мужская',
+'prices': {1:500.00,2:600.00,3:700.00,4:800.00},
+'state':'active'},
+{ #'Id':2,
+'name':'Стрижка женская',
+'prices':{1:1000.00,2:1100.00,3:1200.00,4:1300.00},
+'state':'active'}]}
+
+ssn = {'name':'session','data':[{ #'Id':1,
+'officeId':1,
+'dateOpened':'2018-12-30 09:00:00.00',
+'dateClosed':'2018-12-30 23:00:00.00',
+'state':'closed',
+'employees':[
+        {'userId':3,'starttime':'10:00','endtime':'18:00'},
+        {'userId':4,'starttime':'14:00','endtime':'22:00'},
+        {'userId':1,'starttime':'09:00','endtime':'23:00'}
         ],
-'admins':[
-        {'userid':1,'starttime':'09:00','endtime':'23:00'}
+'openCash':20000,
+'closeCash':30000 ,
+'totalIncomeCash':10000 ,
+'totalIncomeCashless':10000,
+'totalIncome':20000,
+'totalExpense':5000,
+'totalProfit':15000    
+},
+{ #'Id':2,
+'officeId':1,
+'dateOpened':'2018-12-31 09:00:00.00',
+'dateClosed':'null',
+'state':'open',
+'employees':[
+        {'userId':3,'starttime':'10:00','endtime':'18:00'},
+        {'userId':4,'starttime':'14:00','endtime':'22:00'},
+        {'userId':1,'starttime':'09:00','endtime':'23:00'}
         ],
 'opencash':0,
-'closecash':20000,
-'totalincomecash':20000 ,
-'totalincomecashless':15000,
-'totalincome':35000,
-'totalexpense':15000,
-'totalprofit':20000     
+'closeCash':'null',
+'totalIncomeCash':'null' ,
+'totalIncomeCashless':'null',
+'totalIncome':'null',
+'totalExpense':'null',
+'totalProfit':'null'  
 }]
 }
 
