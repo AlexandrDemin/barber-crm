@@ -3,38 +3,12 @@
     <appMenu selected-element="session" visual-style="translucent"></appMenu>
     <div class="session-content">
       <div class="grid-x grid-margin-x grid-margin-y">
-        <div
+        <masterCard
           v-for="employee in session.employees"
           v-bind:key="employee.id"
           v-if="employee.role === 'master'"
-          class="cell large-6 columns translucent-theme-block master-card">
-          <div class="master-card-header grid-x">
-            <div class="cell small-1">
-              <img class="master-card-picture" v-bind:src="employee.pictureUrl"/>
-            </div>
-            <div class="cell small-5">
-              <h4>{{employee.name}}</h4>
-            </div>
-            <div class="cell small-6 text-right">
-              <p>Длина смены <strong>{{employee.workHours}}</strong> ч.</p>
-            </div>
-          </div>
-          <div class="master-card-content">
-          </div>
-          <div class="master-card-footer grid-x grid-padding-x grid-padding-y">
-            <div class="cell medium-6">
-              <select>
-                <option>Штраф</option>
-              </select>
-            </div>
-            <div class="cell medium-2">
-              <input type="text" placeholder="Сумма"/>
-            </div>
-            <div class="cell medium-4">
-              <button class="button secondary">Сохранить</button>
-            </div>
-          </div>
-        </div>
+          v-bind:master="employee"
+          />
       </div>
     </div>
   </main>
@@ -42,11 +16,13 @@
 
 <script>
 import Menu from '@/components/Menu'
+import MasterCard from '@/components/MasterCard'
 
 export default {
   name: 'Session',
   components: {
-    appMenu: Menu
+    appMenu: Menu,
+    masterCard: MasterCard
   },
   mounted: function () {
     document.title = this.$route.meta.title
@@ -154,17 +130,5 @@ export default {
 <style>
   .session-content {
     margin: 30px 30px 0 130px;
-  }
-  .master-card-header {
-    background: #FFFFFF;
-    border-radius: 5px 5px 0 0;
-  }
-  .master-card-picture {
-    border-radius: 5px 0 0 0;
-  }
-  .master-card-footer .cell select,
-  .master-card-footer .cell input,
-  .master-card-footer .cell button {
-    margin: 0;
   }
 </style>

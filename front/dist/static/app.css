@@ -20,6 +20,7 @@ Main menu
     left: 0;
     height: 100vh;
     background: #F3F2F1;
+    overflow: auto;
 }
 .main-menu ul {
     list-style: none;

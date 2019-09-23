@@ -7,18 +7,87 @@ Vue.config.devtools = true
 
 export default new Vuex.Store({
   state: {
-    projectsState: {
-      errors: [],
-      isLoaded: false,
-      isLoading: false,
-      projects: []
-    },
-    projectState: {
-      errors: [],
-      isLoaded: false,
-      isLoading: false,
-      project: null
-    }
+    services: [
+      {
+        'Id': 1,
+        'name': 'Стрижка мужская',
+        'prices': {
+          1: 600
+        }
+      },
+      {
+        'Id': 2,
+        'name': 'Стрижка женская',
+        'prices': {
+          1: 1000
+        }
+      },
+      {
+        'Id': 3,
+        'name': 'Укладка',
+        'prices': {
+          1: 300
+        }
+      },
+      {
+        'Id': 4,
+        'name': 'Маникюр',
+        'prices': {
+          1: 300
+        }
+      },
+      {
+        'Id': 5,
+        'name': 'Стрижка усов и бороды',
+        'prices': {
+          1: 300
+        }
+      }
+    ],
+    goods: [
+      {
+        'Id': 1,
+        'name': 'Восстанавливающая маска для поврежденных волос Ggongji Hair Pack 8мл',
+        'price': 1000
+      },
+      {
+        'Id': 2,
+        'name': 'Лак для волос сильной фиксации Mugens Impressive Control Hard Spray 300мл',
+        'price': 200
+      },
+      {
+        'Id': 3,
+        'name': 'Эссенция для волос Around Me Rose Hip Perfume Water Essence 200мл',
+        'price': 200
+      },
+      {
+        'Id': 4,
+        'name': 'Murray\'s eXelento Pomad - Помада для укладки волос',
+        'price': 200
+      },
+      {
+        'Id': 5,
+        'name': 'Baxter of California Pomade: Cream - Средство для укладки волос 60 мл',
+        'price': 200
+      }
+    ],
+    employeePaymentTypes: [
+      {
+        'id': 1,
+        'name': 'Расход',
+        'sum': 500
+      },
+      {
+        'id': 2,
+        'name': 'Штраф',
+        'sum': 500
+      },
+      {
+        'id': 1,
+        'name': 'Премия',
+        'sum': 1000
+      }
+    ]
   },
   getters: {
     getStatusColor: (state) => (status) => {
