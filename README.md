@@ -317,7 +317,7 @@ api/GetAdmins/
     {
         "id": id юзера,
         "name": имя юзера,
-        "photoUrl": url фотографии юзера,
+        "pictureUrl": url фотографии юзера,
         "state": UserState,
         "servicesPercent": процент от продажи услуг,
         "goodsPercent": процент от продажи товаров
@@ -418,7 +418,6 @@ api/CloseSession/
 ```
 {
     "id": id смены
-    "officeId": id отделения
 }
 ```
 
@@ -492,9 +491,9 @@ Data:
 {
     "officeId": id отделения,
     "sessionId": id смены,
-    "type": Тип услуги,
-    "started": Дата и время начала в формате dd.mm.yyyy HH:MM,
-    "finished": Дата и время заверешения в формате dd.mm.yyyy HH:MM,
+    "serviceId": id услуги,
+    "startDatetime": Дата и время начала в формате dd.mm.yyyy HH:MM,
+    "finishDatetime": Дата и время заверешения в формате dd.mm.yyyy HH:MM,
     "adminId": id администратора,
     "masterId": id мастера,
     "clientId": id клиента,
@@ -502,9 +501,9 @@ Data:
     "cashlessSum": Сумма безнала,
     "discountSum": Сумма скидки,
     "bonusSum": Сумма премии,
-    "score": Оценка клиента от 1 до 10 или null,
+    "clientRating": Оценка клиента от 1 до 10 или null,
     "review": Отзыв клиента,
-    "comment": Комментарий,
+    "comment": Комментарий, 
     "goods": [ // список проданных товаров
         {
             "type": Тип товара,
@@ -514,10 +513,11 @@ Data:
             "comment": Комментарий
         }
     ],
-    "spends": [ // список расходов
+    "expenses": [ // список расходов
         {
             "type": Тип расхода,
-            "sum": Сумма,
+            "cashSum": Сумма налички,
+            "cashlessSum": Сумма безнала,
             "comment": Комментарий
         }
     ]
@@ -572,9 +572,9 @@ api/GetServiceOperation/
     "id": id операции по услуге,
     "officeId": id отделения,
     "sessionId": id смены,
-    "type": Тип услуги,
-    "started": Дата и время начала в формате dd.mm.yyyy HH:MM,
-    "finished": Дата и время заверешения в формате dd.mm.yyyy HH:MM,
+    "serviceId": Тип услуги,
+    "startDatetime": Дата и время начала в формате dd.mm.yyyy HH:MM,
+    "finishDatetime": Дата и время заверешения в формате dd.mm.yyyy HH:MM,
     "adminId": id администратора,
     "masterId": id мастера,
     "clientId": id клиента,
@@ -583,7 +583,7 @@ api/GetServiceOperation/
     "discountSum": Сумма скидки,
     "bonusSum": Сумма премии продавца,
     "score": Оценка клиента от 1 до 10 или null,
-    "review": Отзыв клиента,
+    "clientRating": Отзыв клиента,
     "photoUrls": [список ссылок на фотографии стрижки],
     "comment": Комментарий
 }
@@ -614,7 +614,7 @@ api/EditGoodsOperation/
 {
     "officeId": id отделения,
     "sessionId": id смены,
-    "type": Тип товара,
+    "goodsIds": Список id товаров, которые были проданы по данной операции,
     "datetime": Дата и время продажи в формате dd.mm.yyyy HH:MM,
     "adminId": id администратора,
     "masterId": id мастера,
@@ -713,9 +713,11 @@ api/EditSpendOperation/
 {
     "officeId": id отделения,
     "sessionId": id смены,
-    "type": Тип расхода,
+    "expenseTypeId": id типа расхода,
     "datetime": Дата и время расхода в формате dd.mm.yyyy HH:MM,
     "sum": Сумма,
+    "cashSum": Сумма налички,
+    "cashlessSum": Сумма безнала,
     "comment": Комментарий
 }
 ```
@@ -768,9 +770,11 @@ api/GetSpendOperation/
     "id": id операции,
     "officeId": id отделения,
     "sessionId": id смены,
-    "type": Тип расхода,
+    "expenseTypeId": id Типа расхода,
     "datetime": Дата и время расхода в формате dd.mm.yyyy HH:MM,
     "sum": Сумма,
+    "cashSum": Сумма налички,
+    "cashlessSum": Сумма безнала,
     "comment": Комментарий
 }
 ```
@@ -804,6 +808,8 @@ api/EditEmployeePaymentOperation/
     "type": Тип выплаты сотруднику,
     "datetime": Дата и время выплаты в формате dd.mm.yyyy HH:MM,
     "sum": Сумма,
+    "cashSum": Сумма налички,
+    "cashlessSum": Сумма безнала,
     "comment": Комментарий
 }
 ```
@@ -860,6 +866,8 @@ api/GetEmployeePaymentOperation/
     "type": Тип выплаты сотруднику,
     "datetime": Дата и время выплаты в формате dd.mm.yyyy HH:MM,
     "sum": Сумма,
+    "cashSum": Сумма налички,
+    "cashlessSum": Сумма безнала,
     "comment": Комментарий
 }
 ```
