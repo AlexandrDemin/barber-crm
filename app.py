@@ -39,7 +39,7 @@ def writeLog(logEntry):
         logFile.write('\n')
         
 def connect(host,database,user,password,query):
-        conn = psycopg2.connect(host="localhost",database="barbers", user="read_only", password="User_ro")
+        conn = psycopg2.connect(host=host,database=database, user=user, password=query)
         cur = conn.cursor(cursor_factory=RealDictCursor)
         try:
             cur.execute(query)
