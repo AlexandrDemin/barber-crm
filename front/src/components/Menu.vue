@@ -4,6 +4,7 @@
     v-on:mouseleave="adminSubmenuShown = false; reportsSubmenuShown = false"
   >
     <ul v-bind:class="adminSubmenuShown ? 'submenu shown' : 'submenu hidden'">
+      <li class="close-item" v-on:click="adminSubmenuShown = false; reportsSubmenuShown = false"><button type="button" class="close-button">&times;</button></li>
       <li><a href="">Внести расходы</a></li>
       <li><a href="">Отделения</a></li>
       <li><a href="">Услуги</a></li>
@@ -14,6 +15,7 @@
       <li><a href="">Категории мастеров</a></li>
     </ul>
     <ul v-bind:class="reportsSubmenuShown ? 'submenu shown' : 'submenu hidden'">
+      <li class="close-item" v-on:click="adminSubmenuShown = false; reportsSubmenuShown = false"><button type="button" class="close-button">&times;</button></li>
       <li><a href="">Отчёт по сотрудникам</a></li>
       <li><a href="">Отчёт по клиентам</a></li>
       <li><a href="">Финансовый отчёт</a></li>
@@ -140,6 +142,9 @@ export default {
     max-width: 40px;
     max-height: 40px;
   }
+  .main-menu ul.submenu li.close-item {
+    display: none;
+  }
   @media (max-width: 40em), (orientation: portrait) {
     .session-content {
       margin: 30px 20px 100px;
@@ -194,6 +199,16 @@ export default {
       text-align: center;
       display: block;
       font-size: 1rem;
+    }
+    .main-menu ul.submenu li.close-item {
+      display: block;
+    }
+    .main-menu ul.submenu li.close-item .close-button {
+      position: static
+    }
+    .translucent-theme-block {
+        background: rgba(253, 252, 252, 0.9);
+        backdrop-filter: none;
     }
   }
 </style>
