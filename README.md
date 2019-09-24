@@ -366,7 +366,7 @@ api/GetMasters/
 ##### URL
 
 ```
-api/OpenSession/
+api/EditSession/
 ```
 
 ##### Вход
