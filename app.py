@@ -120,7 +120,126 @@ def GetCurrentSession():
             return {'error':'Нет таких данных'}
         else:
             return result_data[0]
+
+@app.route('/api/GetSession/', methods=['POST'])
+def GetSession():
+    if request.method == 'POST':
+        data = request.get_json()
+        sessionid = data['id']
         
+        query_session = f"""select * from session where id = {sessionid}"""
+        
+        result_session = connect("localhost","barbers","read_only","User_ro",query_session)
+        result_session = dict(result_session[0])
+        if 'withOperations' in data:
+            pass
+        elif data['withOperations'] == 'true':
+            print('Добавляем операции')
+            query_serviceoperation = f"""select * from serviceoperation where "sessionId" = {sessionid}"""
+            result_serviceoperation = connect("localhost","barbers","read_only","User_ro", query_serviceoperation)
+
+            query_goodsoperation = f"""select * from goodsoperation where "sessionId" = {sessionid}"""
+            result_goodsoperation = connect("localhost","barbers","read_only","User_ro", query_goodsoperation)
+
+            query_employeepayment = f"""select * from employeepayment where "sessionId" = {sessionid}"""
+            result_employeepayment = connect("localhost","barbers","read_only","User_ro", query_employeepayment)
+
+            query_spendoperations = f"""select * from spendoperations where "sessionId" = {sessionid}"""
+            result_spendoperations = connect("localhost","barbers","read_only","User_ro", query_spendoperations)
+
+            operations = [result_serviceoperation,result_goodsoperation,result_employeepayment,result_spendoperations]
+            result_session['Operations'] = operations
+        return result_session
+
+@app.route('/api/GetOffices/', methods=['POST'])
+def GetOffices():
+    if request.method == 'POST':
+        query = f"""select * from office"""
+        result = connect("localhost","barbers","read_only","User_ro",query)
+        result = json.dumps([*map(dict, result)])       
+        return result    
+
+@app.route('/api/GetAdmins/', methods=['POST'])
+def GetAdmins():
+    if request.method == 'POST':
+        query = f"""select * from _user where 'officeAdmin' = ANY (roles)
+        order by state desc, name asc"""
+        result = connect("localhost","barbers","read_only","User_ro",query)
+        result = json.dumps([*map(dict, result)])
+        return result 
+
+@app.route('/api/GetMasters/', methods=['POST'])
+def GetMasters():
+    if request.method == 'POST':
+        query = f"""select * from _user where 'master' = ANY (roles)
+        order by state desc, name asc"""
+        result = connect("localhost","barbers","read_only","User_ro",query)
+        result = json.dumps([*map(dict, result)])
+        return result
+
+@app.route('/api/GetServicesPrices/', methods=['POST'])
+def GetServicesPrices():
+    if request.method == 'POST':
+        query = f"""select * from service"""
+        result = connect("localhost","barbers","read_only","User_ro",query)
+        result = json.dumps([*map(dict, result)])
+        return result
+
+@app.route('/api/GetServiceOperation/', methods=['POST'])
+def GetServiceOperation():
+    if request.method == 'POST':
+        data = request.get_json()
+
+        operationid = data['id']
+        query = f"""select * from serviceoperation where id = '{operationid}'"""
+        result = connect("localhost","barbers","read_only","User_ro",query)
+
+        return dict(result[0])
+
+    
+@app.route('/api/GetGoodsOperation/', methods=['POST'])
+def GetGoodsOperation():
+    if request.method == 'POST':
+        data = request.get_json()
+
+        operationid = data['id']
+        query = f"""select * from goodsoperation where id = '{operationid}'"""
+        result = connect("localhost","barbers","read_only","User_ro",query)
+
+        return dict(result[0])
+    
+@app.route('/api/GetSpendOperation/', methods=['POST'])
+def GetSpendOperation():
+    if request.method == 'POST':
+        data = request.get_json()
+
+        operationid = data['id']
+        query = f"""select * from spendoperation where id = '{operationid}'"""
+        result = connect("localhost","barbers","read_only","User_ro",query)
+
+        return dict(result[0])
+
+@app.route('/api/GetEmployeePaymentOperation/', methods=['POST'])
+def GetEmployeePaymentOperation():
+    if request.method == 'POST':
+        data = request.get_json()
+
+        operationid = data['id']
+        query = f"""select * from employeepayment where id = '{operationid}'"""
+        result = connect("localhost","barbers","read_only","User_ro",query)
+
+        return dict(result[0])
+
+@app.route('/api/GetClient/', methods=['POST'])
+def GetClient():
+    if request.method == 'POST':
+        data = request.get_json()
+
+        operationid = data['id']
+        query = f"""select * from client where id = '{operationid}'"""
+        result = connect("localhost","barbers","read_only","User_ro",query)
+
+        return dict(result[0])
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
