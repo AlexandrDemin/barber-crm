@@ -1,10 +1,11 @@
 <template>
   <nav
     v-bind:class="navClass"
-    v-on:mouseleave="adminSubmenuShown = false; reportsSubmenuShown = false"
+    v-on:mouseleave.passive="leaveMenu()"
+    v-on:mouseover.passive="isOverMenu = true"
   >
     <ul v-bind:class="adminSubmenuShown ? 'submenu shown' : 'submenu hidden'">
-      <li class="close-item" v-on:click="adminSubmenuShown = false; reportsSubmenuShown = false"><button type="button" class="close-button">&times;</button></li>
+      <li class="close-item" v-on:click="closeMenus()"><button type="button" class="close-button">&times;</button></li>
       <li><a href="">Внести расходы</a></li>
       <li><a href="">Отделения</a></li>
       <li><a href="">Услуги</a></li>
@@ -15,7 +16,7 @@
       <li><a href="">Категории мастеров</a></li>
     </ul>
     <ul v-bind:class="reportsSubmenuShown ? 'submenu shown' : 'submenu hidden'">
-      <li class="close-item" v-on:click="adminSubmenuShown = false; reportsSubmenuShown = false"><button type="button" class="close-button">&times;</button></li>
+      <li class="close-item" v-on:click="closeMenus()"><button type="button" class="close-button">&times;</button></li>
       <li><a href="">Отчёт по сотрудникам</a></li>
       <li><a href="">Отчёт по клиентам</a></li>
       <li><a href="">Финансовый отчёт</a></li>
@@ -23,7 +24,8 @@
     <ul>
       <li
         v-bind:class="selectedElement === 'session' ? 'selected' : ''"
-        v-on:mouseover="adminSubmenuShown = false; reportsSubmenuShown = false"
+        v-on:mouseenter.passive="enterNoSubmenuEl()"
+        v-on:mouseleave.passive="isOverNoSubmenuEl = false"
       >
         <a href="">
           <svg class="main-menu-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +39,8 @@
       </li>
       <li
         v-bind:class="selectedElement === 'clients' ? 'selected' : ''"
-        v-on:mouseover="adminSubmenuShown = false; reportsSubmenuShown = false"
+        v-on:mouseenter.passive="enterNoSubmenuEl()"
+        v-on:mouseleave.passive="isOverNoSubmenuEl = false"
       >
         <a href="">
           <svg class="main-menu-icon" viewBox="0 0 34 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,7 +52,8 @@
       </li>
       <li
         v-bind:class="selectedElement === 'history' ? 'selected' : ''"
-        v-on:mouseover="adminSubmenuShown = false; reportsSubmenuShown = false"
+        v-on:mouseenter.passive="enterNoSubmenuEl()"
+        v-on:mouseleave.passive="isOverNoSubmenuEl = false"
       >
         <a href="">
           <svg class="main-menu-icon" viewBox="0 0 40 38" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -62,7 +66,8 @@
       </li>
       <li
         v-bind:class="adminClass"
-        v-on:mouseover="reportsSubmenuShown = false; adminSubmenuShown = true"
+        v-on:mouseenter.passive="openMenu('admin')"
+        v-on:mouseleave.passive="isOverAdmin = false"
       >
         <a>
           <svg class="main-menu-icon" viewBox="0 0 39 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -74,7 +79,8 @@
       </li>
       <li
         v-bind:class="reportsClass"
-        v-on:mouseover="adminSubmenuShown = false; reportsSubmenuShown = true"
+        v-on:mouseenter.passive="openMenu('reports')"
+        v-on:mouseleave.passive="isOverReports = false"
       >
         <a>
           <svg class="main-menu-icon" viewBox="0 0 30 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -95,19 +101,56 @@
 
 export default {
   name: 'Menu',
-  props: ['selectedElement', 'visualStyle'],
+  props: ['selectedElement'],
   data () {
     return {
       adminSubmenuShown: false,
-      reportsSubmenuShown: false
+      reportsSubmenuShown: false,
+      isOverAdmin: false,
+      isOverReports: false,
+      isOverNoSubmenuEl: false,
+      isOverMenu: false
+    }
+  },
+  methods: {
+    openMenu: function (menu) {
+      if (menu === 'admin') {
+        this.isOverAdmin = true
+        setTimeout(() => {
+          if (this.isOverAdmin && !this.isOverNoSubmenuEl && this.isOverMenu) {
+            this.adminSubmenuShown = true
+            this.reportsSubmenuShown = false
+          }
+        }, 100)
+      }
+      if (menu === 'reports') {
+        this.isOverReports = true
+        setTimeout(() => {
+          if (this.isOverReports && !this.isOverNoSubmenuEl && this.isOverMenu) {
+            this.adminSubmenuShown = false
+            this.reportsSubmenuShown = true
+          }
+        }, 100)
+      }
+    },
+    closeMenus: function () {
+      if (this.isOverNoSubmenuEl || !this.isOverMenu) {
+        this.reportsSubmenuShown = false
+        this.adminSubmenuShown = false
+      }
+    },
+    leaveMenu: function () {
+      this.isOverMenu = false
+      setTimeout(this.closeMenus, 300)
+    },
+    enterNoSubmenuEl: function () {
+      this.isOverNoSubmenuEl = true
+      setTimeout(this.closeMenus, 300)
     }
   },
   computed: {
     navClass: function () {
       var navClass = 'main-menu'
-      if (this.visualStyle === 'translucent') {
-        navClass += ' translucent-theme'
-      }
       if (this.adminSubmenuShown || this.reportsSubmenuShown) {
         navClass += ' submenu-shown'
       }
@@ -138,77 +181,4 @@ export default {
 </script>
 
 <style>
-  .main-menu .main-menu-icon {
-    max-width: 40px;
-    max-height: 40px;
-  }
-  .main-menu ul.submenu li.close-item {
-    display: none;
-  }
-  @media (max-width: 40em), (orientation: portrait) {
-    .session-content {
-      margin: 30px 20px 100px;
-    }
-    .main-menu {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100vw;
-      height: auto;
-      text-align: center;
-      z-index: 10;
-      margin: 0;
-      padding: 0;
-      border: none;
-      top: unset;
-    }
-    .main-menu ul {
-      display: flex;
-      flex-direction: row;
-      align-items: stretch;
-    }
-    .main-menu ul li {
-      padding: 10px 5px;
-      height: auto;
-      display: block;
-      flex: 1;
-      width: unset;
-      margin: 0;
-      font-size: 12px;
-      border: none;
-    }
-    .main-menu ul li label {
-      font-size: 11px;
-    }
-    .main-menu .main-menu-icon {
-      max-width: 20px;
-      max-height: 20px;
-    }
-    .main-menu.submenu-shown {
-      width: 100%;
-      overflow: auto;
-      height: auto;
-    }
-    .main-menu ul.submenu {
-      position: static;
-      width: 100%;
-      overflow: auto;
-      height: unset;
-    }
-    .main-menu ul.submenu li {
-      text-align: center;
-      display: block;
-      font-size: 1rem;
-    }
-    .main-menu ul.submenu li.close-item {
-      display: block;
-    }
-    .main-menu ul.submenu li.close-item .close-button {
-      position: static
-    }
-    .translucent-theme-block {
-        background: rgba(253, 252, 252, 0.9);
-        backdrop-filter: none;
-    }
-  }
 </style>

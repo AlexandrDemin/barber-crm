@@ -87,10 +87,22 @@ export default new Vuex.Store({
         'name': 'Премия',
         'sum': 1000
       }
+    ],
+    spendTypes: [
+      {
+        'id': 1,
+        'name': 'Вывоз мусора',
+        'sum': 600
+      },
+      {
+        'id': 2,
+        'name': 'Прочие расходы',
+        'sum': 1000
+      }
     ]
   },
   getters: {
-    getStatusColor: (state) => (status) => {
+    getEmployeeName: (state) => (status) => {
       if (status === 'active') {
         return '#69E2B2'
       }

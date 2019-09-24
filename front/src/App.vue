@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="translucent-theme">
     <router-view></router-view>
   </div>
 </template>

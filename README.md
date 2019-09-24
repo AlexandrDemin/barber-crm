@@ -107,7 +107,7 @@ API по принципу JSON RPC. Все вызовы через POST запр
 ```
 {
     1: "service",
-    2: "itemSell",
+    2: "goodSell",
     3: "spend",
     4: "employeePayment"
 }
@@ -201,7 +201,7 @@ api/GetCurrentSession/
     ],
     "officeId": id отделения,
     "state": состояние смены из SessionState (по логике метода, здесь всегда должно быть open),
-    "Operations": [ // массив операций, проведённых за смену
+    "operations": [ // массив операций, проведённых за смену
         {
             "operationType": OperationType,
             … // все параметры операции в зависимости от типа
@@ -528,7 +528,8 @@ Data:
     "cashSum": Сумма налички,
     "cashlessSum": Сумма безнала,
     "discountSum": Сумма скидки,
-    "bonusSum": Сумма премии,
+    "adminBonus": Сумма премии админа,
+    "masterBonus": Сумма премии мастера,
     "clientRating": Оценка клиента от 1 до 10 или null,
     "review": Отзыв клиента,
     "comment": Комментарий, 
@@ -609,7 +610,8 @@ api/GetServiceOperation/
     "cashSum": Сумма налички,
     "cashlessSum": Сумма безнала,
     "discountSum": Сумма скидки,
-    "bonusSum": Сумма премии продавца,
+    "adminBonus": Сумма премии админа,
+    "masterBonus": Сумма премии мастера,
     "score": Оценка клиента от 1 до 10 или null,
     "clientRating": Отзыв клиента,
     "photoUrls": [список ссылок на фотографии стрижки],
@@ -650,7 +652,8 @@ api/EditGoodsOperation/
     "cashSum": Сумма налички,
     "cashlessSum": Сумма безнала,
     "discountSum": Сумма скидки,
-    "bonusSum": Сумма премии продавца,
+    "adminBonus": Сумма премии админа,
+    "masterBonus": Сумма премии мастера,
     "comment": Комментарий
 }
 ```
@@ -711,7 +714,8 @@ api/GetGoodsOperation/
     "cashSum": Сумма налички,
     "cashlessSum": Сумма безнала,
     "discountSum": Сумма скидки,
-    "bonusSum": Сумма премии продавца,
+    "adminBonus": Сумма премии админа,
+    "masterBonus": Сумма премии мастера,
     "comment": Комментарий
 }
 ```
@@ -744,8 +748,6 @@ api/EditSpendOperation/
     "expenseTypeId": id типа расхода,
     "datetime": Дата и время расхода в формате dd.mm.yyyy HH:MM,
     "sum": Сумма,
-    "cashSum": Сумма налички,
-    "cashlessSum": Сумма безнала,
     "comment": Комментарий
 }
 ```
@@ -801,8 +803,6 @@ api/GetSpendOperation/
     "expenseTypeId": id Типа расхода,
     "datetime": Дата и время расхода в формате dd.mm.yyyy HH:MM,
     "sum": Сумма,
-    "cashSum": Сумма налички,
-    "cashlessSum": Сумма безнала,
     "comment": Комментарий
 }
 ```
@@ -836,8 +836,6 @@ api/EditEmployeePaymentOperation/
     "type": Тип выплаты сотруднику,
     "datetime": Дата и время выплаты в формате dd.mm.yyyy HH:MM,
     "sum": Сумма,
-    "cashSum": Сумма налички,
-    "cashlessSum": Сумма безнала,
     "comment": Комментарий
 }
 ```
@@ -894,8 +892,6 @@ api/GetEmployeePaymentOperation/
     "type": Тип выплаты сотруднику,
     "datetime": Дата и время выплаты в формате dd.mm.yyyy HH:MM,
     "sum": Сумма,
-    "cashSum": Сумма налички,
-    "cashlessSum": Сумма безнала,
     "comment": Комментарий
 }
 ```
