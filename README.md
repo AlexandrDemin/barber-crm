@@ -172,7 +172,9 @@ api/GetCurrentSession/
 ##### Вход
 
 ```
-{}
+{
+"officeId": id отделения
+}
 ```
 
 ##### Выход
@@ -364,7 +366,7 @@ api/GetMasters/
 ##### URL
 
 ```
-api/OpenSession/
+api/EditSession/
 ```
 
 ##### Вход
