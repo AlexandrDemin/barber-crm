@@ -1,4 +1,4 @@
-#! /home/devel/anaconda2/envs/py35/bin/python3.6
+#! python3
 # -*- coding: utf-8 -*-
 
 import io

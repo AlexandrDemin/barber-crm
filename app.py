@@ -87,11 +87,6 @@ def send_files(path):
 def front(path):
     return render_template('index.html')
 
-@app.errorhandler(404)
-@requires_auth
-def page_not_found(e):
-    return "Page not found", 404
-
 @app.route('/download/<path:filename>')
 @requires_auth
 def download(filename):
@@ -240,6 +235,10 @@ def GetClient():
         result = connect("localhost","barbers","read_only","User_ro",query)
 
         return dict(result[0])
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return "Page not found", 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
