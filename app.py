@@ -76,23 +76,6 @@ def get_projects():
         })
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
-@app.route('/static/<path:path>')
-@requires_auth
-def send_files(path):
-    return send_from_directory(app.static_folder, path)
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-@requires_auth
-def front(path):
-    return render_template('index.html')
-
-@app.route('/download/<path:filename>')
-@requires_auth
-def download(filename):
-    directory = os.path.join(current_app.root_path, './downloadable_files/')
-    return send_from_directory(directory=directory, filename=filename, as_attachment=True)
-
 @app.route('/api/GetUserData/', methods=['POST'])
 def GetUserData():
     if request.method == 'POST':
@@ -235,6 +218,23 @@ def GetClient():
         result = connect("localhost","barbers","read_only","User_ro",query)
 
         return dict(result[0])
+
+@app.route('/static/<path:path>')
+@requires_auth
+def send_files(path):
+    return send_from_directory(app.static_folder, path)
+
+@app.route('/download/<path:filename>')
+@requires_auth
+def download(filename):
+    directory = os.path.join(current_app.root_path, './downloadable_files/')
+    return send_from_directory(directory=directory, filename=filename, as_attachment=True)
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+@requires_auth
+def front(path):
+    return render_template('index.html')
 
 @app.errorhandler(404)
 def page_not_found(e):

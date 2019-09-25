@@ -3,4 +3,4 @@ flask_cors
 pandas
 requests
 uwsgi
-
+psycopg2
