@@ -1,5 +1,5 @@
 <template>
-  <main class="background">
+  <main class="translucent-theme background">
     <appMenu selected-element="session"></appMenu>
     <div class="session-info grid-x align-middle">
       <div class="session-info-block cell medium-auto small-6">

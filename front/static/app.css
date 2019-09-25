@@ -11,6 +11,16 @@ html *:hover {
 }
 
 /*
+Global
+*/
+.breadcrumbs {
+    margin: 0;
+}
+.content {
+    margin: 30px 30px 30px 105px;
+}
+
+/*
 Main menu
 */
 .main-menu {
@@ -27,11 +37,19 @@ Main menu
     padding: 0;
 }
 .main-menu ul li {
-    padding-top: 17px;
     height: 75px;
     width: 75px;
     background: transparent;
     text-align: center;
+}
+.main-menu ul li a,
+.main-menu ul li.with-submenu {
+    padding-top: 17px;
+}
+.main-menu ul li a {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 .main-menu ul li label {
     font-size: 12px;
@@ -48,10 +66,14 @@ Main menu
 .main-menu ul li:not(.selected):hover,
 .main-menu ul li.hovered:not(.selected) {
     background: #FDFCFC;
+}
+.main-menu ul li:not(.with-submenu):hover,
+.main-menu ul li:not(.with-submenu):hover * {
     cursor: pointer;
 }
-.main-menu ul li:not(.selected) * {
-    cursor: pointer;
+.main-menu ul li.with-submenu:hover,
+.main-menu ul li.with-submenu:hover * {
+    cursor: default;
 }
 .main-menu .main-menu-icon {
     max-width: 20px;
@@ -91,6 +113,8 @@ Submenu
 .main-menu ul.submenu li a {
     display: block;
     padding: 10px 14px;
+    width: auto;
+    height: auto;
 }
 .main-menu ul.submenu li a:hover {
     background: #FDFCFC;
@@ -182,7 +206,7 @@ Employee card
 Translucent theme
 */
 
-.translucent-theme .background {
+.translucent-theme.background {
     background: url('wp.jpg');
     background-size: cover;
     height: 100vh;
@@ -200,7 +224,7 @@ Translucent theme
     backdrop-filter: blur(50px);
 }
 .translucent-theme .main-menu ul li:not(.selected):hover,
-.translucent-theme .main-menu ul li.hovered:not(.selected) {
+.translucent-theme .main-menu ul li.hovered:not(.selected)  {
     background: rgba(243,242,241,.8);
 }
 .translucent-theme .main-menu ul.submenu {
