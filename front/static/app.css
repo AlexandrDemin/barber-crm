@@ -17,7 +17,8 @@ Global
     margin: 0;
 }
 .content {
-    margin: 30px 30px 30px 105px;
+    padding: 30px 30px 30px 105px;
+    min-height: 100vh;
 }
 
 /*
@@ -137,7 +138,8 @@ Submenu
 Session
 */
 .session-content {
-    margin: 105px 30px 30px 105px;
+    padding: 105px 30px 30px 105px;
+    min-height: 100vh;
 }
 .session-info {
     position: fixed;
@@ -253,7 +255,11 @@ Small screens
 */
 @media (max-width: 60em), (orientation: portrait) {
     .session-content {
-        margin: 30px 20px 100px;
+        padding: 30px 20px 100px;
+    }
+    .content {
+        padding: 30px 20px 100px;
+        min-height: 100vh;
     }
     .session-info {
         position: static;
@@ -285,8 +291,11 @@ Small screens
         flex-direction: row;
         align-items: stretch;
     }
-    .main-menu ul li {
+    .main-menu ul li a,
+    .main-menu ul li.with-submenu {
         padding: 10px 5px;
+    }
+    .main-menu ul li {
         height: auto;
         display: block;
         flex: 1;

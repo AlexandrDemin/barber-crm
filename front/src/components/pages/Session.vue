@@ -1,7 +1,13 @@
 <template>
   <main class="translucent-theme background">
     <appMenu selected-element="session"></appMenu>
-    <div class="session-info grid-x align-middle">
+    <div v-if="!Object.keys(session).length" class="grid-x align-center-middle content">
+      <div class="card cell shrink text-center greeting-card">
+        <h1>{{getGreeting()}}<br>{{getGreetingEmojis()}}</h1>
+        <div><button class="button primary">Открыть смену</button ></div>
+      </div>
+    </div>
+    <div v-if="Object.keys(session).length" class="session-info grid-x align-middle">
       <div class="session-info-block cell medium-auto small-6">
         <span class="session-info-big-number">{{time}}</span>
         <label class="session-info-big-label">{{date}}</label>
@@ -30,7 +36,7 @@
         <button class="button secondary small">Изменить/закрыть смену</button>
       </div>
     </div>
-    <div class="session-content">
+    <div v-if="Object.keys(session).length" class="session-content">
       <div class="grid-x grid-margin-x grid-margin-y">
         <employeeCard
           v-for="employee in session.employees"
@@ -110,6 +116,7 @@ export default {
   },
   data () {
     return {
+      session1: {},
       session: {
         'id': 1,
         'dateOpened': '21.09.2019 09:30',
@@ -214,6 +221,36 @@ export default {
     }
   },
   methods: {
+    getGreeting: function () {
+      var date = new Date()
+      var hour = date.getHours()
+      if (hour <= 12) {
+        return 'Доброе утро!'
+      }
+      if (hour > 12 && hour < 17) {
+        return 'Добрый день!'
+      }
+      if (hour >= 17) {
+        return 'Добрый вечер!'
+      }
+    },
+    getGreetingEmojis: function () {
+      var emojis = ['✂️', '😀', '💪', '👋', '😎', '👏', '🦄', '🌄', '🌅', '❤️', '🍒', '🌈', '😄', '✌️', '😉', '🙂', '✂️']
+      var i = 0
+      var res = ''
+      while (i < 3) {
+        var rnd = Math.ceil(Math.random() * emojis.length - 1)
+        if (rnd < 0) {
+          rnd = 0
+        }
+        if (rnd > emojis.length) {
+          rnd = emojis.length - 1
+        }
+        res += emojis[rnd]
+        i++
+      }
+      return res
+    },
     getZeroPaddedNumber: function (number, len) {
       var strNum = number.toString()
       while (strNum.length < len) {
@@ -243,50 +280,69 @@ export default {
       }
     },
     servicesCount: function () {
-      return this.session.operations.filter(operation => operation.operationType === 'service').length
+      if (Object.keys(this.session).length) {
+        return this.session.operations.filter(operation => operation.operationType === 'service').length
+      }
+      return 0
     },
     goodsCount: function () {
-      return this.session.operations.filter(operation => operation.operationType === 'goodSell').length
+      if (Object.keys(this.session).length) {
+        return this.session.operations.filter(operation => operation.operationType === 'goodSell').length
+      }
+      return 0
     },
     revenue: function () {
-      var revenue = 0
-      var services = this.session.operations.filter(operation => operation.operationType === 'service')
-      var goods = this.session.operations.filter(operation => operation.operationType === 'goodSell')
-      services.map(s => {
-        revenue += s.cashSum + s.cashlessSum - s.discountSum
-      })
-      goods.map(g => {
-        revenue += g.cashSum + g.cashlessSum - g.discountSum
-      })
-      return revenue
+      if (Object.keys(this.session).length) {
+        var revenue = 0
+        var services = this.session.operations.filter(operation => operation.operationType === 'service')
+        var goods = this.session.operations.filter(operation => operation.operationType === 'goodSell')
+        services.map(s => {
+          revenue += s.cashSum + s.cashlessSum - s.discountSum
+        })
+        goods.map(g => {
+          revenue += g.cashSum + g.cashlessSum - g.discountSum
+        })
+        return revenue
+      }
+      return 0
     },
     costs: function () {
-      var costs = 0
-      var spends = this.session.operations.filter(operation => operation.operationType === 'spend')
-      var employeePayments = this.session.operations.filter(operation => operation.operationType === 'employeePayment')
-      spends.map(s => {
-        costs += s.sum
-      })
-      employeePayments.map(e => {
-        costs += e.sum
-      })
-      return costs
+      if (Object.keys(this.session).length) {
+        var costs = 0
+        var spends = this.session.operations.filter(operation => operation.operationType === 'spend')
+        var employeePayments = this.session.operations.filter(operation => operation.operationType === 'employeePayment')
+        spends.map(s => {
+          costs += s.sum
+        })
+        employeePayments.map(e => {
+          costs += e.sum
+        })
+        return costs
+      }
+      return 0
     },
     bonus: function () {
-      var bonus = 0
-      var services = this.session.operations.filter(operation => operation.operationType === 'service')
-      var goods = this.session.operations.filter(operation => operation.operationType === 'goodSell')
-      services.map(s => {
-        bonus += s.adminBonus + s.masterBonus
-      })
-      goods.map(g => {
-        bonus += g.adminBonus + g.masterBonus
-      })
-      return bonus
+      if (Object.keys(this.session).length) {
+        var bonus = 0
+        var services = this.session.operations.filter(operation => operation.operationType === 'service')
+        var goods = this.session.operations.filter(operation => operation.operationType === 'goodSell')
+        services.map(s => {
+          bonus += s.adminBonus + s.masterBonus
+        })
+        goods.map(g => {
+          bonus += g.adminBonus + g.masterBonus
+        })
+        return bonus
+      }
+      return 0
     }
   }
 }
 </script>
 
 <style>
+  .greeting-card {
+    padding: 30px 50px;
+    margin-top: -80px;
+  }
 </style>
