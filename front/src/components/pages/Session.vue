@@ -4,7 +4,7 @@
     <div v-if="!Object.keys(session).length" class="grid-x align-center-middle content">
       <div class="card cell shrink text-center greeting-card">
         <h1>{{getGreeting()}}<br>{{getGreetingEmojis()}}</h1>
-        <div><button class="button primary">Открыть смену</button ></div>
+        <div><router-link to="/EditSession" class="button primary">Открыть смену</router-link></div>
       </div>
     </div>
     <div v-if="Object.keys(session).length" class="session-info grid-x align-middle">
@@ -33,7 +33,7 @@
         <label class="session-info-big-label">Премия, ₽</label>
       </div>
       <div class="session-info-block cell medium-2 small-12">
-        <button class="button secondary small">Изменить/закрыть смену</button>
+        <router-link v-bind:to="'/EditSession/' + session.id.toString()" class="button secondary small">Изменить/закрыть смену</router-link>
       </div>
     </div>
     <div v-if="Object.keys(session).length" class="session-content">
@@ -81,13 +81,13 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="operation in session.operations" v-if="operation.operationType === 'service'" v-bind:key="operation.id">
-                <td>{{getTimeFromApiData(operation.startDatetime)}}</td>
-                <td>Сотрудник</td>
-                <td>Операция</td>
-                <td>Сумма</td>
-                <td>Премия</td>
-                <td><button type="button" class="button secondary">Редактировать/удалить</button></td>
+              <tr v-for="operation in session.operations" v-bind:key="operation.id">
+                <td>{{$store.getters.getTimeFromOperation(operation)}}</td>
+                <td>{{$store.getters.getEmployeeNameFromOperation(operation)}}</td>
+                <td v-html="$store.getters.getOperationContent(operation)"></td>
+                <td>{{$store.getters.getOperationSum(operation)}}</td>
+                <td>{{$store.getters.getOperationBonus(operation)}}</td>
+                <td><router-link v-bind:to="$store.getters.getOperationLink(operation)" type="button" class="button secondary small">Редактировать/удалить</router-link></td>
               </tr>
             </tbody>
           </table>
@@ -123,28 +123,28 @@ export default {
         'dateClosed': null,
         'employees': [
           {
-            'Id': 1,
+            'id': 1,
             'name': 'Алексей Луцай',
             'role': 'officeAdmin',
             'pictureUrl': '',
             'workHours': 6
           },
           {
-            'Id': 2,
+            'id': 2,
             'name': 'Мария Попова',
             'role': 'master',
             'pictureUrl': 'static/user_photos/мария.jpg',
             'workHours': 6
           },
           {
-            'Id': 3,
+            'id': 3,
             'name': 'Макс Корж',
             'role': 'master',
             'pictureUrl': 'static/user_photos/макс.jpg',
             'workHours': 6
           },
           {
-            'Id': 4,
+            'id': 4,
             'name': 'Прокофий Иванов',
             'role': 'master',
             'pictureUrl': '',
@@ -156,13 +156,14 @@ export default {
         'operations': [
           {
             'operationType': 'service',
+            'sessionId': 1,
             'id': 1,
             'officeId': 1,
-            'type': 'Стрижка мужская',
+            'type': 1,
             'startDatetime': '21.09.2019 09:30',
             'finishDatetime': '21.09.2019 10:30',
             'adminId': 1,
-            'masterId': 2,
+            'masterId': 3,
             'clientId': 1,
             'cashSum': 600,
             'cashlessSum': 0,
@@ -179,10 +180,10 @@ export default {
             'id': 2,
             'officeId': 1,
             'sessionId': 1,
-            'type': [2, 44, 21],
+            'goodsIds': [1, 2, 3, 4, 5],
             'datetime': '21.09.2019 09:30',
             'adminId': 1,
-            'masterId': 2,
+            'masterId': 3,
             'clientId': 1,
             'cashSum': 0,
             'cashlessSum': 2350,
@@ -251,26 +252,15 @@ export default {
       }
       return res
     },
-    getZeroPaddedNumber: function (number, len) {
-      var strNum = number.toString()
-      while (strNum.length < len) {
-        strNum = '0' + strNum
-      }
-      return strNum
-    },
     getTime: function () {
       var date = new Date()
       var hours = date.getHours()
       var minutes = date.getMinutes()
-      return this.getZeroPaddedNumber(hours, 2) + ' : ' + this.getZeroPaddedNumber(minutes, 2)
+      return this.$store.getters.getZeroPaddedNumber(hours, 2) + ' : ' + this.$store.getters.getZeroPaddedNumber(minutes, 2)
     },
     getDate: function () {
       var date = new Date()
       return date.toLocaleDateString('ru')
-    },
-    getTimeFromApiData: function (datetimestr) {
-      var len = datetimestr.length
-      return datetimestr.slice(len - 5, len)
     }
   },
   computed: {
@@ -341,8 +331,4 @@ export default {
 </script>
 
 <style>
-  .greeting-card {
-    padding: 30px 50px;
-    margin-top: -80px;
-  }
 </style>

@@ -5,7 +5,7 @@
     v-on:mouseover.passive="isOverMenu = true"
   >
     <ul v-bind:class="adminSubmenuShown ? 'submenu shown' : 'submenu hidden'">
-      <li class="close-item" v-on:click="closeMenus()"><button type="button" class="close-button">&times;</button></li>
+      <li class="close-item" v-on:click="closeMenus(true)"><button type="button" class="close-button">&times;</button></li>
       <li><router-link to="/UploadExpenses">Внести расходы</router-link></li>
       <li><router-link to="/Offices">Отделения</router-link></li>
       <li><router-link to="/ServiceTypes">Услуги</router-link></li>
@@ -16,7 +16,7 @@
       <li><router-link to="/MasterTypes">Категории мастеров</router-link></li>
     </ul>
     <ul v-bind:class="reportsSubmenuShown ? 'submenu shown' : 'submenu hidden'">
-      <li class="close-item" v-on:click="closeMenus()"><button type="button" class="close-button">&times;</button></li>
+      <li class="close-item" v-on:click="closeMenus(true)"><button type="button" class="close-button">&times;</button></li>
       <li><router-link to="/EmployeesReport">Отчёт по сотрудникам</router-link></li>
       <li><router-link to="/ClientsReport">Отчёт по клиентам</router-link></li>
       <li><router-link to="/FinancialReport">Финансовый отчёт</router-link></li>
@@ -129,8 +129,8 @@ export default {
         }, 100)
       }
     },
-    closeMenus: function () {
-      if (this.isOverNoSubmenuEl || !this.isOverMenu) {
+    closeMenus: function (force) {
+      if (this.isOverNoSubmenuEl || !this.isOverMenu || force) {
         this.reportsSubmenuShown = false
         this.adminSubmenuShown = false
       }

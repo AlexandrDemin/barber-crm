@@ -85,12 +85,12 @@ export default {
   computed: {
     services: {
       get () {
-        return this.$store.state.services
+        return this.$store.state.serviceTypes
       }
     },
     goods: {
       get () {
-        return this.$store.state.goods
+        return this.$store.state.goodsTypes
       }
     },
     employeePaymentTypes: {
