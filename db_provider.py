@@ -31,7 +31,7 @@ def generateQueryUpdate(table,data):
         
     queryparts = []
     prepareData(data) # инициируем подготовку данных, чтобы их можно было вставлять в sql запрос и он потом работал
-    for key,value in data.items():
+    for key,value in data.items(): # если бы мы здесь оставили бы ID, то ID бы попал в текст запроса на изменение
         qpart = f"""{key} = {value}""" # это формат апдейта данных, слева колонка, справа новое значение
         queryparts.append(qpart)
     setquery = ', '.join(queryparts)
