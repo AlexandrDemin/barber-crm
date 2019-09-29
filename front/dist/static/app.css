@@ -24,6 +24,9 @@ table .button,
 label .button {
     margin: 0;
 }
+.no-margin {
+    margin: 0;
+}
 
 /*
 Main menu
@@ -178,11 +181,11 @@ Employee card
 */
 .card {
     border-radius: 5px;
-    box-shadow: 0 1px 0px rgba(56,52,46,.2);
+    box-shadow: 0 10px 15px -10px rgba(56,52,46,.2);
     overflow: auto;
 }
 .employee-card-header {
-    background: #FFFFFF;
+    background: #F3F2F1;
     border-radius: 5px 5px 0 0;
 }
 .employee-card-header .employee-card-picture {

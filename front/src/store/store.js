@@ -291,7 +291,7 @@ export default new Vuex.Store({
         return getters.getServiceName(operation.type)
       }
       if (operation.operationType === 'goodSell') {
-        return operation.goodsIds.map(i => getters.getItemName(i)).join('<br>')
+        return getters.getItemName(operation.type)
       }
       if (operation.operationType === 'spend') {
         return getters.getSpendTypeName(operation.type)

@@ -20,7 +20,7 @@
           <label v-on:click.prevent class="grid-x">
             <span class="cell auto">Администратор {{index > 0 ? index + 1 : ''}}</span>
             <button
-              type="button" class="button clear small cell shrink remove-employee"
+              type="button" class="button clear small cell shrink no-margin"
               @click="removeEmployee(admin.id)"
               v-if="index > 0"
             >
@@ -48,9 +48,8 @@
           <label v-on:click.prevent class="grid-x">
             <span class="cell auto">Мастер {{index > 0 ? index + 1 : ''}}</span>
             <button
-              type="button" class="button clear small cell shrink remove-employee"
+              type="button" class="button clear small cell shrink no-margin"
               @click="removeEmployee(master.id)"
-              v-if="index > 0"
             >
               Удалить
             </button>
@@ -71,9 +70,9 @@
         <div>
           <button class="button secondary" type="button" @click="addMaster">Добавить мастера</button>
         </div>
-        <div v-if="session.state === 'open'">
-          <button class="button primary" type="button" @click="save">{{session.id ? 'Сохранить' : 'Открыть смену'}}</button>
-          <button v-if="session.id" class="button secondary" type="button" @click="closeSession">Закрыть смену</button>
+        <div v-if="session.state === 'open'" class="grid-x align-justify">
+          <button class="button primary cell shrink" type="button" @click="save">{{session.id ? 'Сохранить' : 'Открыть смену'}}</button>
+          <button v-if="session.id" class="button secondary alert cell shrink" type="button" @click="closeSession">Закрыть смену</button>
         </div>
       </form>
     </div>
@@ -208,7 +207,4 @@ export default {
 </script>
 
 <style>
-  .remove-employee {
-    margin: 0;
-  }
 </style>
