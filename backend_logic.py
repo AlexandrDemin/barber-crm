@@ -109,42 +109,43 @@ def splitCreateUpdate(data):
                 updatelist.append(item)        
     return createlist,updatelist
 
-#триггерим апсерт: список, который на апдейт, апдейтится, который на креэйт — креэйтится
 def upsert(table,data):
-    createlist,updatelist = splitCreateUpdate(data) # вызываем функцию, которая делит входящие данные на два списка — на создание и обновление
+    createlist,updatelist = splitCreateUpdate(data)
+    table = table
     result = []
     for i in createlist:
-        query = generateQueryCreate(table,i) # создаем sql-запрос на создание записей
-        r = gotobase("localhost","barbers","read_write","Rw_Us3r",query,output,commit=True) # выполняем запрос
-        result.append(r) # добавляем к общему списку результатов
+        query = generateQueryCreate(table,i)
+        r = goToBase("localhost","barbers","read_write","Rw_Us3r",query,output,commit=True)
+        result.append(r)
     for i in updatelist:
-        query = generateQueryUpdate(table,i) # создаем sql-запрос на апдейт записей
-        r = gotobase("localhost","barbers","read_write","Rw_Us3r",query,output,commit=True) # выполняем запрос
-        result.append(r) # добавляем к общему списку результатов
+        query = generateQueryUpdate(table,i)
+        r = goToBase("localhost","barbers","read_write","Rw_Us3r",query,output,commit=True)
+        result.append(r)
+    result = json.dumps(result)
     return result
 
-#триггерим селект
-def select(*args):
+def select(args=None):
     query = generateQueryRead(args)
-    result = gotobase("localhost","barbers","read_only","User_ro",query)
+    result = goToBase("localhost","barbers","read_only","User_ro",query)
     return result
 
-#форматируем результат
-def getResult(result)
+def getResult(result):
     if type(result) == list:
-            result = json.dumps([*map(dict, result)])
+        if len(result) == 1:
+            result = json.dumps(result[0],ensure_ascii=False)
+        else:
+            result = json.dumps([*map(dict, result)],ensure_ascii=False)
     return result
-
-#Отправляем данные на апсерт и получаем результат
+            
 def edit(table,data):
     result = upsert(table,data)
     result = getresult(result)
     return result
 
-#Отправляем данные на селект и получаем результат
-def get(configkey,*args):
-    args = argsconfig[configkey]
-    if 'dataneeded' in args:
-        args['data'] = args
-    result = select(args)
-    result = getresult(result)
+def get(configkey,args=None):
+    raw_data = argsconfig[configkey]
+    if 'dataneeded' in raw_data:
+        raw_data['data'] = args
+    result = select(raw_data)
+    result = getResult(result)
+    return result
