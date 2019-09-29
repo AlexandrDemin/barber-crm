@@ -86,19 +86,11 @@ argsconfig = {
 
 
 class DateEncoder(json.JSONEncoder):
-	
     def default(self, obj):
         if isinstance(obj, datetime):
             return obj.strftime("%d.%m.%Y %H:%M")
         return json.JSONEncoder.default(self, obj)
-
-# Получить проекты
-def getData():
-    return {
-	    "message": "Дратути"
-	}
-
-# делим вход на то, что надо создать и то, что надо изменить:
+    
 def splitCreateUpdate(data):
     createlist = []
     updatelist = []
@@ -123,11 +115,11 @@ def upsert(table,data):
     result = []
     for i in createlist:
         query = generateQueryCreate(table,i)
-        r = goToBase("localhost","barbers","read_write","Rw_Us3r",query,output,commit=True)
+        r = goToBase("localhost","barbers","admin","Adm1n1strat0r",query,commit=True)
         result.append(r)
     for i in updatelist:
         query = generateQueryUpdate(table,i)
-        r = goToBase("localhost","barbers","read_write","Rw_Us3r",query,output,commit=True)
+        r = goToBase("localhost","barbers","admin","Adm1n1strat0r",query,commit=True)
         result.append(r)
     result = json.dumps(result)
     return result
@@ -138,6 +130,7 @@ def select(args=None):
     return result
 
 def getResult(result):
+    getResult.result = result
     if type(result) == list:
         if len(result) == 1:
             result = json.dumps(result[0],ensure_ascii=False, cls=DateEncoder)
@@ -147,7 +140,7 @@ def getResult(result):
             
 def edit(table,data):
     result = upsert(table,data)
-    result = getresult(result)
+    result = getResult(result)
     return result
 
 def get(configkey,args=None):
