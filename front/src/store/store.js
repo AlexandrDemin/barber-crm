@@ -260,7 +260,7 @@ export default new Vuex.Store({
         if (phone) {
           return `${client.name} (${phone.value})`
         }
-        return client.name + '(телефон не указан)'
+        return client.name + ' (телефон не указан)'
       }
       return '–'
     },
