@@ -5,6 +5,7 @@
 import json
 import psycopg2
 
+#DB
 def prepareData(data):
     for key,value in data.items():
         if type(value) == dict:
@@ -39,6 +40,7 @@ def generateQueryUpdate(table,data):
     idquery = f"""
     where id = {_id}"""
     q = baseq + setquery + idquery + '\nRETURNING id'
+    print(q)
     return q
     
 def generateQueryCreate(table,data):
@@ -53,6 +55,7 @@ def generateQueryCreate(table,data):
     q = f"""INSERT INTO {table} {columns}
     VALUES
     {values} RETURNING id"""
+    print(q)
     return q
 
 def generateWhere(data):
@@ -102,7 +105,6 @@ def generateQueryRead(args=None):
             wherepart = generateWhere(args['data'])            
             
     query = f"""select {fields} from {table}{wherepart}{orderpart}"""
-    print(query)
     return query
 
 def goToBase(host,database,user,password,query,commit=False):
