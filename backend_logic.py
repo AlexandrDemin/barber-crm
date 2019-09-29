@@ -84,6 +84,14 @@ argsconfig = {
     }
 }
 
+
+class DateEncoder(json.JSONEncoder):
+	
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime("%d.%m.%Y %H:%M")
+        return json.JSONEncoder.default(self, obj)
+
 # Получить проекты
 def getData():
     return {
@@ -132,9 +140,9 @@ def select(args=None):
 def getResult(result):
     if type(result) == list:
         if len(result) == 1:
-            result = json.dumps(result[0],ensure_ascii=False)
+            result = json.dumps(result[0],ensure_ascii=False, cls=DateEncoder)
         else:
-            result = json.dumps([*map(dict, result)],ensure_ascii=False)
+            result = json.dumps([*map(dict, result)],ensure_ascii=False, cls=DateEncoder)
     return result
             
 def edit(table,data):
