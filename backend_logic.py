@@ -128,3 +128,23 @@ def select(*args):
     query = generateQueryRead(args)
     result = gotobase("localhost","barbers","read_only","User_ro",query)
     return result
+
+#форматируем результат
+def getResult(result)
+    if type(result) == list:
+            result = json.dumps([*map(dict, result)])
+    return result
+
+#Отправляем данные на апсерт и получаем результат
+def edit(table,data):
+    result = upsert(table,data)
+    result = getresult(result)
+    return result
+
+#Отправляем данные на селект и получаем результат
+def get(configkey,*args):
+    args = argsconfig[configkey]
+    if 'dataneeded' in args:
+        args['data'] = args
+    result = select(args)
+    result = getresult(result)
