@@ -93,7 +93,7 @@ def getSessionsOperationsQuery(args):
         
     if 'state' in args['data']:
         state = args['data']['state']
-        statepart = f"""state = {state}"""
+        statepart = f"""state = '{state}'"""
         
     if '"officeId"' in args['data']:
         officeId = args['data']['"officeId"']
