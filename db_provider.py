@@ -6,7 +6,6 @@ import json
 import psycopg2
 
 #DB
-#DB
 def prepareData(data):
     for key,value in data.items():
         if type(value) == dict:
@@ -41,7 +40,6 @@ def generateQueryUpdate(table,data):
     idquery = f"""
     where id = {_id}"""
     q = baseq + setquery + idquery + '\nRETURNING id'
-    print(q)
     return q
     
 def generateQueryCreate(table,data):
@@ -56,7 +54,6 @@ def generateQueryCreate(table,data):
     q = f"""INSERT INTO {table} {columns}
     VALUES
     {values} RETURNING id"""
-    print(q)
     return q
 
 def generateWhere(data):
@@ -70,13 +67,18 @@ def generateWhere(data):
     whereclause = baseq + wherestring
     return whereclause
 
-def getSessionsQuery(args):
+def getSessionsOperationsQuery(args):
     table = args['table']
     fields = ','.join(args['fields'])
     qdatefrompart = ''
     qdatetopart = ''
+    idpart = ''
+    statepart = ''
+    officeIdpart = ''
     wherepartlist = []
-
+    
+    print('getSessionsOperationsQuery,2',args)
+    
     if 'dateFrom' in args['data']:
         date = args['data']['dateFrom']
         qdatefrompart = f"""\"dateOpened\" >= '{date}'""" 
@@ -84,34 +86,50 @@ def getSessionsQuery(args):
     if 'dateTo' in args['data']:
         date = args['data']['dateTo']
         qdatetopart = f"""\"dateClosed\" <= '{date}'"""
+        
+    if 'id' in args['data']:
+        _id = args['data']['id']
+        idpart = f"""id = {_id}"""
+        
+    if 'state' in args['data']:
+        state = args['data']['state']
+        statepart = f"""state = {state}"""
+        
+    if '"officeId"' in args['data']:
+        officeId = args['data']['"officeId"']
+        officeIdpart = f"""\"officeId\" = {officeId}"""
 
     if 'employeeIds' in args['data']:
         fields_filtered = args['fields'].copy()
         fields_filtered.remove('"employees"')
-        fields = ','.join(fields_filtered)
+        fieldsFiltered = ','.join(fields_filtered)
         employeeids = args['data']['employeeIds']
         employeeidslistformatted = [* map(str, employeeids)]
         employeelisttoquery = '\''+'\',\''.join(employeeidslistformatted)+ '\''
         employeeidspart = f"""s.employeesunnsted->>'userId' in ({employeelisttoquery})"""
-        wherelist = [employeeidspart,qdatefrompart,qdatetopart]
+        wherelist = [employeeidspart,qdatefrompart,qdatetopart,idpart,statepart,officeIdpart]
         wherelistfiltered = list(filter(None, wherelist))
-        wherelocalpart = ' and '.join(wherelistfiltered)
+        wherelocalpart = 'where ' + ' and '.join(wherelistfiltered)
         sessionquery = f"""select * from
-        (select {fields},array_agg(employeesunnsted) as employees from
+        (select {fieldsFiltered},array_agg(employeesunnsted) as employees from
         (SELECT *,unnest(employees) employeesunnsted FROM {table}) s
-        where {wherelocalpart}
-        group by {fields}) ssn
+        {wherelocalpart}
+        group by {fieldsFiltered}) ssn
         """
     else:
-        wherelist = [qdatefrompart,qdatetopart]
+        wherelist = [qdatefrompart,qdatetopart,idpart,statepart,officeIdpart]
         wherelistfiltered = list(filter(None, wherelist))
-        wherelocalpart = ' and '.join(wherelistfiltered)
+        if len(wherelistfiltered) != 0:
+            wherelocalpart = 'where ' + ' and '.join(wherelistfiltered)
+        else:
+            wherelocalpart = ''
         sessionquery = f"""select * from
-        (select {fields} from {table}) ssn
-        where {wherelocalpart}"""
+        (select {fields} from {table}
+        {wherelocalpart}) ssn"""
 
     if 'withOperations' in args['data']:
-        args['data']['operationType'] = [1,2,3,4]
+        if args['data']['withOperations'] == 'true':
+            args['data']['operationType'] = [1,2,3,4]
 
     if 'operationType' in args['data']:
         # фильтрация по id сессий
@@ -137,13 +155,18 @@ def getSessionsQuery(args):
         group by "sessionId",type) c
         group by "sessionId"'''
 
-    query = f'''{sessionquery}
-    inner join
-    ({queryoperations}) operations
-    on ssn.id = operations."sessionId"'''
+        query = f'''{sessionquery}
+        inner join
+        ({queryoperations}) operations
+        on ssn.id = operations."sessionId"'''
+        
+    else:
+        query = f'''{sessionquery}'''
+    print(query)
     return query
 
 def generateQueryRead(args=None):
+    print('generateQueryRead,1',args)
     table = args['table']
     additionalpart = ''
     orderpart = ''
@@ -155,7 +178,7 @@ def generateQueryRead(args=None):
     
     if 'type' in args:
         if args['type'] == 'GetSessions':
-            query = getSessionsQuery(args)
+            query = getSessionsOperationsQuery(args)
             
         else:
             if args['type'] in ['GetAdmins','GetMasters']:
