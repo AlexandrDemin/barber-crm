@@ -70,6 +70,7 @@ def GetUserData():
 def GetCurrentSession():
     if request.method == 'POST':
         data = request.get_json()
+        data['state'] = 'open'
         configkey = 'GetCurrentSession'
         result = get(configkey,data)
         return result
