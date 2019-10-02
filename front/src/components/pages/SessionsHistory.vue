@@ -3,16 +3,16 @@
     <appMenu selected-element="history"></appMenu>
     <div class="content">
       <h1>История смен и операций</h1>
-      <form class="grid-x grid-padding-x">
-        <div class="cell shrink">
+      <form class="grid-x grid-padding-x no-padding-small">
+        <div class="cell large-shrink small-12">
           <label>Дата от</label>
-          <input type="calendar" v-model="dateFrom">
+          <input type="date" v-model="dateFrom">
         </div>
-        <div class="cell shrink">
+        <div class="cell large-shrink small-12">
           <label>Дата до</label>
-          <input type="calendar" v-model="dateTo">
+          <input type="date" v-model="dateTo">
         </div>
-        <div class="cell shrink">
+        <div class="cell large-shrink small-12">
           <label>Типы операций</label>
           <select v-model="selectedOperationTypes" multiple="multiple">
             <option
@@ -25,7 +25,7 @@
             </option>
           </select>
         </div>
-        <div class="cell shrink">
+        <div class="cell large-shrink small-12">
           <label>Отделения</label>
           <select v-model="officeIds" multiple="multiple">
             <option
@@ -38,7 +38,7 @@
             </option>
           </select>
         </div>
-        <div class="cell shrink">
+        <div class="cell large-shrink small-12">
           <label>Клиенты</label>
           <select v-model="clientIds" multiple="multiple">
             <option
@@ -51,7 +51,7 @@
             </option>
           </select>
         </div>
-        <div class="cell shrink">
+        <div class="cell large-shrink small-12">
           <label>Сотрудники</label>
           <select v-model="employeeIds" multiple="multiple">
             <option
@@ -64,9 +64,9 @@
             </option>
           </select>
         </div>
-        <div class="cell shrink">
-          <button class="button primary" @click="showSessions">Показать</button>
-          <button class="button secondary" @click="exportToExcel">Выгрузить в .xlsx</button>
+        <div class="cell large-shrink small-12">
+          <button class="button primary" type="button" @click="showSessions">Показать</button>
+          <button class="button secondary" type="button" @click="exportToExcel">Выгрузить в .xlsx</button>
         </div>
       </form>
       <div
@@ -75,7 +75,7 @@
         v-bind:key="session.id"
       >
         <h3>Смена {{session.dateOpened}}</h3>
-        <table class="operations-table">
+        <table class="operations-table hover">
           <thead>
             <tr>
               <th>Время</th>
@@ -83,17 +83,37 @@
               <th>Операция</th>
               <th>Сумма</th>
               <th>Премия</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="operation in session.operations" v-bind:key="operation.id">
-              <td>{{$store.getters.getTimeFromOperation(operation)}}</td>
-              <td>{{$store.getters.getEmployeeNameFromOperation(operation)}}</td>
-              <td v-html="$store.getters.getOperationContent(operation)"></td>
-              <td>{{$store.getters.getOperationSum(operation)}}</td>
-              <td>{{$store.getters.getOperationBonus(operation)}}</td>
-              <td><router-link v-bind:to="$store.getters.getOperationLink(operation)" type="button" class="button secondary small">Редактировать/удалить</router-link></td>
+              <td>
+                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                  {{$store.getters.getTimeFromOperation(operation)}}
+                </router-link>
+              </td>
+              <td>
+                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                  {{$store.getters.getEmployeeNameFromOperation(operation)}}
+                </router-link>
+              </td>
+              <td>
+                <router-link
+                  v-bind:to="$store.getters.getOperationLink(operation)"
+                  class="table-link"
+                  v-html="$store.getters.getOperationContent(operation)"
+                ></router-link>
+              </td>
+              <td>
+                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                  {{$store.getters.getOperationSum(operation)}}
+                </router-link>
+              </td>
+              <td>
+                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                  {{$store.getters.getOperationBonus(operation)}}
+                </router-link>
+              </td>
             </tr>
           </tbody>
         </table>

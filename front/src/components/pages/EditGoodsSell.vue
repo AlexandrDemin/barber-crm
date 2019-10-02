@@ -4,7 +4,7 @@
     <div class="content">
       <h1>Продажа товаров</h1>
       <div class="grid-x">
-        <form class="cell small-6">
+        <form class="cell large-6">
           <div v-for="(soldItem, index) in operations" v-bind:key="soldItem.id">
             <label v-on:click.prevent class="grid-x">
               <span class="cell auto">Товар {{index > 0 ? index + 1 : ''}}</span>

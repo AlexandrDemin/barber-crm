@@ -17,9 +17,9 @@
             </option>
           </select>
           <label>Время начала</label>
-          <input type="text" v-model="service.startDatetime"/>
+          <input type="time" v-model="service.startDatetime"/>
           <label>Время завершения</label>
-          <input type="text" v-model="service.finishDatetime"/>
+          <input type="time" v-model="service.finishDatetime"/>
           <label>Администратор</label>
           <select v-model="service.adminId">
             <option
@@ -50,7 +50,7 @@
               v-bind:value="client.id"
               v-bind:selected="client.id === service.clientId"
             >
-              {{$store.getters.getClientDescription(client.id)}}
+              {{$store.getters.getClientDescription(client.id) || 'Новый клиент'}}
             </option>
           </select>
           <label>Сумма (наличка)</label>
@@ -353,7 +353,7 @@ export default {
           'finishDatetime': null,
           'adminId': this.$route.query.adminId,
           'masterId': this.$route.query.masterId,
-          'clientId': 1,
+          'clientId': null,
           'cashSum': 0,
           'cashlessSum': 0,
           'discountSum': 0,
@@ -436,7 +436,19 @@ export default {
     },
     clients: {
       get () {
-        return this.$store.state.clients
+        var clientsCopy = [...this.$store.state.clients]
+        clientsCopy.unshift({
+          id: null,
+          name: '',
+          photoUrl: '',
+          contacts: [
+            {
+              type: 'phone',
+              value: ''
+            }
+          ]
+        })
+        return clientsCopy
       }
     },
     admins: {

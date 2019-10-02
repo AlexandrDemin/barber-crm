@@ -77,17 +77,37 @@
                 <th>Операция</th>
                 <th>Сумма</th>
                 <th>Премия</th>
-                <th></th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="operation in session.operations" v-bind:key="operation.id">
-                <td>{{$store.getters.getTimeFromOperation(operation)}}</td>
-                <td>{{$store.getters.getEmployeeNameFromOperation(operation)}}</td>
-                <td v-html="$store.getters.getOperationContent(operation)"></td>
-                <td>{{$store.getters.getOperationSum(operation)}}</td>
-                <td>{{$store.getters.getOperationBonus(operation)}}</td>
-                <td><router-link v-bind:to="$store.getters.getOperationLink(operation)" type="button" class="button secondary small">Редактировать/удалить</router-link></td>
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getTimeFromOperation(operation)}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getEmployeeNameFromOperation(operation)}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link
+                    v-bind:to="$store.getters.getOperationLink(operation)"
+                    class="table-link"
+                    v-html="$store.getters.getOperationContent(operation)"
+                  ></router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getOperationSum(operation)}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getOperationBonus(operation)}}
+                  </router-link>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -117,177 +137,6 @@ export default {
   data () {
     return {
       session1: {},
-      session: {
-        'id': 1,
-        'dateOpened': '21.09.2019 09:30',
-        'dateClosed': null,
-        'employees': [
-          {
-            'id': 1,
-            'name': 'Алексей Луцай',
-            'role': 'officeAdmin',
-            'pictureUrl': '',
-            'workHours': 6
-          },
-          {
-            'id': 2,
-            'name': 'Мария Попова',
-            'role': 'master',
-            'pictureUrl': 'static/user_photos/мария.jpg',
-            'workHours': 6
-          },
-          {
-            'id': 3,
-            'name': 'Макс Корж',
-            'role': 'master',
-            'pictureUrl': 'static/user_photos/макс.jpg',
-            'workHours': 6
-          },
-          {
-            'id': 4,
-            'name': 'Прокофий Иванов',
-            'role': 'master',
-            'pictureUrl': '',
-            'workHours': 6
-          }
-        ],
-        'officeId': 1,
-        'state': 'open',
-        'operations': [
-          {
-            'operationType': 'service',
-            'sessionId': 1,
-            'id': 1,
-            'officeId': 1,
-            'type': 1,
-            'startDatetime': '21.09.2019 09:30',
-            'finishDatetime': '21.09.2019 10:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 600,
-            'cashlessSum': 0,
-            'discountSum': 0,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'score': null,
-            'review': '',
-            'photoUrls': [],
-            'comment': ''
-          },
-          {
-            'operationType': 'goodSell',
-            'id': 2,
-            'officeId': 1,
-            'sessionId': 1,
-            'type': 1,
-            'datetime': '21.09.2019 09:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 0,
-            'cashlessSum': 2350,
-            'discountSum': 0,
-            'amount': 1,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'comment': ''
-          },
-          {
-            'operationType': 'goodSell',
-            'id': 3,
-            'officeId': 1,
-            'sessionId': 1,
-            'type': 2,
-            'datetime': '21.09.2019 09:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 0,
-            'cashlessSum': 2350,
-            'discountSum': 0,
-            'amount': 1,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'comment': ''
-          },
-          {
-            'operationType': 'goodSell',
-            'id': 4,
-            'officeId': 1,
-            'sessionId': 1,
-            'type': 3,
-            'datetime': '21.09.2019 09:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 0,
-            'cashlessSum': 2350,
-            'discountSum': 0,
-            'amount': 1,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'comment': ''
-          },
-          {
-            'operationType': 'goodSell',
-            'id': 5,
-            'officeId': 1,
-            'sessionId': 1,
-            'type': 4,
-            'datetime': '21.09.2019 09:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 0,
-            'cashlessSum': 2350,
-            'discountSum': 0,
-            'amount': 1,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'comment': ''
-          },
-          {
-            'operationType': 'goodSell',
-            'id': 6,
-            'officeId': 1,
-            'sessionId': 1,
-            'type': 5,
-            'datetime': '21.09.2019 09:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 0,
-            'cashlessSum': 2350,
-            'discountSum': 0,
-            'amount': 1,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'comment': ''
-          },
-          {
-            'operationType': 'spend',
-            'id': 2,
-            'officeId': 1,
-            'sessionId': 1,
-            'type': 2,
-            'datetime': '21.09.2019 12:44',
-            'sum': 600,
-            'comment': ''
-          },
-          {
-            'operationType': 'employeePayment',
-            'id': 2,
-            'officeId': 1,
-            'sessionId': 1,
-            'employeeId': 4,
-            'type': 2,
-            'datetime': '21.09.2019 18:22',
-            'sum': 600,
-            'comment': ''
-          }
-        ]
-      },
       selectedSpendType: 1,
       spendSum: '',
       time: this.getTime(),
@@ -337,6 +186,11 @@ export default {
     }
   },
   computed: {
+    session: {
+      get () {
+        return this.$store.state.currentSession
+      }
+    },
     spendTypes: {
       get () {
         return this.$store.state.spendTypes

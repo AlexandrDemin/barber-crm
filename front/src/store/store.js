@@ -7,6 +7,177 @@ Vue.config.devtools = true
 
 export default new Vuex.Store({
   state: {
+    currentSession: {
+      'id': 1,
+      'dateOpened': '21.09.2019 09:30',
+      'dateClosed': null,
+      'employees': [
+        {
+          'id': 1,
+          'name': 'Алексей Луцай',
+          'role': 'officeAdmin',
+          'pictureUrl': '',
+          'workHours': 6
+        },
+        {
+          'id': 2,
+          'name': 'Мария Попова',
+          'role': 'master',
+          'pictureUrl': 'static/user_photos/мария.jpg',
+          'workHours': 6
+        },
+        {
+          'id': 3,
+          'name': 'Макс Корж',
+          'role': 'master',
+          'pictureUrl': 'static/user_photos/макс.jpg',
+          'workHours': 6
+        },
+        {
+          'id': 4,
+          'name': 'Прокофий Иванов',
+          'role': 'master',
+          'pictureUrl': '',
+          'workHours': 6
+        }
+      ],
+      'officeId': 1,
+      'state': 'open',
+      'operations': [
+        {
+          'operationType': 'service',
+          'sessionId': 1,
+          'id': 1,
+          'officeId': 1,
+          'type': 1,
+          'startDatetime': '21.09.2019 09:30',
+          'finishDatetime': '21.09.2019 10:30',
+          'adminId': 1,
+          'masterId': 3,
+          'clientId': 1,
+          'cashSum': 600,
+          'cashlessSum': 0,
+          'discountSum': 0,
+          'adminBonus': 30,
+          'masterBonus': 120,
+          'score': null,
+          'review': '',
+          'photoUrls': [],
+          'comment': ''
+        },
+        {
+          'operationType': 'goodSell',
+          'id': 2,
+          'officeId': 1,
+          'sessionId': 1,
+          'type': 1,
+          'datetime': '21.09.2019 09:30',
+          'adminId': 1,
+          'masterId': 3,
+          'clientId': 1,
+          'cashSum': 0,
+          'cashlessSum': 2350,
+          'discountSum': 0,
+          'amount': 1,
+          'adminBonus': 30,
+          'masterBonus': 120,
+          'comment': ''
+        },
+        {
+          'operationType': 'goodSell',
+          'id': 3,
+          'officeId': 1,
+          'sessionId': 1,
+          'type': 2,
+          'datetime': '21.09.2019 09:30',
+          'adminId': 1,
+          'masterId': 3,
+          'clientId': 1,
+          'cashSum': 0,
+          'cashlessSum': 2350,
+          'discountSum': 0,
+          'amount': 1,
+          'adminBonus': 30,
+          'masterBonus': 120,
+          'comment': ''
+        },
+        {
+          'operationType': 'goodSell',
+          'id': 4,
+          'officeId': 1,
+          'sessionId': 1,
+          'type': 3,
+          'datetime': '21.09.2019 09:30',
+          'adminId': 1,
+          'masterId': 3,
+          'clientId': 1,
+          'cashSum': 0,
+          'cashlessSum': 2350,
+          'discountSum': 0,
+          'amount': 1,
+          'adminBonus': 30,
+          'masterBonus': 120,
+          'comment': ''
+        },
+        {
+          'operationType': 'goodSell',
+          'id': 5,
+          'officeId': 1,
+          'sessionId': 1,
+          'type': 4,
+          'datetime': '21.09.2019 09:30',
+          'adminId': 1,
+          'masterId': 3,
+          'clientId': 1,
+          'cashSum': 0,
+          'cashlessSum': 2350,
+          'discountSum': 0,
+          'amount': 1,
+          'adminBonus': 30,
+          'masterBonus': 120,
+          'comment': ''
+        },
+        {
+          'operationType': 'goodSell',
+          'id': 6,
+          'officeId': 1,
+          'sessionId': 1,
+          'type': 5,
+          'datetime': '21.09.2019 09:30',
+          'adminId': 1,
+          'masterId': 3,
+          'clientId': 1,
+          'cashSum': 0,
+          'cashlessSum': 2350,
+          'discountSum': 0,
+          'amount': 1,
+          'adminBonus': 30,
+          'masterBonus': 120,
+          'comment': ''
+        },
+        {
+          'operationType': 'spend',
+          'id': 2,
+          'officeId': 1,
+          'sessionId': 1,
+          'type': 2,
+          'datetime': '21.09.2019 12:44',
+          'sum': 600,
+          'comment': ''
+        },
+        {
+          'operationType': 'employeePayment',
+          'id': 2,
+          'officeId': 1,
+          'sessionId': 1,
+          'employeeId': 4,
+          'type': 2,
+          'datetime': '21.09.2019 18:22',
+          'sum': 600,
+          'comment': ''
+        }
+      ]
+    },
     operationTypes: [
       {
         id: 'service',
@@ -186,6 +357,8 @@ export default new Vuex.Store({
       {
         id: 1,
         name: 'Иван',
+        photoUrl: '',
+        operationsCount: 6,
         contacts: [
           {
             type: 'phone',
@@ -200,6 +373,8 @@ export default new Vuex.Store({
       {
         id: 2,
         name: 'Евгения',
+        photoUrl: '',
+        operationsCount: 1,
         contacts: [
           {
             type: 'phone',
@@ -214,7 +389,47 @@ export default new Vuex.Store({
       {
         id: 3,
         name: 'Василий',
+        photoUrl: '',
+        operationsCount: 0,
         contacts: []
+      }
+    ],
+    contactTypes: [
+      {
+        id: 'phone',
+        name: 'Телефон'
+      },
+      {
+        id: 'whatsapp',
+        name: 'WhatsApp'
+      },
+      {
+        id: 'telegram',
+        name: 'Telegram'
+      },
+      {
+        id: 'viber',
+        name: 'Viber'
+      },
+      {
+        id: 'email',
+        name: 'Почта'
+      },
+      {
+        id: 'instagram',
+        name: 'Instagram'
+      },
+      {
+        id: 'vk',
+        name: 'ВКонтакте'
+      },
+      {
+        id: 'facebook',
+        name: 'Facebook'
+      },
+      {
+        id: 'other',
+        name: 'Другое'
       }
     ],
     masterCategories: []
@@ -257,6 +472,13 @@ export default new Vuex.Store({
       }
       return '–'
     },
+    getContactTypeName: (state) => (id) => {
+      var item = state.contactTypes.filter(e => e.id === id)[0]
+      if (item) {
+        return item.name
+      }
+      return '–'
+    },
     getSpendTypeName: (state) => (id) => {
       var item = state.spendTypes.filter(e => e.id === id)[0]
       if (item) {
@@ -272,6 +494,9 @@ export default new Vuex.Store({
       return '–'
     },
     getClientDescription: (state) => (id) => {
+      if (id === null) {
+        return null
+      }
       var client = state.clients.filter(c => c.id === id)[0]
       if (client) {
         var phone = client.contacts.filter(c => c.type === 'phone')[0]
@@ -281,6 +506,15 @@ export default new Vuex.Store({
         return client.name + ' (телефон не указан)'
       }
       return '–'
+    },
+    getDateTimeFromOperation: (state) => (operation) => {
+      var datetimestr = ''
+      if (operation.startDatetime) {
+        datetimestr = operation.startDatetime
+      } else if (operation.datetime) {
+        datetimestr = operation.datetime
+      }
+      return datetimestr
     },
     getTimeFromOperation: (state) => (operation) => {
       var datetimestr = ''
