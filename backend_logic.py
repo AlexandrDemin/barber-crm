@@ -12,33 +12,65 @@ import copy
 import urllib.parse
 import codecs
 import random
+import traceback
 
 # на основе этих конфигов выполняются селекты в базу
 argsconfig = {
     'GetUserData':{
-        'table':'_user',
+        'table':'employee',
         'dataneeded':True,
         'fields':['name','"pictureUrl"','roles']
     },
-    'GetCurrentSession':{
-        'table':'session',
-        'dataneeded':True,
-        'type':'GetSessions',
-        'fields':['id','"dateOpened"','"dateClosed"','"employees"','"officeId"','state']
+    'GetEmployees':{
+        'table':'employee'
+    },
+    'GetEmployee':{
+        'table':'employee',
+        'dataneeded':True
+    },
+    'GetAdmins':{
+        'table':'employee',
+        'type':'GetAdmins',
+        'fields':['id','name','"pictureUrl"','state','"servicePercent"','"goodsPercent"']
+    },
+    'GetMasters':{
+        'table':'employee',
+        'type':'GetMasters',
+        'fields':['id','name','"pictureUrl"','state','"servicePercent"','"goodsPercent"']
+    },
+    'GetBarberCategories':{
+        'table':'barbercategory'
+    },
+    'GetBarberCategory':{
+        'table':'barbercategory',
+        'dataneeded':True
     },
     'GetOffices':{
         'table':'office',
         'fields':['id','name','state']
     },
-    'GetAdmins':{
-        'table':'_user',
-        'type':'GetAdmins',
-        'fields':['id','name','"pictureUrl"','state','"servicesPercent"','"goodsPercent"']
+    'GetOffice':{
+        'table':'office',
+        'fields':['id','name','state'],
+        'dataneeded':True
     },
-    'GetMasters':{
-        'table':'_user',
-        'type':'GetAdmins',
-        'fields':['id','name','"pictureUrl"','state','"servicesPercent"','"goodsPercent"']
+    'GetCurrentSession':{
+        'table':'session',
+        'type':'GetSessions',
+        'dataneeded':True,
+        'fields':['id','"dateOpened"','"dateClosed"','"employees"','"officeId"','state']
+    },
+    'GetSession':{
+        'table':'session',
+        'type':'GetSessions',
+        'dataneeded':True,
+        'fields':['id','"dateOpened"','"dateClosed"','"employees"','"officeId"','state']
+    },
+    'GetSessionsWithOperations':{
+        'table':'session',
+        'type':'GetSessions',
+        'dataneeded':True,
+        'fields':['id','"dateOpened"','"dateClosed"','"employees"','"officeId"','state']
     },
     'GetServicesPrices':{
         'table':'service',
@@ -48,12 +80,33 @@ argsconfig = {
         'table':'serviceoperation',
         'dataneeded':True
     },
+    'GetGoods':{
+        'table':'good'
+    },
+    'GetGood':{
+        'table':'good',
+        'dataneeded':True
+    },
     'GetGoodsOperation':{
         'table':'goodsoperation',
         'dataneeded':True
     },
+    'GetSpendTypes':{
+        'table':'spendtype'
+    },
+    'GetSpendType':{
+        'table':'spendtype',
+        'dataneeded':True
+    },
     'GetSpendOperation':{
         'table':'spendoperation',
+        'dataneeded':True
+    },
+    'GetEmployeePaymentTypes':{
+        'table':'employeepaymenttype'
+    },
+    'GetEmployeePaymentType':{
+        'table':'employeepaymenttype',
         'dataneeded':True
     },
     'GetEmployeePaymentOperation':{
@@ -68,19 +121,6 @@ argsconfig = {
         'table':'client',
         'type':'GetClients',
         'dataneeded':True
-    },
-    'GetSession':{
-        'table':'session',
-        'type':'GetSessions',
-        'dataneeded':True
-    },
-    'GetSessionsWithOperations':{
-        'table':'session',
-        'type':'GetSessions',
-        'dataneeded':True
-    },
-    'GetEmployeePaymentTypes':{
-        
     }
 }
 
