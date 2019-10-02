@@ -509,6 +509,22 @@ api/GetEmployeePaymentTypes/
 ]
 ```
 
+#### EditEmployeePaymentType
+
+
+
+##### URL
+
+```
+api/EditEmployeePaymentType/
+```
+
+##### Вход
+
+```
+{}
+```
+
 #### EditOperations
 
 Создание / редактирование операций.
@@ -829,22 +845,6 @@ api/GetEmployeePaymentOperation/
     "error": "Нет операции по выплате сотруднику с таким id."
     "stackTrace": stackTrace
 }
-```
-
-#### EditEmployeePaymentType
-
-
-
-##### URL
-
-```
-api/EditEmployeePaymentType/
-```
-
-##### Вход
-
-```
-{}
 ```
 
 #### GetSessionsWithOperations
