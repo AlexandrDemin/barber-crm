@@ -470,58 +470,79 @@ api/GetEmployeePaymentTypes/
 ]
 ```
 
-#### EditServiceOperation
+#### EditOperations
 
-Создание / редактирование операции по услуге.
+Создание / редактирование операций.
 
 ##### URL
 
 ```
-api/EditServiceOperation/
+api/EditOperations/
 ```
 
 ##### Вход
 
-Files: список фотографий стрижки
+Files: список фотографий стрижки. Может быть пустым
 
 Data:
 
 ```
-{
-    "officeId": id отделения,
-    "sessionId": id смены,
-    "serviceId": id услуги,
-    "startDatetime": Дата и время начала в формате dd.mm.yyyy HH:MM,
-    "finishDatetime": Дата и время заверешения в формате dd.mm.yyyy HH:MM,
-    "adminId": id администратора,
-    "masterId": id мастера,
-    "clientId": id клиента,
-    "cashSum": Сумма налички,
-    "cashlessSum": Сумма безнала,
-    "discountSum": Сумма скидки,
-    "adminBonus": Сумма премии админа,
-    "masterBonus": Сумма премии мастера,
-    "clientRating": Оценка клиента от 1 до 10 или null,
-    "review": Отзыв клиента,
-    "comment": Комментарий, 
-    "goods": [ // список проданных товаров
-        {
-            "type": Тип товара,
-            "cashSum": Сумма налички,
-            "cashlessSum": Сумма безнала,
-            "discountSum": Сумма скидки,
-            "comment": Комментарий
-        }
-    ],
-    "expenses": [ // список расходов
-        {
-            "type": Тип расхода,
-            "cashSum": Сумма налички,
-            "cashlessSum": Сумма безнала,
-            "comment": Комментарий
-        }
-    ]
-}
+[
+    {
+        "operationType": 'service',
+        "officeId": id отделения,
+        "sessionId": id смены,
+        "serviceId": id услуги,
+        "startDatetime": Дата и время начала в формате dd.mm.yyyy HH:MM,
+        "finishDatetime": Дата и время заверешения в формате dd.mm.yyyy HH:MM,
+        "adminId": id администратора,
+        "masterId": id мастера,
+        "clientId": id клиента,
+        "cashSum": Сумма налички,
+        "cashlessSum": Сумма безнала,
+        "discountSum": Сумма скидки,
+        "adminBonus": Сумма премии админа,
+        "masterBonus": Сумма премии мастера,
+        "clientRating": Оценка клиента от 1 до 10 или null,
+        "review": Отзыв клиента,
+        "comment": Комментарий
+    },
+    {
+        "operationType": 'goodSell',
+        "officeId": id отделения,
+        "sessionId": id смены,
+        "goodsIds": Список id товаров, которые были проданы по данной операции,
+        "datetime": Дата и время продажи в формате dd.mm.yyyy HH:MM,
+        "adminId": id администратора,
+        "masterId": id мастера,
+        "clientId": id клиента,
+        "cashSum": Сумма налички,
+        "cashlessSum": Сумма безнала,
+        "discountSum": Сумма скидки,
+        "adminBonus": Сумма премии админа,
+        "masterBonus": Сумма премии мастера,
+        "comment": Комментарий
+    },
+    {
+        "operationType": 'spend',
+        "officeId": id отделения,
+        "sessionId": id смены,
+        "expenseTypeId": id типа расхода,
+        "datetime": Дата и время расхода в формате dd.mm.yyyy HH:MM,
+        "sum": Сумма,
+        "comment": Комментарий
+    },
+    {
+        "operationType": 'employeePayment',
+        "officeId": id отделения,
+        "sessionId": id смены,
+        "employeeId": id сотрудника,
+        "type": Тип выплаты сотруднику,
+        "datetime": Дата и время выплаты в формате dd.mm.yyyy HH:MM,
+        "sum": Сумма,
+        "comment": Комментарий
+    }
+]
 ```
 
 ##### Выход
@@ -599,57 +620,6 @@ api/GetServiceOperation/
 }
 ```
 
-#### EditGoodsOperation
-
-Создание / редактирование операции по продаже товара.
-
-##### URL
-
-```
-api/EditGoodsOperation/
-```
-
-##### Вход
-
-```
-{
-    "officeId": id отделения,
-    "sessionId": id смены,
-    "goodsIds": Список id товаров, которые были проданы по данной операции,
-    "datetime": Дата и время продажи в формате dd.mm.yyyy HH:MM,
-    "adminId": id администратора,
-    "masterId": id мастера,
-    "clientId": id клиента,
-    "cashSum": Сумма налички,
-    "cashlessSum": Сумма безнала,
-    "discountSum": Сумма скидки,
-    "adminBonus": Сумма премии админа,
-    "masterBonus": Сумма премии мастера,
-    "comment": Комментарий
-}
-```
-
-##### Выход
-
-Если сохранение прошло успешно
-
-```
-[
-    {
-        "id": id операции
-    }
-]
-```
-
-Если произошла ошибка
-
-```
-{
-    "error": "Произошла ошибка при сохранении операции."
-    "stackTrace": stackTrace
-}
-```
-
 #### GetGoodsOperation
 
 Возвращает операцию по продаже товара.
@@ -700,50 +670,6 @@ api/GetGoodsOperation/
 }
 ```
 
-#### EditSpendOperation
-
-Создание / редактирование операции по расходу.
-
-##### URL
-
-```
-api/EditSpendOperation/
-```
-
-##### Вход
-
-```
-{
-    "officeId": id отделения,
-    "sessionId": id смены,
-    "expenseTypeId": id типа расхода,
-    "datetime": Дата и время расхода в формате dd.mm.yyyy HH:MM,
-    "sum": Сумма,
-    "comment": Комментарий
-}
-```
-
-##### Выход
-
-Если сохранение прошло успешно
-
-```
-[
-    {
-        "id": id операции
-    }
-]
-```
-
-Если произошла ошибка
-
-```
-{
-    "error": "Произошла ошибка при сохранении операции."
-    "stackTrace": stackTrace
-}
-```
-
 #### GetSpendOperation
 
 Возвращает операцию по расходу.
@@ -783,51 +709,6 @@ api/GetSpendOperation/
 ```
 {
     "error": "Нет операции по расходу с таким id."
-    "stackTrace": stackTrace
-}
-```
-
-#### EditEmployeePaymentOperation
-
-Создание / редактирование операции по выплате сотруднику.
-
-##### URL
-
-```
-api/EditEmployeePaymentOperation/
-```
-
-##### Вход
-
-```
-{
-    "officeId": id отделения,
-    "sessionId": id смены,
-    "employeeId": id сотрудника,
-    "type": Тип выплаты сотруднику,
-    "datetime": Дата и время выплаты в формате dd.mm.yyyy HH:MM,
-    "sum": Сумма,
-    "comment": Комментарий
-}
-```
-
-##### Выход
-
-Если сохранение прошло успешно
-
-```
-[
-    {
-        "id": id операции
-    }
-]
-```
-
-Если произошла ошибка
-
-```
-{
-    "error": "Произошла ошибка при сохранении операции."
     "stackTrace": stackTrace
 }
 ```

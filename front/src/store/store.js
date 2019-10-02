@@ -7,6 +7,24 @@ Vue.config.devtools = true
 
 export default new Vuex.Store({
   state: {
+    operationTypes: [
+      {
+        id: 'service',
+        name: 'Услуга'
+      },
+      {
+        id: 'goodSell',
+        name: 'Продажа товара'
+      },
+      {
+        id: 'spend',
+        name: 'Расход'
+      },
+      {
+        id: 'employeePayment',
+        name: 'Продажа товара'
+      }
+    ],
     serviceTypes: [
       {
         'id': 1,
