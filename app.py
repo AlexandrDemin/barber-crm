@@ -65,31 +65,22 @@ def GetUserData():
         configkey = 'GetUserData'
         result = get(configkey,data)
         return result
-
-@app.route('/api/GetCurrentSession/', methods=['POST'])
-def GetCurrentSession():
+    
+@app.route('/api/GetEmployees/', methods=['POST'])
+def GetEmployees():
     if request.method == 'POST':
-        data = request.get_json()
-        data['state'] = 'open'
-        configkey = 'GetCurrentSession'
-        result = get(configkey,data)
-        return result
-
-@app.route('/api/GetSession/', methods=['POST'])
-def GetSession():
-    if request.method == 'POST':
-        data = request.get_json()
-        configkey = 'GetSession'
-        result = get(configkey,data)
-        return result
-
-@app.route('/api/GetOffices/', methods=['POST'])
-def GetOffices():
-    if request.method == 'POST':
-        configkey = 'GetOffices'
+        configkey = 'GetEmployees'
         result = get(configkey)
         return result
-
+    
+@app.route('/api/GetEmployee/', methods=['POST'])
+def GetEmployee():
+    if request.method == 'POST':
+        data = request.get_json()
+        configkey = 'GetEmployee'
+        result = get(configkey,data)
+        return result
+    
 @app.route('/api/GetAdmins/', methods=['POST'])
 def GetAdmins():
     if request.method == 'POST':
@@ -102,6 +93,60 @@ def GetMasters():
     if request.method == 'POST':
         configkey = 'GetMasters'
         result = get(configkey)
+        return result
+
+@app.route('/api/GetBarberCategories/', methods=['POST'])
+def GetBarberCategories():
+    if request.method == 'POST':
+        configkey = 'GetBarberCategories'
+        result = get(configkey)
+        return result
+    
+@app.route('/api/GetBarberCategory/', methods=['POST'])
+def GetBarberCategory():
+    if request.method == 'POST':
+        data = request.get_json()
+        configkey = 'GetBarberCategory'
+        result = get(configkey,data)
+        return result
+    
+@app.route('/api/GetOffices/', methods=['POST'])
+def GetOffices():
+    if request.method == 'POST':
+        configkey = 'GetOffices'
+        result = get(configkey)
+        return result
+
+@app.route('/api/GetOffice/', methods=['POST'])
+def GetOffice():
+    if request.method == 'POST':
+        data = request.get_json()
+        configkey = 'GetOffice'
+        result = get(configkey,data)
+        return result
+    
+@app.route('/api/GetCurrentSession/', methods=['POST'])
+def GetCurrentSession():
+    if request.method == 'POST':
+        data = request.get_json()
+        configkey = 'GetCurrentSession'
+        result = get(configkey,data)
+        return result
+
+@app.route('/api/GetSession/', methods=['POST'])
+def GetSession():
+    if request.method == 'POST':
+        data = request.get_json()
+        configkey = 'GetSession'
+        result = get(configkey,data)
+        return result
+
+@app.route('/api/GetSessionsWithOperations/', methods=['POST'])
+def GetSessionsWithOperations():
+    if request.method == 'POST':
+        data = request.get_json()
+        configkey = 'GetSessionsWithOperations'
+        result = get(configkey,data)
         return result
     
 @app.route('/api/GetServicesPrices/', methods=['POST'])
@@ -119,6 +164,21 @@ def GetServiceOperation():
         result = get(configkey,data)
         return result
 
+@app.route('/api/GetGoods/', methods=['POST'])
+def GetGoods():
+    if request.method == 'POST':
+        configkey = 'GetGoods'
+        result = get(configkey)
+        return result
+    
+@app.route('/api/GetGood/', methods=['POST'])
+def GetGood():
+    if request.method == 'POST':
+        data = request.get_json()
+        configkey = 'GetGood'
+        result = get(configkey,data)
+        return result
+    
 @app.route('/api/GetGoodsOperation/', methods=['POST'])
 def GetGoodsOperation():
     if request.method == 'POST':
@@ -127,6 +187,21 @@ def GetGoodsOperation():
         result = get(configkey,data)
         return result
 
+@app.route('/api/GetSpendTypes/', methods=['POST'])
+def GetSpendTypes():
+    if request.method == 'POST':
+        configkey = 'GetSpendTypes'
+        result = get(configkey)
+        return result
+    
+@app.route('/api/GetSpendType/', methods=['POST'])
+def GetSpendType():
+    if request.method == 'POST':
+        data = request.get_json()
+        configkey = 'GetSpendType'
+        result = get(configkey,data)
+        return result
+    
 @app.route('/api/GetSpendOperation/', methods=['POST'])
 def GetSpendOperation():
     if request.method == 'POST':
@@ -135,6 +210,21 @@ def GetSpendOperation():
         result = get(configkey,data)
         return result
 
+@app.route('/api/GetEmployeePaymentTypes/', methods=['POST'])
+def GetEmployeePaymentTypes():
+    if request.method == 'POST':
+        configkey = 'GetEmployeePaymentTypes'
+        result = get(configkey)
+        return result
+
+@app.route('/api/GetEmployeePaymentType/', methods=['POST'])
+def GetEmployeePaymentType():
+    if request.method == 'POST':
+        data = request.get_json()
+        configkey = 'GetEmployeePaymentType'
+        result = get(configkey,data)
+        return result    
+    
 @app.route('/api/GetEmployeePaymentOperation/', methods=['POST'])
 def GetEmployeePaymentOperation():
     if request.method == 'POST':
@@ -150,14 +240,7 @@ def GetClient():
         configkey = 'GetClient'
         result = get(configkey,data)
         return result
-
-@app.route('/api/GetEmployeePaymentTypes/', methods=['POST'])
-def GetEmployeePaymentTypes():
-    if request.method == 'POST':
-        configkey = 'GetEmployeePaymentTypes'
-        result = get(configkey)
-        return result
-
+    
 @app.route('/api/GetClients/', methods=['POST'])
 def GetClients():
     if request.method == 'POST':
@@ -165,15 +248,91 @@ def GetClients():
         configkey = 'GetClients'
         result = get(configkey,data)
         return result
-    
-@app.route('/api/Upsert/', methods=['POST'])
-def Upsert():
+
+@app.route('/api/EditOffice/', methods=['POST'])
+def EditOffice():
     if request.method == 'POST':
         data = request.get_json()
-        table = data['table']
-        params = data['params']
-        result = edit(table,params)
+        table = 'office'
+        result = edit(table,data)
+        return result 
+    
+@app.route('/api/EditSession/', methods=['POST'])
+def EditSession():
+    if request.method == 'POST':
+        data = request.get_json()
+        table = 'session'
+        result = edit(table,data)
         return result
+
+@app.route('/api/EditClient/', methods=['POST'])
+def EditClient():
+    if request.method == 'POST':
+        data = request.get_json()
+        table = 'client'
+        result = edit(table,data)
+        return result
+
+@app.route('/api/EditOperations/', methods=['POST'])
+def EditOperations():
+    if request.method == 'POST':
+        data = request.get_json()
+        results = []
+        for elem in data:
+            table = elem['operationType']
+            del elem['operationType']
+            result = edit(table,elem)
+            results.append(result)
+        return results
+
+@app.route('/api/EditEmployee/', methods=['POST'])
+def EditEmployee():
+    if request.method == 'POST':
+        data = request.get_json()
+        table = 'employee'
+        result = edit(table,data)
+        return result
+    
+@app.route('/api/EditBarberCategory/', methods=['POST'])
+def EditBarberCategory():
+    if request.method == 'POST':
+        data = request.get_json()
+        table = 'barbercategory'
+        result = edit(table,data)
+        return result    
+
+# создать таблицу и сделать get
+@app.route('/api/EditEmployeePaymentType/', methods=['POST'])
+def EditEmployeePaymentType():
+    if request.method == 'POST':
+        data = request.get_json()
+        table = 'employeepaymenttype'
+        result = edit(table,data)
+        return result    
+
+@app.route('/api/EditGood/', methods=['POST'])
+def EditGood():
+    if request.method == 'POST':
+        data = request.get_json()
+        table = 'good'
+        result = edit(table,data)
+        return result
+    
+@app.route('/api/EditService/', methods=['POST'])
+def EditService():
+    if request.method == 'POST':
+        data = request.get_json()
+        table = 'service'
+        result = edit(table,data)
+        return result
+    
+@app.route('/api/EditSpendtype/', methods=['POST'])
+def EditSpendtype():
+    if request.method == 'POST':
+        data = request.get_json()
+        table = 'spendtype'
+        result = edit(table,data)
+        return result    
 
 @app.route('/static/<path:path>')
 @requires_auth
