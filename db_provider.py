@@ -4,6 +4,7 @@
 
 import json
 import psycopg2
+import traceback
 
 #DB
 def prepareData(data):
@@ -234,4 +235,5 @@ def goToBase(host,database,user,password,query,commit=False):
         else:
             return result_data
     except Exception as e:
-        return {'error':e}
+        stacktrace = traceback.format_exc()
+        return {'error':e,'stacktrace':stacktrace}
