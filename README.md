@@ -106,10 +106,10 @@ API по принципу JSON RPC. Все вызовы через POST запр
 
 ```
 {
-    1: "service",
-    2: "goodSell",
-    3: "spend",
-    4: "employeePayment"
+    1: "serviceoperation",
+    2: "goodsoperation",
+    3: "spendoperation",
+    4: "employeepayment"
 }
 ```
 
@@ -296,6 +296,24 @@ api/GetOffices/
 ]
 ```
 
+
+#### EditOffice
+
+
+
+##### URL
+
+```
+api/EditOffice/
+```
+
+##### Вход
+
+```
+{}
+```
+
+
 #### GetEmployees
 
 Возвращает список сотрудников. Записи должны быть отсортированы сначала по статусу (вверху активные), потом по имени по алфавиту.
@@ -329,6 +347,46 @@ api/GetEmployees/
 ]
 ```
 
+
+#### EditEmployee
+
+
+
+##### URL
+
+```
+api/EditEmployee/
+```
+
+##### Вход
+
+```
+{}
+```
+
+
+#### EditBarberCategory
+
+
+
+##### URL
+
+```
+api/EditBarberCategory/
+```
+
+##### Вход
+
+```
+{}
+```
+
+##### Выход
+
+```
+
+```
+
 #### EditSession
 
 Открыть / отредактировать смену.
@@ -352,43 +410,6 @@ api/EditSession/
         }
     ],
     "officeId": id отделения
-}
-```
-
-##### Выход
-
-Если операция прошла успешно
-
-```
-{
-    "id": id смены
-}
-```
-
-Если произошла ошибка
-
-```
-{
-    "error": "Произошла ошибка при сохранении смены."
-    "stackTrace": stackTrace
-}
-```
-
-#### CloseSession
-
-Закрыть смену.
-
-##### URL
-
-```
-api/CloseSession/
-```
-
-##### Вход
-
-```
-{
-    "id": id смены
 }
 ```
 
@@ -441,6 +462,24 @@ api/GetServicesPrices/
     }
 ]
 ```
+
+
+#### EditService
+
+
+
+##### URL
+
+```
+api/EditService/
+```
+
+##### Вход
+
+```
+{}
+```
+
 
 #### GetEmployeePaymentTypes
 
@@ -670,6 +709,23 @@ api/GetGoodsOperation/
 }
 ```
 
+#### EditGood
+
+
+
+##### URL
+
+```
+api/EditGood/
+```
+
+##### Вход
+
+```
+{}
+```
+
+
 #### GetSpendOperation
 
 Возвращает операцию по расходу.
@@ -712,6 +768,24 @@ api/GetSpendOperation/
     "stackTrace": stackTrace
 }
 ```
+
+
+#### EditSpendtype
+
+
+
+##### URL
+
+```
+api/EditSpendtype/
+```
+
+##### Вход
+
+```
+{}
+```
+
 
 #### GetEmployeePaymentOperation
 
@@ -757,6 +831,21 @@ api/GetEmployeePaymentOperation/
 }
 ```
 
+#### EditEmployeePaymentType
+
+
+
+##### URL
+
+```
+api/EditEmployeePaymentType/
+```
+
+##### Вход
+
+```
+{}
+```
 
 #### GetSessionsWithOperations
 
