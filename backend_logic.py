@@ -12,7 +12,6 @@ import copy
 import urllib.parse
 import codecs
 import random
-import traceback
 
 # на основе этих конфигов выполняются селекты в базу
 argsconfig = {
