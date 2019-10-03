@@ -7,7 +7,7 @@ import psycopg2
 import traceback
 
 #DB
-def prepareData(data):
+def prepareDataToUpsert(data):
     for key,value in data.items():
         if type(value) == dict:
             data[key] = json.dumps(value)
@@ -29,7 +29,7 @@ def generateQueryUpdate(table,data):
     SET """
         
     queryparts = []
-    prepareData(data)
+    prepareDataToUpsert(data)
     for key,value in data.items():
         qpart = f"""{key} = {value}"""
         queryparts.append(qpart)
@@ -45,7 +45,7 @@ def generateQueryUpdate(table,data):
     
 def generateQueryCreate(table,data):
     columns = '(\"' + "\",\"".join(list(data.keys() )) + '\")'
-    prepareData(data)
+    prepareDataToUpsert(data)
     v = '(' + ",".join((list(data.values()))) + ')'
     
     values = v.replace('\'null\'','null')
@@ -77,9 +77,7 @@ def getSessionsOperationsQuery(args):
     statepart = ''
     officeIdpart = ''
     wherepartlist = []
-    
-    print('getSessionsOperationsQuery,2',args)
-    
+        
     if 'dateFrom' in args['data']:
         date = args['data']['dateFrom']
         qdatefrompart = f"""\"dateOpened\" >= '{date}'""" 
@@ -163,11 +161,84 @@ def getSessionsOperationsQuery(args):
         
     else:
         query = f'''{sessionquery}'''
-    print(query)
     return query
 
-def generateQueryRead(args=None):
-    print('generateQueryRead,1',args)
+def generateCustomerReportQuery(args):
+    qdatefrompart1 = ''
+    qdatetopart1 = ''
+    qdatefrompart2 = ''
+    qdatetopart2 = ''
+    officeidspart = ''
+    clientidspart = ''
+    
+    if 'dateFrom' in args['data']:
+        date = args['data']['dateFrom']
+        qdatefrompart1 = f"""\"datetime\" >= '{date}'"""
+        qdatefrompart2 = f"""\"finishDatetime\" >= '{date}'"""
+    
+    if 'dateTo' in args['data']:
+        date = args['data']['dateTo']
+        qdatetopart1 = f"""\"datetime\" <= '{date}'"""
+        qdatetopart2 = f"""\"finishDatetime\" <= '{date}'"""
+    
+    if 'clientIds' in args['data']:
+        clientids = args['data']['clientIds']
+        clientidslistformatted = [* map(str, clientids)]
+        clientidslisttoquery = '('+','.join(clientidslistformatted) + ')'
+        clientidspart = f"""\"clientId\" in {clientidslisttoquery}"""
+        
+    if 'officeIds' in args['data']:
+        officeids = args['data']['clientIds']
+        officeidslistformatted = [* map(str, officeids)]
+        officeidslisttoquery = '('+','.join(officeidslistformatted) + ')'
+        officeidspart = f"""\"officeId\" in {officeidslisttoquery}"""
+
+    wherelist1 = [qdatefrompart1,qdatetopart1,clientidspart,officeidspart]
+    wherelist2 = [qdatefrompart2,qdatetopart2,clientidspart,officeidspart]
+
+    wherelistfiltered1 = list(filter(None, wherelist1))
+    wherelistfiltered2 = list(filter(None, wherelist2))
+
+    if len(wherelistfiltered1) != 0:
+        where1 = 'where finance.' + ' and finance.'.join(wherelistfiltered1)
+        where2 = 'where s.' + ' and s.'.join(wherelistfiltered2)
+    else:
+        where1 = ''
+        where2 = ''
+      
+    reportquery = f'''select * from (select finance.*,s.totalServiceSum,g.totalGoodsSum from
+    (select datetime::date as datetime,count(*) as totalVisits,"officeId","clientId",
+    sum("cashSum") as totalCash,sum("cashlessSum") as totalCashless,sum("discountSum") as totalDiscount,
+    sum("cashlessSum") + sum("cashSum") as totalSum
+    from 
+    (select "officeId","clientId","finishDatetime" as datetime,"cashSum","cashlessSum","discountSum" from serviceoperation
+    union
+    select "officeId","clientId",datetime,"cashSum","cashlessSum","discountSum" from goodsoperation) u
+    group by datetime::date,"officeId","clientId") finance
+    left join
+    (select "finishDatetime"::date as datetime,"officeId","clientId",sum("cashSum")+sum("cashlessSum") as totalServiceSum from serviceoperation
+    group by "finishDatetime"::date,"officeId","clientId") s
+    on finance."officeId"=s."officeId" and finance."clientId"=s."clientId" and finance.datetime=s.datetime
+    left join
+    (select datetime::date as datetime,"officeId","clientId",sum("cashSum")+sum("cashlessSum") as totalGoodsSum from goodsoperation
+    group by datetime::date,"officeId","clientId") g
+    on finance."officeId"=g."officeId" and finance."clientId"=g."clientId" and finance.datetime=g.datetime
+    {where1}) x
+    left join
+    (select "officeId","clientId", array_agg(mastervisits) as  mastervisits from
+    (select "officeId","clientId",json_build_object('name',usr.name,'count',count(*)) as mastervisits from serviceoperation s
+    left join
+    (select id,name from _user) usr
+    on s."masterId"=usr.id
+    {where2}
+    group by "officeId","clientId",name) mv
+    group by "officeId","clientId"
+    ) as masternames
+    on x."officeId"=masternames."officeId" and x."clientId"=masternames."clientId"'''
+
+    return reportquery
+
+def generateQueryRead(args):
     table = args['table']
     additionalpart = ''
     orderpart = ''
@@ -181,14 +252,17 @@ def generateQueryRead(args=None):
         if args['type'] == 'GetSessions':
             query = getSessionsOperationsQuery(args)
             
+        if args['type'] == 'GenerateCustomerReport':
+            query = generateCustomerReportQuery(args)            
+            
         else:
             if args['type'] in ['GetAdmins','GetMasters']:
                 if args['type'] == 'GetMasters':
-                    fields = '_user.' + ',_user.'.join(args['fields']) + ',b."servicePercent" as "masterServicePercent"'
+                    fields = 'employee.' + ',employee.'.join(args['fields']) + ',b."servicePercent" as "masterServicePercent"'
                     additionalpart = f"""
                     left join
                     (select id,"servicePercent" from barbercategory) b
-                    on _user."categoryId"=b.id"""
+                    on employee."categoryId"=b.id"""
 
                 rolesdict = {'GetAdmins':'officeAdmin','GetMasters':'master'}
                 role = rolesdict[args['type']]
@@ -215,6 +289,7 @@ def generateQueryRead(args=None):
             wherepart = generateWhere(args['data'])            
             
         query = f"""select {fields} from {table}{additionalpart}{wherepart}{orderpart}"""
+    print(query)
     return query
 
 def goToBase(host,database,user,password,query,commit=False):
