@@ -131,7 +131,6 @@ def getSessionsOperationsQuery(args):
             args['data']['operationType'] = [1,2,3,4]
 
     if 'operationType' in args['data']:
-        # фильтрация по id сессий
         operationtypes = {1:"serviceoperation",2:"goodsoperation",3:"spendoperation",4:"employeepayment"}
         querypartslist = []
         for item in args['data']['operationType']:
@@ -163,7 +162,7 @@ def getSessionsOperationsQuery(args):
         query = f'''{sessionquery}'''
     return query
 
-def generateCustomerReportQuery(args):
+def generateCustomerReportFinanceQuery(args):
     qdatefrompart1 = ''
     qdatetopart1 = ''
     qdatefrompart2 = ''
@@ -206,7 +205,7 @@ def generateCustomerReportQuery(args):
         where1 = ''
         where2 = ''
       
-    reportquery = f'''select * from (select finance.*,s.totalServiceSum,g.totalGoodsSum from
+    query = f'''select * from (select finance.*,s.totalServiceSum,g.totalGoodsSum from
     (select datetime::date as datetime,count(*) as totalVisits,"officeId","clientId",
     sum("cashSum") as totalCash,sum("cashlessSum") as totalCashless,sum("discountSum") as totalDiscount,
     sum("cashlessSum") + sum("cashSum") as totalSum
@@ -236,7 +235,58 @@ def generateCustomerReportQuery(args):
     ) as masternames
     on x."officeId"=masternames."officeId" and x."clientId"=masternames."clientId"'''
 
-    return reportquery
+    return query
+
+def generateCustomerReportVisitsQuery(args=None):
+    
+    lostdayscriterion = 60
+    likelylostdayscriterion = 40
+    loyalvisitscriterion = 3
+    likelyloyalvisitscriterion = 2
+    lastndays = 120
+    
+    if args:
+        if 'lostdayscriterion' in args:
+            lostdayscriterion = args['lostdayscriterion']
+        if 'likelylostdayscriterion' in args:
+            likelylostdayscriterion = args['likelylostdayscriterion']
+        if 'loyalvisitscriterion' in args:
+            loyalvisitscriterion = args['loyalvisitscriterion']
+        if 'likelyloyalvisitscriterion' in args:
+            likelyloyalvisitscriterion = args['likelyloyalvisitscriterion']
+        if 'lastndays' in args:
+            lastndays = args['lastndays']
+
+    query = f"""select visits.*,lastvisit.lastvisitdatetime, 
+    case 
+        WHEN lastvisit.lastvisitdatetime < now() - interval '{lostdayscriterion} days'::interval THEN 'lost'
+        WHEN lastvisit.lastvisitdatetime < now() - interval '{likelylostdayscriterion} days'::interval and
+        lastvisit.lastvisitdatetime >= now() - interval '{lostdayscriterion} days'::interval THEN ' likely lost'
+        when visits.lastndaysvisitscount >= {loyalvisitscriterion} then 'loyal'
+        when visits.lastndaysvisitscount >= {likelyloyalvisitscriterion} then 'likely loyal'
+        ELSE 'ambivalent'
+    end as loyalty,
+    case
+        when visits.lastndaysvisitscount < visits.totalvisits then false
+        else true
+    end as newclient from 
+    ((select "clientId", 
+    count(*) as totalvisits,
+    count(*) filter (where datetime >= now() - '{lastndays} days'::interval) as lastndaysvisitscount 
+    from ( 
+    select "clientId","finishDatetime"::date as datetime from serviceoperation
+    union
+    select "clientId",datetime::date as datetime from goodsoperation) v
+    group by "clientId") visits
+    inner join
+    (select "clientId",max("finishDatetime"::date) as lastvisitdatetime from serviceoperation
+    group by "clientId"
+    union
+    select "clientId",max(datetime::date) as lastvisitdatetime from goodsoperation
+    group by "clientId") lastvisit
+    on visits."clientId" = lastvisit."clientId")"""
+    
+    return query
 
 def generateQueryRead(args):
     table = args['table']
@@ -252,8 +302,11 @@ def generateQueryRead(args):
         if args['type'] == 'GetSessions':
             query = getSessionsOperationsQuery(args)
             
-        if args['type'] == 'GenerateCustomerReport':
-            query = generateCustomerReportQuery(args)            
+        if args['type'] == 'generateCustomerReportFinance':
+            query = generateCustomerReportFinanceQuery(args)  
+            
+        if args['type'] == 'GenerateCustomerReportVisits':
+            query = GenerateCustomerReportVisitsQuery(args) 
             
         else:
             if args['type'] in ['GetAdmins','GetMasters']:
