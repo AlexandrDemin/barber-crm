@@ -120,6 +120,21 @@ argsconfig = {
         'table':'client',
         'type':'GetClients',
         'dataneeded':True
+    },
+    'GenerateClientReport':{
+        'type':'GenerateClientReport',
+        'dataneeded':True
+    },
+    'GenerateCustomerReportFinance':{
+        'type':'GenerateCustomerReportFinance',
+        'dataneeded':True
+    },
+    'GenerateCustomerReportVisits':{
+        'type':'GenerateCustomerReportVisits'
+    },
+    'GenerateFinanceReport':{
+        'type':'GenerateFinanceReport',
+        'dataneeded':True
     }
 }
 
