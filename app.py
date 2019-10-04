@@ -332,7 +332,20 @@ def EditSpendtype():
         data = request.get_json()
         table = 'spendtype'
         result = edit(table,data)
-        return result    
+        return result
+    
+@app.route('/api/GenerateCustomerReport/', methods=['POST'])
+def GenerateCustomerReport():
+    if request.method == 'POST':
+        data = request.get_json()
+        result = {}
+        configkey = 'GenerateCustomerReportFinance'
+        result1 = get(configkey,data)
+        configkey = 'GenerateCustomerReportVisits'
+        result2 = get(configkey)
+        result["finance"] = result1
+        result["visits"] = result2
+        return result
 
 @app.route('/static/<path:path>')
 @requires_auth
