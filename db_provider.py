@@ -288,6 +288,44 @@ def generateCustomerReportVisitsQuery(args=None):
     
     return query
 
+def GenerateFinanceReportQuery(args=None):
+    wherequery = "where datetime >= date_trunc('month', CURRENT_DATE)"
+    if args:
+        pass
+    
+    query = f"""select incomeoperationcount+expenseoperationcount as operationcount,
+    totalincome."officeId",office.name as officename,
+    totalincome.totalcash,totalincome.totalcashless,totalincome.totalincome,
+    totalexpenses.totalExpenses,
+    totalincome.totalIncome-totalexpenses.totalExpenses as totalrevenue from
+    (
+    (select count(*) as incomeoperationcount,"officeId",sum("cashSum") as totalcash,
+    sum("cashlessSum") as totalcashless,sum("cashSum")+sum("cashlessSum") as totalIncome,
+    array_agg(categoryIncome) as operationsIncome from 
+    (select "officeId","finishDatetime" as datetime,"cashSum","cashlessSum","cashSum"+"cashlessSum" as totalIncome, 
+    json_build_object('totalServiceIncome',"cashSum"+"cashlessSum")  as categoryIncome
+    from serviceoperation
+    union all
+    select "officeId",datetime,"cashSum","cashlessSum","cashSum"+"cashlessSum" as totalIncome,
+    json_build_object('totalGoodsIncome',"cashSum"+"cashlessSum")  as categoryIncome
+    from goodsoperation) income
+    {wherequery}
+    group by "officeId") totalincome
+    inner join
+    (select count(*) as expenseoperationcount,"officeId",sum(totalExpenses) as totalExpenses from
+    (select "officeId",datetime,"cashSum"+"cashlessSum" as totalExpenses from spendoperations
+    union all
+    select "officeId",datetime,"cashSum"+"cashlessSum" as totalExpenses from employeepayment) expenses
+    {wherequery}
+    group by "officeId") totalexpenses
+    on totalincome."officeId" = totalexpenses."officeId"
+    inner join
+    (select id,name from office) office
+    on totalincome."officeId" = office.id
+    )"""
+    
+    return query
+
 def generateQueryRead(args):
     table = args['table']
     additionalpart = ''
@@ -306,7 +344,10 @@ def generateQueryRead(args):
             query = generateCustomerReportFinanceQuery(args)  
             
         if args['type'] == 'GenerateCustomerReportVisits':
-            query = GenerateCustomerReportVisitsQuery(args) 
+            query = GenerateCustomerReportVisitsQuery(args)
+            
+        if args['type'] == 'GenerateFinanceReport':
+            query = GenerateFinanceReportQuery(args) 
             
         else:
             if args['type'] in ['GetAdmins','GetMasters']:
