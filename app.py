@@ -346,6 +346,14 @@ def GenerateCustomerReport():
         result["finance"] = result1
         result["visits"] = result2
         return result
+    
+@app.route('/api/GenerateFinanceReport/', methods=['POST'])
+def GenerateFinanceReport():
+    if request.method == 'POST':
+        data = request.get_json()
+        configkey = 'GenerateFinanceReport'
+        result = get(configkey,data)
+        return result
 
 @app.route('/static/<path:path>')
 @requires_auth
