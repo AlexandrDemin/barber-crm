@@ -5,8 +5,12 @@
 import json
 import psycopg2
 import traceback
+import re
 
 #DB
+dateregexp = re.compile(r'(\d\d)\.(\d\d)\.(\d\d\d\d)')
+
+
 def prepareDataToUpsert(data):
     for key,value in data.items():
         if type(value) == dict:
@@ -79,11 +83,15 @@ def getSessionsOperationsQuery(args):
     wherepartlist = []
         
     if 'dateFrom' in args['data']:
-        date = args['data']['dateFrom']
+        dateraw = args['data']['dateFrom']
+        d = dateregexp.search(dateraw)
+        date = d.group(3)+'-'+d.group(2)+'-'+d.group(1)
         qdatefrompart = f"""\"dateOpened\" >= '{date}'""" 
 
     if 'dateTo' in args['data']:
-        date = args['data']['dateTo']
+        dateraw = args['data']['dateTo']
+        d = dateregexp.search(dateraw)
+        date = d.group(3)+'-'+d.group(2)+'-'+d.group(1)
         qdatetopart = f"""\"dateClosed\" <= '{date}'"""
         
     if 'id' in args['data']:
@@ -171,12 +179,16 @@ def generateCustomerReportFinanceQuery(args):
     clientidspart = ''
     
     if 'dateFrom' in args['data']:
-        date = args['data']['dateFrom']
+        dateraw = args['data']['dateFrom']
+        d = dateregexp.search(dateraw)
+        date = d.group(3)+'-'+d.group(2)+'-'+d.group(1)
         qdatefrompart1 = f"""\"datetime\" >= '{date}'"""
         qdatefrompart2 = f"""\"finishDatetime\" >= '{date}'"""
     
     if 'dateTo' in args['data']:
-        date = args['data']['dateTo']
+        dateraw = args['data']['dateTo']
+        d = dateregexp.search(dateraw)
+        date = d.group(3)+'-'+d.group(2)+'-'+d.group(1)
         qdatetopart1 = f"""\"datetime\" <= '{date}'"""
         qdatetopart2 = f"""\"finishDatetime\" <= '{date}'"""
     
