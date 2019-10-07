@@ -121,8 +121,8 @@ argsconfig = {
         'type':'GetClients',
         'dataneeded':True
     },
-    'GenerateClientReport':{
-        'type':'GenerateClientReport',
+    'GenerateEmployeeReport':{
+        'type':'GenerateEmployeeReport',
         'dataneeded':True
     },
     'GenerateCustomerReportFinance':{
