@@ -354,6 +354,14 @@ def GenerateFinanceReport():
         configkey = 'GenerateFinanceReport'
         result = get(configkey,data)
         return result
+    
+@app.route('/api/GenerateEmployeeReport/', methods=['POST'])
+def GenerateEmployeeReport():
+    if request.method == 'POST':
+        data = request.get_json()
+        configkey = 'GenerateEmployeeReport'
+        result = get(configkey,data)
+        return result
 
 @app.route('/static/<path:path>')
 @requires_auth
