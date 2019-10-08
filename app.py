@@ -339,12 +339,8 @@ def GenerateCustomerReport():
     if request.method == 'POST':
         data = request.get_json()
         result = {}
-        configkey = 'GenerateCustomerReportFinance'
-        result1 = get(configkey,data)
-        configkey = 'GenerateCustomerReportVisits'
-        result2 = get(configkey)
-        result["finance"] = result1
-        result["visits"] = result2
+        configkey = 'GenerateCustomerReport'
+        result = get(configkey,data)
         return result
     
 @app.route('/api/GenerateFinanceReport/', methods=['POST'])
