@@ -334,12 +334,11 @@ def EditSpendtype():
         result = edit(table,data)
         return result
     
-@app.route('/api/GenerateCustomerReport/', methods=['POST'])
+@app.route('/api/GenerateClientReport/', methods=['POST'])
 def GenerateCustomerReport():
     if request.method == 'POST':
         data = request.get_json()
-        result = {}
-        configkey = 'GenerateCustomerReport'
+        configkey = 'GenerateClientReport'
         result = get(configkey,data)
         return result
     
