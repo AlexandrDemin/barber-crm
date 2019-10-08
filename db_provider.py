@@ -8,9 +8,8 @@ import traceback
 import re
 
 #DB
-dateregexp = re.compile(r'(\d\d)\.(\d\d)\.(\d\d\d\d)')
-
 def generateDateQueryPart(columnname,sign,dateraw):
+    dateregexp = re.compile(r'(\d\d)\.(\d\d)\.(\d\d\d\d)')
     try:
         d = dateregexp.search(dateraw)
         date = d.group(3)+'-'+d.group(2)+'-'+d.group(1)
@@ -181,7 +180,7 @@ def getSessionsOperationsQuery(args):
         query = f'''{sessionquery}'''
     return query
 
-def generateCustomerReportFinanceQuery(args):
+def generateCustomerReportQuery(args):
     officeidspart = ''
     clientidspart = ''
     
@@ -203,18 +202,45 @@ def generateCustomerReportFinanceQuery(args):
     
     where = generateWhereFromList(wherelist)
     
+    globalquery = 'select * from'
+    officegrouping = ''
+    globalqueryallofficepart = f'''sum(totalcash) as totalcash,
+sum(totalcashless) as totalcashless,
+sum(totaldiscount) as totaldiscount,
+sum(totalservicesum) as totalservicesum,
+sum(totalgoodssum) as totalgoodssum,
+sum(totalsum) as totalsum,
+sum(totalvisitsduringperiod) as totalvisitsduringperiod'''
+    
+    if args['data']['groupingtype'] == 'office':
+        globalquery = f'''select "officeId",
+{globalqueryallofficepart}
+from'''
+        officegrouping = 'group by "officeId"'
+    
     if args['data']['groupingtype'] == 'all':
-        globalqueryopen = f"""select
-sum(totalCash) as totalCash,sum(totalCashless) as totalCashless,sum(totalDiscount) as totalDiscount,
-sum(totalServiceSum) as totalServiceSum,
-sum(totalGoodsSum) as totalGoodsSum,
-sum(totalSum) as totalSum,
-sum(totalvisits) as totalvisits
-from (""" 
-        globalqueryclose = ') ungrouped'
-      
-    query = f'''{globalqueryopen} 
-select * from 
+        globalquery = f"""select
+{globalqueryallofficepart}
+from""" 
+    
+    lostdayscriterion = 60
+    likelylostdayscriterion = 40
+    loyalvisitscriterion = 3
+    likelyloyalvisitscriterion = 2
+    lastndays = 120
+    
+    if 'lostdayscriterion' in args:
+        lostdayscriterion = args['lostdayscriterion']
+    if 'likelylostdayscriterion' in args:
+        likelylostdayscriterion = args['likelylostdayscriterion']
+    if 'loyalvisitscriterion' in args:
+        loyalvisitscriterion = args['loyalvisitscriterion']
+    if 'likelyloyalvisitscriterion' in args:
+        likelyloyalvisitscriterion = args['likelyloyalvisitscriterion']
+    if 'lastndays' in args:
+        lastndays = args['lastndays']
+
+    query = f"""{globalquery} 
 (select yearmonth,"officeId","clientId",
 sum("cashSum") as totalCash,sum("cashlessSum") as totalCashless,sum("discountSum") as totalDiscount,
 sum("cashSum")filter (where type = 'service') + sum("cashlessSum")filter (where type = 'service')  as totalServiceSum,
@@ -236,126 +262,107 @@ group by "officeId","clientId",yearmonth
 ) as masternames
 using (yearmonth,"officeId","clientId")
 left join
-(select "officeId","clientId",yearmonth,count(*) as totalvisits from (select "officeId","clientId", date_trunc('month',"finishDatetime") as yearmonth from serviceoperation
+(select "officeId","clientId",yearmonth,count(*) as totalvisitsduringperiod from (select "officeId","clientId", date_trunc('month',"finishDatetime") as yearmonth from serviceoperation
 union
 select "officeId","clientId",date_trunc('month',datetime) as yearmonth from goodsoperation) cnt
 group by "officeId","clientId",yearmonth
 ) visitcount
 using (yearmonth,"officeId","clientId")
+left join
+(select id as "clientId",name from client) cl
+using ("clientId")
+left join
+(select visits.*,lastvisit.lastvisitdatetime,
+case 
+    WHEN lastvisit.lastvisitdatetime < now() - interval '60 days'::interval THEN 'lost'
+    WHEN lastvisit.lastvisitdatetime < now() - interval '40 days'::interval and
+    lastvisit.lastvisitdatetime >= now() - interval '60 days'::interval THEN ' likely lost'
+    when visits.lastndaysvisitscount >= 3 then 'loyal'
+    when visits.lastndaysvisitscount >= 2 then 'likely loyal'
+    ELSE 'ambivalent'
+end as loyalty,
+case
+    when visits.lastndaysvisitscount < visits.totalvisits then false
+    else true
+end as newclient from 
+((select "clientId","officeId",
+count(*) as totalvisits,
+count(*) filter (where datetime >= now() - '120 days'::interval) as lastndaysvisitscount 
+from ( 
+select "officeId","clientId","finishDatetime"::date as datetime from serviceoperation
+union
+select "officeId","clientId",datetime::date as datetime from goodsoperation) v
+group by "officeId","clientId") visits
+inner join
+(select "officeId","clientId",max("finishDatetime"::date) as lastvisitdatetime from serviceoperation
+group by "officeId","clientId"
+union
+select "officeId","clientId",max(datetime::date) as lastvisitdatetime from goodsoperation
+group by "officeId","clientId") lastvisit
+using ("officeId","clientId"))) visitstats
+using ("officeId","clientId")
 {where}
-{globalqueryclose}'''
-
-def generateCustomerReportVisitsQuery(args=None):
-    
-    lostdayscriterion = 60
-    likelylostdayscriterion = 40
-    loyalvisitscriterion = 3
-    likelyloyalvisitscriterion = 2
-    lastndays = 120
-    
-    if args:
-        if 'lostdayscriterion' in args:
-            lostdayscriterion = args['lostdayscriterion']
-        if 'likelylostdayscriterion' in args:
-            likelylostdayscriterion = args['likelylostdayscriterion']
-        if 'loyalvisitscriterion' in args:
-            loyalvisitscriterion = args['loyalvisitscriterion']
-        if 'likelyloyalvisitscriterion' in args:
-            likelyloyalvisitscriterion = args['likelyloyalvisitscriterion']
-        if 'lastndays' in args:
-            lastndays = args['lastndays']
-
-    query = f"""select visits.*,lastvisit.lastvisitdatetime, 
-    case 
-        WHEN lastvisit.lastvisitdatetime < now() - interval '{lostdayscriterion} days'::interval THEN 'lost'
-        WHEN lastvisit.lastvisitdatetime < now() - interval '{likelylostdayscriterion} days'::interval and
-        lastvisit.lastvisitdatetime >= now() - interval '{lostdayscriterion} days'::interval THEN ' likely lost'
-        when visits.lastndaysvisitscount >= {loyalvisitscriterion} then 'loyal'
-        when visits.lastndaysvisitscount >= {likelyloyalvisitscriterion} then 'likely loyal'
-        ELSE 'ambivalent'
-    end as loyalty,
-    case
-        when visits.lastndaysvisitscount < visits.totalvisits then false
-        else true
-    end as newclient from 
-    ((select "clientId", 
-    count(*) as totalvisits,
-    count(*) filter (where datetime >= now() - '{lastndays} days'::interval) as lastndaysvisitscount 
-    from ( 
-    select "clientId","finishDatetime"::date as datetime from serviceoperation
-    union
-    select "clientId",datetime::date as datetime from goodsoperation) v
-    group by "clientId") visits
-    inner join
-    (select "clientId",max("finishDatetime"::date) as lastvisitdatetime from serviceoperation
-    group by "clientId"
-    union
-    select "clientId",max(datetime::date) as lastvisitdatetime from goodsoperation
-    group by "clientId") lastvisit
-    using ("clientId"))"""
+{officegrouping}"""
     
     return query
 
 def GenerateFinanceReportQuery(args):
-    globalqueryopen = ''
+    globalquery = 'select * from'
     globalqueryclose = ''
     
     officeidspart = ''
-    employeeidspart = ''
         
     if 'period' in args['data']:
         dateraw = args['data']['period']
     else:
         dateraw = "date_trunc('month',now())"
-    datepart = generateDateQueryPart("date_trunc('month',datetime)",'=',dateraw)
+    datepart = generateDateQueryPart("yearmonth",'=',dateraw)
         
     if 'officeIds' in args['data']:
         officeids = args['data']['officeIds']
         officeidspart = generateIdsQueryPart(officeids,'"officeId"')
     
     wherelist = [datepart,officeidspart]
-    wherequery = generateWhereFromList(wherelist)
+    where = generateWhereFromList(wherelist)
 
     if args['data']['groupingtype'] == 'all':
-        globalqueryopen = f"""select 
-        sum(operationcount) as operationcount,
-        sum(totalcash) as totalcash,sum(totalcashless) as totalcashless,sum(totalincome) as totalincome,
-        sum(totalExpenses) as totalExpenses,
-        sum(totalrevenue) as totalrevenue
-        from (""" 
-        globalqueryclose = ') ungrouped'
+        globalquery = f"""select 
+sum(operationcount) as operationcount,sum(serviceoperationcount) as serviceoperationcount,sum(goodsoperationcount) as goodsoperationcount, sum(spendoperationcount) as spendoperationcount,
+sum(serviceIncome) as serviceIncome,sum(goodsIncome) as goodsIncome,
+sum(totalcash) as totalcash,sum(totalcashless) as totalcashless,
+sum(totalIncome) as totalIncome,sum(totalspend) as totalspend,sum(totalrevenue) as totalrevenue
+from""" 
     
-    query = f"""{globalqueryopen}
-    select incomeoperationcount+expenseoperationcount as operationcount,
-    totalincome."officeId",name as officename,
-    totalcash,totalcashless,totalincome,
-    totalExpenses,
-    totalIncome-totalExpenses as totalrevenue from
-    (
-    (select count(*) as incomeoperationcount,"officeId",sum("cashSum") as totalcash,
-    sum("cashlessSum") as totalcashless,sum("cashSum")+sum("cashlessSum") as totalIncome,
-    array_agg(categoryIncome) as operationsIncome from 
-    (select "officeId","finishDatetime" as datetime,"cashSum","cashlessSum","cashSum"+"cashlessSum" as totalIncome, 
-    json_build_object('totalServiceIncome',"cashSum"+"cashlessSum")  as categoryIncome
-    from serviceoperation
-    union all
-    select "officeId",datetime,"cashSum","cashlessSum","cashSum"+"cashlessSum" as totalIncome,
-    json_build_object('totalGoodsIncome',"cashSum"+"cashlessSum")  as categoryIncome
-    from goodsoperation) income
-    {wherequery}
-    group by "officeId") totalincome
-    inner join
-    (select count(*) as expenseoperationcount,"officeId",sum(totalExpenses) as totalExpenses from
-    (select "officeId",datetime,"cashSum"+"cashlessSum" as totalExpenses from spendoperation
-    union all
-    select "officeId",datetime,"cashSum"+"cashlessSum" as totalExpenses from employeepayment) expenses
-    {wherequery}
-    group by "officeId") totalexpenses
-    using("officeId")
-    inner join
-    (select id,name from office) office
-    on totalincome."officeId" = office.id)
-    {globalqueryclose}"""
+    query = f"""{globalquery}
+(select "officeId",yearmonth,
+count(*) as operationcount,count(*)filter (where category = 'serviceoperation') as serviceoperationcount,count(*)filter (where category = 'goodsoperation') as goodsoperationcount,
+count(*)filter (where category = 'spend') as spendoperationcount,
+sum("cashSum")filter (where category = 'serviceoperation')+sum("cashlessSum")filter (where category = 'serviceoperation') as serviceIncome,
+sum("cashSum")filter (where category = 'goodsoperation')+sum("cashlessSum")filter (where category = 'goodsoperation') as goodsIncome,
+sum("cashSum") as totalcash, sum("cashlessSum") as totalcashless,
+sum(totalIncome) as totalIncome, sum(totalspend) as totalspend, sum(totalIncome) - sum(totalspend) as totalrevenue
+from 
+(select 'serviceoperation' as category,"officeId",date_trunc('month',"finishDatetime") as yearmonth,"cashSum","cashlessSum","cashSum"+"cashlessSum" as totalIncome, null::float as totalspend
+from serviceoperation
+union all
+select 'goodsoperation' as category,"officeId",date_trunc('month',datetime) as yearmonth,"cashSum","cashlessSum","cashSum"+"cashlessSum" as totalIncome, null::float as totalspend
+from goodsoperation
+union all
+select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, null as "cashSum", null as "cashlessSum", null::float as totalIncome,"cashSum"+"cashlessSum" as totalspend from spendoperation
+union all
+select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, null as "cashSum", null as "cashlessSum", null::float as totalIncome,"cashSum"+"cashlessSum" as totalspend from employeepayment) finance
+group by "officeId",yearmonth) finance
+left join
+(select "officeId", count(distinct employeeid) as totalemployees,sum(total_time) as total_time,yearmonth from
+(select "officeId",date_trunc('month',"dateOpened") as yearmonth,
+cast((unnest(employees)->'userId')::text as int) as employeeid,
+(concat('2018-01-01 ',(unnest(employees)->>'endtime')::text)::timestamp -
+concat('2018-01-01 ',(unnest(employees)->>'starttime')::text)::timestamp)
+as total_time
+from session) a
+group by "officeId",yearmonth) worktime 
+using ("officeId",yearmonth)
+{where}"""
     
     return query
 
