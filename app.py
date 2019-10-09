@@ -12,9 +12,15 @@ from werkzeug.utils import secure_filename
 import pandas as pd
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import uuid
+import datetime as dt
+
+UPLOAD_FOLDER = '/path/to/the/uploads'
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__, static_folder='./front/dist/static/', template_folder="./front/dist/")
 CORS(app)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def check_auth(username, password):
     if username == 'demo.user' and password == 'demo':
@@ -39,6 +45,20 @@ def writeLog(logEntry):
     with codecs.open("log.txt", "a", "utf-8") as logFile:
         json.dump(logEntry, logFile, ensure_ascii=False)
         logFile.write('\n')
+        
+def uploadfiles(request):
+    if 'file' in request.files:
+        uploaded_files = request.files.getlist("file[]")
+        for file in uploaded_files:
+            pictureUrlsList = []
+            if file.filename == '':
+                pass
+            elif file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                pictureUrl = os.path.join(app.config['UPLOAD_FOLDER']) + filename
+                pictureUrlsList.append(pictureUrlsList)
+        return pictureUrlsList
         
 @app.route("/api/Test/", methods=['POST', 'GET'])
 @requires_auth
@@ -270,6 +290,9 @@ def EditClient():
     if request.method == 'POST':
         data = request.get_json()
         table = 'client'
+        pictureUrlsList = uploadfiles(request)
+        if pictureUrlsList:
+            data['pictureUrl'] = pictureUrlsList
         result = edit(table,data)
         return result
 
@@ -290,6 +313,9 @@ def EditEmployee():
     if request.method == 'POST':
         data = request.get_json()
         table = 'employee'
+        pictureUrlsList = uploadfiles(request)
+        if pictureUrlsList:
+            data['pictureUrl'] = pictureUrlsList[0]                     
         result = edit(table,data)
         return result
     
@@ -301,7 +327,6 @@ def EditBarberCategory():
         result = edit(table,data)
         return result    
 
-# создать таблицу и сделать get
 @app.route('/api/EditEmployeePaymentType/', methods=['POST'])
 def EditEmployeePaymentType():
     if request.method == 'POST':
@@ -340,7 +365,10 @@ def GenerateCustomerReport():
         data = request.get_json()
         configkey = 'GenerateClientReport'
         result = get(configkey,data)
-        return result
+        report = pd.DataFrame(result)
+        filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
+        report.to_excel('./downloadable_files/' + filename)
+        return result, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
     
 @app.route('/api/GenerateFinanceReport/', methods=['POST'])
 def GenerateFinanceReport():
@@ -348,7 +376,10 @@ def GenerateFinanceReport():
         data = request.get_json()
         configkey = 'GenerateFinanceReport'
         result = get(configkey,data)
-        return result
+        report = pd.DataFrame(result)
+        filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
+        report.to_excel('./downloadable_files/' + filename)
+        return result, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
     
 @app.route('/api/GenerateEmployeeReport/', methods=['POST'])
 def GenerateEmployeeReport():
@@ -356,7 +387,10 @@ def GenerateEmployeeReport():
         data = request.get_json()
         configkey = 'GenerateEmployeeReport'
         result = get(configkey,data)
-        return result
+        report = pd.DataFrame(result)
+        filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
+        report.to_excel('./downloadable_files/' + filename)
+        return result, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
 
 @app.route('/static/<path:path>')
 @requires_auth
