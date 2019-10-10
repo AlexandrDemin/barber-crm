@@ -5,6 +5,7 @@ from flask import Flask, abort, url_for, render_template, request, Response, cur
 import json
 from flask_cors import CORS
 from backend_logic import *
+from db_provider import *
 import os
 from functools import wraps
 import time
@@ -14,6 +15,18 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import uuid
 import datetime as dt
+import traceback
+import re
+import io
+from datetime import datetime, timedelta
+import requests
+import time
+import json
+import math
+import copy
+import urllib.parse
+import codecs
+import random
 
 UPLOAD_FOLDER = '/path/to/the/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
