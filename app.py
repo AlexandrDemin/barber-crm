@@ -79,6 +79,7 @@ def get_projects():
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 @app.route('/api/GetUserData/', methods=['POST'])
+@requires_auth
 def GetUserData():
     if request.method == 'POST':
         data = request.get_json()
@@ -87,6 +88,7 @@ def GetUserData():
         return result
     
 @app.route('/api/GetEmployees/', methods=['POST'])
+@requires_auth
 def GetEmployees():
     if request.method == 'POST':
         configkey = 'GetEmployees'
@@ -94,6 +96,7 @@ def GetEmployees():
         return result
     
 @app.route('/api/GetEmployee/', methods=['POST'])
+@requires_auth
 def GetEmployee():
     if request.method == 'POST':
         data = request.get_json()
@@ -102,6 +105,7 @@ def GetEmployee():
         return result
     
 @app.route('/api/GetAdmins/', methods=['POST'])
+@requires_auth
 def GetAdmins():
     if request.method == 'POST':
         configkey = 'GetAdmins'
@@ -109,6 +113,7 @@ def GetAdmins():
         return result
 
 @app.route('/api/GetMasters/', methods=['POST'])
+@requires_auth
 def GetMasters():
     if request.method == 'POST':
         configkey = 'GetMasters'
@@ -116,6 +121,7 @@ def GetMasters():
         return result
 
 @app.route('/api/GetBarberCategories/', methods=['POST'])
+@requires_auth
 def GetBarberCategories():
     if request.method == 'POST':
         configkey = 'GetBarberCategories'
@@ -123,6 +129,7 @@ def GetBarberCategories():
         return result
     
 @app.route('/api/GetBarberCategory/', methods=['POST'])
+@requires_auth
 def GetBarberCategory():
     if request.method == 'POST':
         data = request.get_json()
@@ -131,6 +138,7 @@ def GetBarberCategory():
         return result
     
 @app.route('/api/GetOffices/', methods=['POST'])
+@requires_auth
 def GetOffices():
     if request.method == 'POST':
         configkey = 'GetOffices'
@@ -138,6 +146,7 @@ def GetOffices():
         return result
 
 @app.route('/api/GetOffice/', methods=['POST'])
+@requires_auth
 def GetOffice():
     if request.method == 'POST':
         data = request.get_json()
@@ -146,6 +155,7 @@ def GetOffice():
         return result
     
 @app.route('/api/GetCurrentSession/', methods=['POST'])
+@requires_auth
 def GetCurrentSession():
     if request.method == 'POST':
         data = request.get_json()
@@ -154,6 +164,7 @@ def GetCurrentSession():
         return result
 
 @app.route('/api/GetSession/', methods=['POST'])
+@requires_auth
 def GetSession():
     if request.method == 'POST':
         data = request.get_json()
@@ -162,6 +173,7 @@ def GetSession():
         return result
 
 @app.route('/api/GetSessionsWithOperations/', methods=['POST'])
+@requires_auth
 def GetSessionsWithOperations():
     if request.method == 'POST':
         data = request.get_json()
@@ -170,6 +182,7 @@ def GetSessionsWithOperations():
         return result
     
 @app.route('/api/GetServicesPrices/', methods=['POST'])
+@requires_auth
 def GetServicesPrices():
     if request.method == 'POST':
         configkey = 'GetServicesPrices'
@@ -177,6 +190,7 @@ def GetServicesPrices():
         return result    
 
 @app.route('/api/GetServiceOperation/', methods=['POST'])
+@requires_auth
 def GetServiceOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -185,6 +199,7 @@ def GetServiceOperation():
         return result
 
 @app.route('/api/GetGoods/', methods=['POST'])
+@requires_auth
 def GetGoods():
     if request.method == 'POST':
         configkey = 'GetGoods'
@@ -192,6 +207,7 @@ def GetGoods():
         return result
     
 @app.route('/api/GetGood/', methods=['POST'])
+@requires_auth
 def GetGood():
     if request.method == 'POST':
         data = request.get_json()
@@ -200,6 +216,7 @@ def GetGood():
         return result
     
 @app.route('/api/GetGoodsOperation/', methods=['POST'])
+@requires_auth
 def GetGoodsOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -208,6 +225,7 @@ def GetGoodsOperation():
         return result
 
 @app.route('/api/GetSpendTypes/', methods=['POST'])
+@requires_auth
 def GetSpendTypes():
     if request.method == 'POST':
         configkey = 'GetSpendTypes'
@@ -215,6 +233,7 @@ def GetSpendTypes():
         return result
     
 @app.route('/api/GetSpendType/', methods=['POST'])
+@requires_auth
 def GetSpendType():
     if request.method == 'POST':
         data = request.get_json()
@@ -223,6 +242,7 @@ def GetSpendType():
         return result
     
 @app.route('/api/GetSpendOperation/', methods=['POST'])
+@requires_auth
 def GetSpendOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -231,6 +251,7 @@ def GetSpendOperation():
         return result
 
 @app.route('/api/GetEmployeePaymentTypes/', methods=['POST'])
+@requires_auth
 def GetEmployeePaymentTypes():
     if request.method == 'POST':
         configkey = 'GetEmployeePaymentTypes'
@@ -238,6 +259,7 @@ def GetEmployeePaymentTypes():
         return result
 
 @app.route('/api/GetEmployeePaymentType/', methods=['POST'])
+@requires_auth
 def GetEmployeePaymentType():
     if request.method == 'POST':
         data = request.get_json()
@@ -246,6 +268,7 @@ def GetEmployeePaymentType():
         return result    
     
 @app.route('/api/GetEmployeePaymentOperation/', methods=['POST'])
+@requires_auth
 def GetEmployeePaymentOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -254,6 +277,7 @@ def GetEmployeePaymentOperation():
         return result
 
 @app.route('/api/GetClient/', methods=['POST'])
+@requires_auth
 def GetClient():
     if request.method == 'POST':
         data = request.get_json()
@@ -262,6 +286,7 @@ def GetClient():
         return result
     
 @app.route('/api/GetClients/', methods=['POST'])
+@requires_auth
 def GetClients():
     if request.method == 'POST':
         data = request.get_json()
