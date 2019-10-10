@@ -295,6 +295,7 @@ def GetClients():
         return result
 
 @app.route('/api/EditOffice/', methods=['POST'])
+@requires_auth
 def EditOffice():
     if request.method == 'POST':
         data = request.get_json()
@@ -303,6 +304,7 @@ def EditOffice():
         return result 
     
 @app.route('/api/EditSession/', methods=['POST'])
+@requires_auth
 def EditSession():
     if request.method == 'POST':
         data = request.get_json()
@@ -311,6 +313,7 @@ def EditSession():
         return result
 
 @app.route('/api/EditClient/', methods=['POST'])
+@requires_auth
 def EditClient():
     if request.method == 'POST':
         data = request.get_json()
@@ -322,18 +325,27 @@ def EditClient():
         return result
 
 @app.route('/api/EditOperations/', methods=['POST'])
+@requires_auth
 def EditOperations():
     if request.method == 'POST':
         data = request.get_json()
         results = []
+        firstservicewithpicture = True
         for elem in data:
             table = elem['operationType']
+            if 'serviceoperation' in elem['operationType'] and firstservicewithpicture == True:
+                pictureUrlsList = uploadfiles(request)
+                if pictureUrlsList:
+                    elem['photoUrls'] = pictureUrlsList
+                    firstservicewithpicture = False
+            data['"pictureUrl"'] = pictureUrlsList
             del elem['operationType']
             result = edit(table,elem)
             results.append(result)
         return results
 
 @app.route('/api/EditEmployee/', methods=['POST'])
+@requires_auth
 def EditEmployee():
     if request.method == 'POST':
         data = request.get_json()
@@ -345,6 +357,7 @@ def EditEmployee():
         return result
     
 @app.route('/api/EditBarberCategory/', methods=['POST'])
+@requires_auth
 def EditBarberCategory():
     if request.method == 'POST':
         data = request.get_json()
@@ -353,6 +366,7 @@ def EditBarberCategory():
         return result    
 
 @app.route('/api/EditEmployeePaymentType/', methods=['POST'])
+@requires_auth
 def EditEmployeePaymentType():
     if request.method == 'POST':
         data = request.get_json()
@@ -361,6 +375,7 @@ def EditEmployeePaymentType():
         return result    
 
 @app.route('/api/EditGood/', methods=['POST'])
+@requires_auth
 def EditGood():
     if request.method == 'POST':
         data = request.get_json()
@@ -369,6 +384,7 @@ def EditGood():
         return result
     
 @app.route('/api/EditService/', methods=['POST'])
+@requires_auth
 def EditService():
     if request.method == 'POST':
         data = request.get_json()
@@ -377,6 +393,7 @@ def EditService():
         return result
     
 @app.route('/api/EditSpendtype/', methods=['POST'])
+@requires_auth
 def EditSpendtype():
     if request.method == 'POST':
         data = request.get_json()
@@ -385,6 +402,7 @@ def EditSpendtype():
         return result
     
 @app.route('/api/GenerateClientReport/', methods=['POST'])
+@requires_auth
 def GenerateCustomerReport():
     if request.method == 'POST':
         data = request.get_json()
@@ -396,6 +414,7 @@ def GenerateCustomerReport():
         return result, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
     
 @app.route('/api/GenerateFinanceReport/', methods=['POST'])
+@requires_auth
 def GenerateFinanceReport():
     if request.method == 'POST':
         data = request.get_json()
@@ -407,6 +426,7 @@ def GenerateFinanceReport():
         return result, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
     
 @app.route('/api/GenerateEmployeeReport/', methods=['POST'])
+@requires_auth
 def GenerateEmployeeReport():
     if request.method == 'POST':
         data = request.get_json()
