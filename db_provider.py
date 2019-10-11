@@ -4,6 +4,7 @@
 
 import json
 import psycopg2
+from psycopg2.extras import RealDictCursor
 import traceback
 import re
 
@@ -88,13 +89,17 @@ def generateWhere(data):
     where """
     wherepartslist = []
     for key,value in data.items():
-        wherepart = f"""{key} = {value}"""
+        if type(value) == str:
+            wherepart = f"""\"{key}\" = '{value}'"""
+        else:
+            wherepart = f"""\"{key}\" = {value}"""
         wherepartslist.append(wherepart)
     wherestring = ' and '.join(wherepartslist)
     whereclause = baseq + wherestring
     return whereclause
 
 def getSessionsOperationsQuery(args):
+    print(args)
     table = args['table']
     fields = ','.join(args['fields'])
     qdatefrompart = ''
@@ -153,6 +158,7 @@ def getSessionsOperationsQuery(args):
             args['data']['operationType'] = [1,2,3,4]
 
     if 'operationType' in args['data']:
+        clientidspart = ''
         operationtypes = {1:"serviceoperation",2:"goodsoperation",3:"spendoperation",4:"employeepayment"}
         querypartslist = []
         for item in args['data']['operationType']:
@@ -162,7 +168,7 @@ def getSessionsOperationsQuery(args):
                     clientids = args['data']['clientIds']
                     clientidspartlist = [generateIdsQueryPart(clientids,'"clientId"')]
                     clientidspart = generateWhereFromList(clientidspartlist)
-            qpart = f"""select "sessionId",'{table}' as type,row_to_json({table}) as params from {table}{clientidspart}"""
+            qpart = f"""select "sessionId",'{table}' as type,row_to_json({table}) as params from {table} {clientidspart}"""
             querypartslist.append(qpart)
         unions = "\nunion all\n".join(querypartslist)
         queryoperations = f'''select c."sessionId",array_agg(row_to_json(c)::jsonb-'sessionId') as "Operations" from
@@ -172,7 +178,7 @@ def getSessionsOperationsQuery(args):
         group by "sessionId"'''
 
         query = f'''{sessionquery}
-        inner join
+        left join
         ({queryoperations}) operations
         on ssn.id = operations."sessionId"'''
         
@@ -180,7 +186,7 @@ def getSessionsOperationsQuery(args):
         query = f'''{sessionquery}'''
     return query
 
-def generateCustomerReportQuery(args):
+def GenerateClientReportQuery(args):
     officeidspart = ''
     clientidspart = ''
     
@@ -210,7 +216,7 @@ sum(totaldiscount) as totaldiscount,
 sum(totalservicesum) as totalservicesum,
 sum(totalgoodssum) as totalgoodssum,
 sum(totalsum) as totalsum,
-sum(totalvisitsduringperiod) as totalvisitsduringperiod'''
+sum(totalvisitsduringperiod)::int as totalvisitsduringperiod'''
     
     if args['data']['groupingtype'] == 'office':
         globalquery = f'''select "officeId",
@@ -327,16 +333,17 @@ def GenerateFinanceReportQuery(args):
 
     if args['data']['groupingtype'] == 'all':
         globalquery = f"""select 
-sum(operationcount) as operationcount,sum(serviceoperationcount) as serviceoperationcount,sum(goodsoperationcount) as goodsoperationcount, sum(spendoperationcount) as spendoperationcount,
+sum(operationcount) as operationcount,sum(serviceoperationcount)::int as serviceoperationcount,sum(goodsoperationcount)::int as goodsoperationcount, sum(spendoperationcount)::int as spendoperationcount,
 sum(serviceIncome) as serviceIncome,sum(goodsIncome) as goodsIncome,
 sum(totalcash) as totalcash,sum(totalcashless) as totalcashless,
-sum(totalIncome) as totalIncome,sum(totalspend) as totalspend,sum(totalrevenue) as totalrevenue
+sum(totalIncome) as totalIncome,sum(totalspend) as totalspend,sum(totalrevenue) as totalrevenue,
+sum(totalemployees)::int as totalemployees, sum(total_time) as total_time
 from""" 
     
     query = f"""{globalquery}
 (select "officeId",yearmonth,
-count(*) as operationcount,count(*)filter (where category = 'serviceoperation') as serviceoperationcount,count(*)filter (where category = 'goodsoperation') as goodsoperationcount,
-count(*)filter (where category = 'spend') as spendoperationcount,
+count(*)::int as operationcount,count(*) filter (where category = 'serviceoperation') as serviceoperationcount,count(*) filter (where category = 'goodsoperation') as goodsoperationcount,
+count(*) filter (where category = 'spend') as spendoperationcount,
 sum("cashSum")filter (where category = 'serviceoperation')+sum("cashlessSum")filter (where category = 'serviceoperation') as serviceIncome,
 sum("cashSum")filter (where category = 'goodsoperation')+sum("cashlessSum")filter (where category = 'goodsoperation') as goodsIncome,
 sum("cashSum") as totalcash, sum("cashlessSum") as totalcashless,
@@ -366,7 +373,7 @@ using ("officeId",yearmonth)
     
     return query
 
-def generateEmployeeReportQuery(args):
+def GenerateEmployeeReportQuery(args):
     officeidspart = ''
     employeeidspart = ''
     
@@ -383,12 +390,10 @@ def generateEmployeeReportQuery(args):
     if 'employeeIds' in args['data']:
         employeeids = args['data']['employeeIds']
         employeeidspart = generateIdsQueryPart(employeeids,'employeeid')
-        print(employeeidspart)
         
     if 'officeIds' in args['data']:
         officeids = args['data']['officeIds']
         officeidspart = generateIdsQueryPart(officeids,'"officeId"')
-        print(officeidspart)
     
     wherelist = [datepart,employeeidspart,officeidspart]
     wherepart = generateWhereFromList(wherelist)
@@ -406,9 +411,9 @@ def generateEmployeeReportQuery(args):
     employeepaymentspart = f"""-- присоединяем данные по выплатам сотрудникам: зарплата, премия (за услуги и проданные товары), штрафы
     left join
     (select * from (select "officeId","employeeId" as employeeid,date_trunc('month',datetime) as yearmonth,
-    sum(sum)filter (where type = 'salary') as paidsalary, 
-    sum(sum)filter (where type = 'bonus') as paidbonus,
-    sum(sum)filter (where type = 'penalty') as penalty
+    sum(sum)filter (where "employeePaymentTypeId" = 1) as paidsalary, 
+    sum(sum)filter (where "employeePaymentTypeId" = 2) as paidbonus,
+    sum(sum)filter (where "employeePaymentTypeId" = 3) as penalty
     from employeepayment
     group by "employeeId",yearmonth,"officeId") p
     {wherepart}) payments
@@ -432,7 +437,7 @@ def generateEmployeeReportQuery(args):
     select "officeId", date_trunc('month',"finishDatetime") as yearmonth,
     "masterId" as employeeid,
     sum("cashSum"+"cashlessSum") as totalServiceSum, 
-    count(*) as servicecount 
+    count(*)::int as servicecount 
     from serviceoperation
     group by "officeId",yearmonth,"masterId")ss
     {wherepart}) servicesum
@@ -472,15 +477,15 @@ def generateEmployeeReportQuery(args):
     -- здесь во вложенном запросе сперва считается количество уникальных комбинаций мастер-клиент
     -- затем комбинация мастер-клиент встречается больше 1 раза, то к счетчику повторных визитов прибавляется 1
     left join 
-    (select employeeid,sum(CASE WHEN repeatingvisitscount > 1 THEN 1 ELSE 0 END) as repeatingvisitscount from
+    (select employeeid,sum(CASE WHEN repeatingvisitscount > 1 THEN 1 ELSE 0 END)::int as repeatingvisitscount from
 	(select "masterId" as employeeid, count(*) as repeatingvisitscount from serviceoperation 
 	where ("masterId", "clientId") in (
-	(SELECT DISTINCT "masterId", "clientId" FROM serviceoperation 
+	(select "masterId", "clientId" from (SELECT DISTINCT "officeId",date_trunc('month',"finishDatetime") as yearmonth,"masterId", "clientId" FROM serviceoperation) sd 
 	{wherepart}))
 	group by "masterId", "clientId") repeatingvisits
 	group by employeeid) repeatingvisitscount
     using (employeeid)"""
-    
+        
     totalworkinghourspart = f"""-- присоединяем общее число рабочих часов в периоде по дням, когда хотя бы в одном отделении была хотя бы одна операция
     -- просто перем список дат операций, урезанных до дня, считаем количество уникальных дней и умножаем на 8
     left join
@@ -489,11 +494,12 @@ def generateEmployeeReportQuery(args):
     union
     select date_trunc('day',datetime) as yearmonthday,date_trunc('month',datetime) as yearmonth from goodsoperation
     union
-    select date_trunc('day',datetime) as yearmonthday,date_trunc('month',datetime) as yearmonth from spendoperations
+    select date_trunc('day',datetime) as yearmonthday,date_trunc('month',datetime) as yearmonth from spendoperation
     union
     select date_trunc('day',datetime) as yearmonthday,date_trunc('month',datetime) as yearmonth from employeepayment)d
     {wherepartyearmonth}) dayswithoperations
     using (joinfield)"""
+    
     
     officenamejoinpart = f"""-- отдельно к верхнеуровневому селекту джоиним названия офисов
     -- джоиним именно к верхнеуровневому, потому что на более низком уровне у нашей референтной таблицы employee нет привязанных офисов
@@ -555,7 +561,11 @@ def generateEmployeeReportQuery(args):
     return query
 
 def generateQueryRead(args):
-    table = args['table']
+    if 'table' in args:
+        print('table in args')
+        table = args['table']
+    else:
+        table = ''
     additionalpart = ''
     orderpart = ''
     wherepart = ''
@@ -568,19 +578,22 @@ def generateQueryRead(args):
         if args['type'] == 'GetSessions':
             query = getSessionsOperationsQuery(args)
             
-        if args['type'] == 'generateCustomerReportFinance':
-            query = generateCustomerReportFinanceQuery(args)  
+        elif args['type'] == 'GenerateClientReport':
+            print('GenerateClientReport')
+            query = GenerateClientReportQuery(args)  
             
-        if args['type'] == 'GenerateCustomerReportVisits':
-            query = GenerateCustomerReportVisitsQuery(args)
+        elif args['type'] == 'GenerateEmployeeReport':
+            print('GenerateEmployeeReport')
+            query = GenerateEmployeeReportQuery(args)
             
-        if args['type'] == 'GenerateFinanceReport':
+        elif args['type'] == 'GenerateFinanceReport':
+            print('GenerateFinanceReport')
             query = GenerateFinanceReportQuery(args)
             
-        if args['type'] == 'GetSessions':
-            query = getSessionsOperationsQuery(args)
-            
         else:
+            if 'data' in args:
+                wherepart = generateWhere(args['data'])
+            
             if args['type'] in ['GetAdmins','GetMasters']:
                 if args['type'] == 'GetMasters':
                     fields = 'employee.' + ',employee.'.join(args['fields']) + ',b."servicePercent" as "masterServicePercent"'
@@ -603,10 +616,7 @@ def generateQueryRead(args):
                 or  text(contacts) ilike '%{string}%'"""
                 orderpart = f"""
                 order by name asc"""
-                
-            if 'data' in args:
-                wherepart = generateWhere(args['data'])
-                
+                                
             query = f"""select {fields} from {table}{additionalpart}{wherepart}{orderpart}"""
         
     else:    
@@ -637,3 +647,4 @@ def goToBase(host,database,user,password,query,commit=False):
     except Exception as e:
         stacktrace = traceback.format_exc()
         return {'error':e,'stacktrace':stacktrace}
+

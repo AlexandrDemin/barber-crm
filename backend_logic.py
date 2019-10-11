@@ -1,9 +1,12 @@
-#! python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
 
 import io
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import requests
 import time
 import json
@@ -12,6 +15,7 @@ import copy
 import urllib.parse
 import codecs
 import random
+import db_provider
 
 # на основе этих конфигов выполняются селекты в базу
 argsconfig = {
@@ -21,11 +25,13 @@ argsconfig = {
         'fields':['name','"pictureUrl"','roles']
     },
     'GetEmployees':{
-        'table':'employee'
+        'table':'employee',
+        'fields':['name','"pictureUrl"','roles']
     },
     'GetEmployee':{
         'table':'employee',
-        'dataneeded':True
+        'dataneeded':True,
+        'fields':['name','"pictureUrl"','roles']
     },
     'GetAdmins':{
         'table':'employee',
@@ -140,6 +146,10 @@ class DateEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
             return obj.strftime("%d.%m.%Y %H:%M")
+        elif isinstance(obj, date):
+            return obj.strftime("%d.%m.%Y")
+        elif isinstance(obj, timedelta):
+            return obj.total_seconds()/3600
         return json.JSONEncoder.default(self, obj)
     
 def splitCreateUpdate(data):
@@ -165,23 +175,26 @@ def upsert(table,data):
     table = table
     result = []
     for i in createlist:
-        query = generateQueryCreate(table,i)
-        r = goToBase("localhost","barbers","admin","Adm1n1strat0r",query,commit=True)
+        query = db_provider.generateQueryCreate(table,i)
+        r = db_provider.goToBase("localhost","barbers","admin","Adm1n1strat0r",query,commit=True)
         result.append(r)
     for i in updatelist:
-        query = generateQueryUpdate(table,i)
-        r = goToBase("localhost","barbers","admin","Adm1n1strat0r",query,commit=True)
+        query = db_provider.generateQueryUpdate(table,i)
+        r = db_provider.goToBase("localhost","barbers","admin","Adm1n1strat0r",query,commit=True)
         result.append(r)
-    result = json.dumps(result)
+    print(result)
+    result = getResult(result)
+    print(result)
     return result
 
 def select(args=None):
-    query = generateQueryRead(args)
-    result = goToBase("localhost","barbers","read_only","User_ro",query)
+    query = db_provider.generateQueryRead(args)
+    result = db_provider.goToBase("localhost","barbers","read_only","User_ro",query)
     return result
 
 def getResult(result):
     getResult.result = result
+    print(result)
     if type(result) == list:
         if len(result) == 1:
             result = json.dumps(result[0],ensure_ascii=False, cls=DateEncoder)
@@ -201,3 +214,4 @@ def get(configkey,args=None):
     result = select(raw_data)
     result = getResult(result)
     return result
+

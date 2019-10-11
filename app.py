@@ -1,11 +1,12 @@
-#! python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# coding: utf-8
 
 from flask import Flask, abort, url_for, render_template, request, Response, current_app, send_from_directory
+from werkzeug.wrappers import Request, Response
 import json
 from flask_cors import CORS
 from backend_logic import *
-from db_provider import *
+import db_provider 
 import os
 from functools import wraps
 import time
@@ -18,7 +19,7 @@ import datetime as dt
 import traceback
 import re
 import io
-from datetime import datetime, timedelta
+from datetime import date,datetime, timedelta
 import requests
 import time
 import json
@@ -74,7 +75,6 @@ def uploadfiles(request):
         return pictureUrlsList
         
 @app.route("/api/Test/", methods=['POST', 'GET'])
-@requires_auth
 def get_projects():
     if request.method == "GET":
         return 'Please, use HTTP POST for this API'
@@ -92,7 +92,6 @@ def get_projects():
         return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 @app.route('/api/GetUserData/', methods=['POST'])
-@requires_auth
 def GetUserData():
     if request.method == 'POST':
         data = request.get_json()
@@ -101,7 +100,6 @@ def GetUserData():
         return result
     
 @app.route('/api/GetEmployees/', methods=['POST'])
-@requires_auth
 def GetEmployees():
     if request.method == 'POST':
         configkey = 'GetEmployees'
@@ -109,7 +107,6 @@ def GetEmployees():
         return result
     
 @app.route('/api/GetEmployee/', methods=['POST'])
-@requires_auth
 def GetEmployee():
     if request.method == 'POST':
         data = request.get_json()
@@ -118,7 +115,6 @@ def GetEmployee():
         return result
     
 @app.route('/api/GetAdmins/', methods=['POST'])
-@requires_auth
 def GetAdmins():
     if request.method == 'POST':
         configkey = 'GetAdmins'
@@ -126,7 +122,6 @@ def GetAdmins():
         return result
 
 @app.route('/api/GetMasters/', methods=['POST'])
-@requires_auth
 def GetMasters():
     if request.method == 'POST':
         configkey = 'GetMasters'
@@ -134,7 +129,6 @@ def GetMasters():
         return result
 
 @app.route('/api/GetBarberCategories/', methods=['POST'])
-@requires_auth
 def GetBarberCategories():
     if request.method == 'POST':
         configkey = 'GetBarberCategories'
@@ -142,7 +136,6 @@ def GetBarberCategories():
         return result
     
 @app.route('/api/GetBarberCategory/', methods=['POST'])
-@requires_auth
 def GetBarberCategory():
     if request.method == 'POST':
         data = request.get_json()
@@ -151,7 +144,6 @@ def GetBarberCategory():
         return result
     
 @app.route('/api/GetOffices/', methods=['POST'])
-@requires_auth
 def GetOffices():
     if request.method == 'POST':
         configkey = 'GetOffices'
@@ -159,7 +151,6 @@ def GetOffices():
         return result
 
 @app.route('/api/GetOffice/', methods=['POST'])
-@requires_auth
 def GetOffice():
     if request.method == 'POST':
         data = request.get_json()
@@ -168,7 +159,6 @@ def GetOffice():
         return result
     
 @app.route('/api/GetCurrentSession/', methods=['POST'])
-@requires_auth
 def GetCurrentSession():
     if request.method == 'POST':
         data = request.get_json()
@@ -177,7 +167,6 @@ def GetCurrentSession():
         return result
 
 @app.route('/api/GetSession/', methods=['POST'])
-@requires_auth
 def GetSession():
     if request.method == 'POST':
         data = request.get_json()
@@ -186,7 +175,6 @@ def GetSession():
         return result
 
 @app.route('/api/GetSessionsWithOperations/', methods=['POST'])
-@requires_auth
 def GetSessionsWithOperations():
     if request.method == 'POST':
         data = request.get_json()
@@ -195,7 +183,6 @@ def GetSessionsWithOperations():
         return result
     
 @app.route('/api/GetServicesPrices/', methods=['POST'])
-@requires_auth
 def GetServicesPrices():
     if request.method == 'POST':
         configkey = 'GetServicesPrices'
@@ -203,7 +190,6 @@ def GetServicesPrices():
         return result    
 
 @app.route('/api/GetServiceOperation/', methods=['POST'])
-@requires_auth
 def GetServiceOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -212,7 +198,6 @@ def GetServiceOperation():
         return result
 
 @app.route('/api/GetGoods/', methods=['POST'])
-@requires_auth
 def GetGoods():
     if request.method == 'POST':
         configkey = 'GetGoods'
@@ -220,7 +205,6 @@ def GetGoods():
         return result
     
 @app.route('/api/GetGood/', methods=['POST'])
-@requires_auth
 def GetGood():
     if request.method == 'POST':
         data = request.get_json()
@@ -229,7 +213,6 @@ def GetGood():
         return result
     
 @app.route('/api/GetGoodsOperation/', methods=['POST'])
-@requires_auth
 def GetGoodsOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -238,7 +221,6 @@ def GetGoodsOperation():
         return result
 
 @app.route('/api/GetSpendTypes/', methods=['POST'])
-@requires_auth
 def GetSpendTypes():
     if request.method == 'POST':
         configkey = 'GetSpendTypes'
@@ -246,7 +228,6 @@ def GetSpendTypes():
         return result
     
 @app.route('/api/GetSpendType/', methods=['POST'])
-@requires_auth
 def GetSpendType():
     if request.method == 'POST':
         data = request.get_json()
@@ -255,7 +236,6 @@ def GetSpendType():
         return result
     
 @app.route('/api/GetSpendOperation/', methods=['POST'])
-@requires_auth
 def GetSpendOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -264,7 +244,6 @@ def GetSpendOperation():
         return result
 
 @app.route('/api/GetEmployeePaymentTypes/', methods=['POST'])
-@requires_auth
 def GetEmployeePaymentTypes():
     if request.method == 'POST':
         configkey = 'GetEmployeePaymentTypes'
@@ -272,7 +251,6 @@ def GetEmployeePaymentTypes():
         return result
 
 @app.route('/api/GetEmployeePaymentType/', methods=['POST'])
-@requires_auth
 def GetEmployeePaymentType():
     if request.method == 'POST':
         data = request.get_json()
@@ -281,7 +259,6 @@ def GetEmployeePaymentType():
         return result    
     
 @app.route('/api/GetEmployeePaymentOperation/', methods=['POST'])
-@requires_auth
 def GetEmployeePaymentOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -290,7 +267,6 @@ def GetEmployeePaymentOperation():
         return result
 
 @app.route('/api/GetClient/', methods=['POST'])
-@requires_auth
 def GetClient():
     if request.method == 'POST':
         data = request.get_json()
@@ -299,7 +275,6 @@ def GetClient():
         return result
     
 @app.route('/api/GetClients/', methods=['POST'])
-@requires_auth
 def GetClients():
     if request.method == 'POST':
         data = request.get_json()
@@ -308,7 +283,6 @@ def GetClients():
         return result
 
 @app.route('/api/EditOffice/', methods=['POST'])
-@requires_auth
 def EditOffice():
     if request.method == 'POST':
         data = request.get_json()
@@ -317,7 +291,6 @@ def EditOffice():
         return result 
     
 @app.route('/api/EditSession/', methods=['POST'])
-@requires_auth
 def EditSession():
     if request.method == 'POST':
         data = request.get_json()
@@ -326,7 +299,6 @@ def EditSession():
         return result
 
 @app.route('/api/EditClient/', methods=['POST'])
-@requires_auth
 def EditClient():
     if request.method == 'POST':
         data = request.get_json()
@@ -338,7 +310,7 @@ def EditClient():
         return result
 
 @app.route('/api/EditOperations/', methods=['POST'])
-@requires_auth
+
 def EditOperations():
     if request.method == 'POST':
         data = request.get_json()
@@ -346,19 +318,17 @@ def EditOperations():
         firstservicewithpicture = True
         for elem in data:
             table = elem['operationType']
-            if 'serviceoperation' in elem['operationType'] and firstservicewithpicture == True:
-                pictureUrlsList = uploadfiles(request)
-                if pictureUrlsList:
-                    elem['photoUrls'] = pictureUrlsList
-                    firstservicewithpicture = False
-            data['"pictureUrl"'] = pictureUrlsList
+#             if 'serviceoperation' in elem['operationType'] and firstservicewithpicture == True:
+#                 pictureUrlsList = uploadfiles(request)
+#                 if pictureUrlsList:
+#                     elem['photoUrls'] = pictureUrlsList
+#                     firstservicewithpicture = False
             del elem['operationType']
             result = edit(table,elem)
             results.append(result)
-        return results
+        return json.dumps(results)
 
 @app.route('/api/EditEmployee/', methods=['POST'])
-@requires_auth
 def EditEmployee():
     if request.method == 'POST':
         data = request.get_json()
@@ -370,7 +340,6 @@ def EditEmployee():
         return result
     
 @app.route('/api/EditBarberCategory/', methods=['POST'])
-@requires_auth
 def EditBarberCategory():
     if request.method == 'POST':
         data = request.get_json()
@@ -379,7 +348,6 @@ def EditBarberCategory():
         return result    
 
 @app.route('/api/EditEmployeePaymentType/', methods=['POST'])
-@requires_auth
 def EditEmployeePaymentType():
     if request.method == 'POST':
         data = request.get_json()
@@ -388,7 +356,6 @@ def EditEmployeePaymentType():
         return result    
 
 @app.route('/api/EditGood/', methods=['POST'])
-@requires_auth
 def EditGood():
     if request.method == 'POST':
         data = request.get_json()
@@ -397,7 +364,6 @@ def EditGood():
         return result
     
 @app.route('/api/EditService/', methods=['POST'])
-@requires_auth
 def EditService():
     if request.method == 'POST':
         data = request.get_json()
@@ -406,7 +372,6 @@ def EditService():
         return result
     
 @app.route('/api/EditSpendtype/', methods=['POST'])
-@requires_auth
 def EditSpendtype():
     if request.method == 'POST':
         data = request.get_json()
@@ -415,61 +380,55 @@ def EditSpendtype():
         return result
     
 @app.route('/api/GenerateClientReport/', methods=['POST'])
-@requires_auth
 def GenerateCustomerReport():
     if request.method == 'POST':
         data = request.get_json()
         configkey = 'GenerateClientReport'
         result = get(configkey,data)
-        report = pd.DataFrame(result)
-        filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
-        report.to_excel('./downloadable_files/' + filename)
-        return result, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
+#         report = pd.DataFrame(result)
+#         filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
+#         report.to_excel('./downloadable_files/' + filename)
+        return result #, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
     
 @app.route('/api/GenerateFinanceReport/', methods=['POST'])
-@requires_auth
 def GenerateFinanceReport():
     if request.method == 'POST':
         data = request.get_json()
         configkey = 'GenerateFinanceReport'
         result = get(configkey,data)
-        report = pd.DataFrame(result)
-        filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
-        report.to_excel('./downloadable_files/' + filename)
-        return result, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
+#         report = pd.DataFrame(result)
+#         filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
+#         report.to_excel('./downloadable_files/' + filename)
+        return result #, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
     
 @app.route('/api/GenerateEmployeeReport/', methods=['POST'])
-@requires_auth
 def GenerateEmployeeReport():
     if request.method == 'POST':
         data = request.get_json()
         configkey = 'GenerateEmployeeReport'
         result = get(configkey,data)
-        report = pd.DataFrame(result)
-        filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
-        report.to_excel('./downloadable_files/' + filename)
-        return result, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
+#         report = pd.DataFrame(result)
+#         filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
+#         report.to_excel('./downloadable_files/' + filename)
+        return result #, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
 
 @app.route('/static/<path:path>')
-@requires_auth
 def send_files(path):
     return send_from_directory(app.static_folder, path)
 
 @app.route('/download/<path:filename>')
-@requires_auth
 def download(filename):
     directory = os.path.join(current_app.root_path, './downloadable_files/')
     return send_from_directory(directory=directory, filename=filename, as_attachment=True)
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-@requires_auth
 def front(path):
     return render_template('index.html')
 
 @app.errorhandler(404)
 def page_not_found(e):
     return "Page not found", 404
-
+    
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+     app.run(host='0.0.0.0', port=5000, debug=True)
