@@ -12,6 +12,9 @@ export default {
     $route (to, from) {
       document.title = to.meta.title
     }
+  },
+  created: function () {
+    this.$store.dispatch('getState')
   }
 }
 </script>

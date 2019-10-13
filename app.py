@@ -76,23 +76,6 @@ def uploadfiles(request):
                 pictureUrl = os.path.join(app.config['UPLOAD_FOLDER']) + filename
                 pictureUrlsList.append(pictureUrlsList)
         return pictureUrlsList
-        
-@app.route("/api/Test/", methods=['POST', 'GET'])
-def get_projects():
-    if request.method == "GET":
-        return 'Please, use HTTP POST for this API'
-    if request.method == "POST":
-        startTime = datetime.now()
-        data = json.loads(request.data)
-        res = getData()
-        endTime = datetime.now()
-        writeLog({
-            "timestamp": startTime.strftime('%d.%m.%Y %H:%M:%S'),
-            'ip': request.remote_addr,
-            "requestSeconds": (endTime-startTime).total_seconds(),
-            'method': 'GetProjects'
-        })
-        return json.dumps(res, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 @app.route('/api/GetUserData/', methods=['POST'])
 def GetUserData():
@@ -165,6 +148,7 @@ def GetOffice():
 def GetCurrentSession():
     if request.method == 'POST':
         data = request.get_json()
+        data['state'] = 'open'
         configkey = 'GetCurrentSession'
         result = get(configkey,data)
         return result
