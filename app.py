@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
+
 from flask import Flask, abort, url_for, render_template, request, Response, current_app, send_from_directory
 from werkzeug.wrappers import Request, Response
 import json
@@ -325,7 +328,7 @@ def EditOperations():
 #                     firstservicewithpicture = False
             del elem['operationType']
             result = edit(table,elem)
-            results.append(result)
+            results.append(json.loads(result))
         return json.dumps(results)
 
 @app.route('/api/EditEmployee/', methods=['POST'])
@@ -430,5 +433,22 @@ def front(path):
 def page_not_found(e):
     return "Page not found", 404
     
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=5000, debug=True)
+
 if __name__ == '__main__':
-     app.run(host='0.0.0.0', port=5000, debug=True)
+    from werkzeug.serving import run_simple
+    run_simple('localhost', 9000, app)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+

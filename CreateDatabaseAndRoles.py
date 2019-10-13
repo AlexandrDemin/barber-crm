@@ -55,7 +55,7 @@ state TEXT NOT NULL);
 
 CREATE TABLE SESSION(
 id SERIAL PRIMARY KEY NOT NULL,
-"officeId" INT,
+"officeId" INT NOT NULL,
 "dateOpened" TIMESTAMP NOT NULL,
 "dateClosed" TIMESTAMP,
 state TEXT NOT NULL,
@@ -76,8 +76,8 @@ state TEXT NOT NULL);
 
 CREATE TABLE SERVICEOPERATION(
 id SERIAL PRIMARY KEY NOT NULL,
-"officeId" INT,
-"sessionId" INT,
+"officeId" INT NOT NULL,
+"sessionId" INT NOT NULL,
 "serviceId" INT NOT NULL,
 "startDatetime" TIMESTAMP NOT NULL,
 "finishDatetime" TIMESTAMP NOT NULL,
@@ -103,8 +103,8 @@ state TEXT NOT NULL);
 
 CREATE TABLE GOODSOPERATION(
 id SERIAL PRIMARY KEY NOT NULL,
-"officeId" INT,
-"sessionId" INT,
+"officeId" INT NOT NULL,
+"sessionId" INT NOT NULL,
 "goodsIds" INT [] NOT NULL,
 "datetime" TIMESTAMP NOT NULL,    
 "adminId" INT NOT NULL,
@@ -125,8 +125,8 @@ state TEXT NOT NULL);
 
 CREATE TABLE SPENDOPERATION(
 id SERIAL PRIMARY KEY NOT NULL,
-"officeId" INT,
-"sessionId" INT,
+"officeId" INT NOT NULL,
+"sessionId" INT NOT NULL,
 "expenseTypeId" INT NOT NULL,
 datetime TIMESTAMP NOT NULL,
 sum FLOAT(2),
@@ -142,8 +142,8 @@ state TEXT NOT NULL);
 
 CREATE TABLE EMPLOYEEPAYMENT(
 id SERIAL PRIMARY KEY NOT NULL,
-"officeId" INT,
-"sessionId" INT,
+"officeId" INT NOT NULL,
+"sessionId" INT NOT NULL,
 "employeeId" INT NOT NULL,
 "datetime" TIMESTAMP NOT NULL,
 type TEXT NOT NULL,
@@ -164,7 +164,7 @@ GRANT CONNECT ON DATABASE barbers to read_only;
 GRANT USAGE ON SCHEMA public  to read_only;
 
 CREATE ROLE read_write WITH LOGIN PASSWORD 'Rw_Us3r';
-GRANT SELECT,INSERT on ALL tables in schema public to read_write;
+GRANT SELECT,INSERT,UPDATE on ALL tables in schema public to read_write;
 GRANT USAGE ON SCHEMA public  to read_write;
 GRANT CONNECT ON DATABASE barbers to read_write;
 

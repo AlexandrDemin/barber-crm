@@ -99,7 +99,6 @@ def generateWhere(data):
     return whereclause
 
 def getSessionsOperationsQuery(args):
-    print(args)
     table = args['table']
     fields = ','.join(args['fields'])
     qdatefrompart = ''
@@ -125,9 +124,9 @@ def getSessionsOperationsQuery(args):
         state = args['data']['state']
         statepart = f"""state = '{state}'"""
         
-    if '"officeId"' in args['data']:
-        officeId = args['data']['"officeId"']
-        officeIdpart = f"""\"officeId\" = {officeId}"""
+    if 'officeId' in args['data']:
+        officeid = args['data']['officeId']
+        officeidpart = f"""\"officeId\" = {officeid}"""
 
     if 'employeeIds' in args['data']:
         fields_filtered = args['fields'].copy()
@@ -147,7 +146,7 @@ def getSessionsOperationsQuery(args):
         group by {fieldsFiltered}) ssn
         """
     else:
-        wherelist = [qdatefrompart,qdatetopart,idpart,statepart,officeIdpart]
+        wherelist = [qdatefrompart,qdatetopart,idpart,statepart,officeidpart]
         wherelocalpart = generateWhereFromList(wherelist)
         sessionquery = f"""select * from
         (select {fields} from {table}
@@ -562,7 +561,6 @@ def GenerateEmployeeReportQuery(args):
 
 def generateQueryRead(args):
     if 'table' in args:
-        print('table in args')
         table = args['table']
     else:
         table = ''
@@ -579,15 +577,12 @@ def generateQueryRead(args):
             query = getSessionsOperationsQuery(args)
             
         elif args['type'] == 'GenerateClientReport':
-            print('GenerateClientReport')
             query = GenerateClientReportQuery(args)  
             
         elif args['type'] == 'GenerateEmployeeReport':
-            print('GenerateEmployeeReport')
             query = GenerateEmployeeReportQuery(args)
             
         elif args['type'] == 'GenerateFinanceReport':
-            print('GenerateFinanceReport')
             query = GenerateFinanceReportQuery(args)
             
         else:
@@ -624,7 +619,6 @@ def generateQueryRead(args):
             wherepart = generateWhere(args['data'])            
             
         query = f"""select {fields} from {table}{additionalpart}{wherepart}{orderpart}"""
-    print(query)
     return query
 
 def goToBase(host,database,user,password,query,commit=False):
@@ -634,12 +628,15 @@ def goToBase(host,database,user,password,query,commit=False):
         cur.execute(query)
         if commit == True:
             conn.commit()
-        result_data = cur.fetchall()
+            result_data = cur.fetchall()
+            result_data = result_data[0]
+        else:
+            result_data = cur.fetchall()
         cur.close()
         conn.close()
         if len(result_data) == 0:
             if commit == False:
-                return {'error':'Нет таких данных'}
+                return {'warning':'Нет таких данных'}
             else:
                 return {'error':'Не удалось добавить данные'}
         else:

@@ -182,9 +182,7 @@ def upsert(table,data):
         query = db_provider.generateQueryUpdate(table,i)
         r = db_provider.goToBase("localhost","barbers","admin","Adm1n1strat0r",query,commit=True)
         result.append(r)
-    print(result)
     result = getResult(result)
-    print(result)
     return result
 
 def select(args=None):
@@ -194,7 +192,6 @@ def select(args=None):
 
 def getResult(result):
     getResult.result = result
-    print(result)
     if type(result) == list:
         if len(result) == 1:
             result = json.dumps(result[0],ensure_ascii=False, cls=DateEncoder)
@@ -211,6 +208,9 @@ def get(configkey,args=None):
     raw_data = argsconfig[configkey]
     if 'dataneeded' in raw_data:
         raw_data['data'] = args
+    if configkey == 'GetCurrentSession':
+        raw_data['data']['state'] = 'open'
+        raw_data['data']['withOperations'] = 'true'
     result = select(raw_data)
     result = getResult(result)
     return result
