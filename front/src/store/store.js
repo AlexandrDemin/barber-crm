@@ -7,6 +7,20 @@ Vue.config.devtools = true
 
 export default new Vuex.Store({
   state: {
+    isStateLoading: false,
+    isStateLoaded: false,
+    stateLoadDetails: {
+      currentSession: false,
+      serviceTypes: false,
+      goodsTypes: false,
+      employeePaymentTypes: false,
+      spendTypes: false,
+      offices: false,
+      employees: false,
+      clients: false,
+      masterCategories: false
+    },
+    stateGetError: '',
     currentSession: {
       'id': 1,
       'dateOpened': '21.09.2019 09:30',
@@ -180,19 +194,19 @@ export default new Vuex.Store({
     },
     operationTypes: [
       {
-        id: 'service',
+        id: 'serviceoperation',
         name: 'Услуга'
       },
       {
-        id: 'goodSell',
+        id: 'goodsoperation',
         name: 'Продажа товара'
       },
       {
-        id: 'spend',
+        id: 'spendoperation',
         name: 'Расход'
       },
       {
-        id: 'employeePayment',
+        id: 'employeepayment',
         name: 'Продажа товара'
       }
     ],
@@ -596,6 +610,9 @@ export default new Vuex.Store({
     updateStore (state, payload) {
       state[payload.name] = payload.value
     },
+    updateStateLoadingDetails (state, payload) {
+      state.stateLoadDetails[payload.name] = payload.value
+    },
     updateIfExists (state, payload) {
       var data = payload.data
       var key = payload.key
@@ -605,74 +622,178 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    getProjects (context) {
+    checkIfStateLoaded (context) {
+      var isLoaded = Object.values(context.state.stateLoadDetails).every(x => x)
       context.commit('updateStore', {
-        'name': 'projectsState',
-        'value': {
-          errors: [],
-          isLoaded: false,
-          isLoading: true,
-          projects: []
-        }
+        'name': 'isStateLoaded',
+        'value': isLoaded
       })
-      HTTP.post(`GetProjects/`, {})
-        .then(response => {
-          var data = response.data
-          context.commit('updateStore', {
-            'name': 'projectsState',
-            'value': {
-              errors: [],
-              isLoaded: true,
-              isLoading: false,
-              projects: data
-            }
-          })
-        })
-        .catch(e => {
-          context.commit('updateStore', {
-            'name': 'projectsState',
-            'value': {
-              errors: [e],
-              isLoaded: true,
-              isLoading: false
-            }
-          })
-        })
+      context.commit('updateStore', {
+        'name': 'isStateLoading',
+        'value': !isLoaded
+      })
     },
-    getProject (context, projectId) {
-      context.commit('updateStore', {
-        'name': 'projectState',
-        'value': {
-          errors: [],
-          isLoaded: false,
-          isLoading: true,
-          project: {}
-        }
-      })
-      HTTP.post(`GetProject/`, {
-        'projectId': projectId
-      })
+    getState (context, actions) {
+      if (!context.state.isStateLoaded) {
+        context.commit('updateStore', {
+          'name': 'isStateLoading',
+          'value': true
+        })
+        context.commit('updateStore', {
+          'name': 'isStateLoaded',
+          'value': false
+        })
+      }
+      HTTP.post(`GetServicesPrices/`, {})
         .then(response => {
           var data = response.data
           context.commit('updateStore', {
-            'name': 'projectState',
-            'value': {
-              errors: [],
-              isLoaded: true,
-              isLoading: false,
-              project: data
-            }
+            'name': 'serviceTypes',
+            'value': data
           })
+          context.commit('updateStateLoadingDetails', {
+            'name': 'serviceTypes',
+            'value': true
+          })
+          context.dispatch('checkIfStateLoaded')
         })
         .catch(e => {
           context.commit('updateStore', {
-            'name': 'projectState',
-            'value': {
-              errors: [e],
-              isLoaded: true,
-              isLoading: false,
-              project: {}
-            }
+            'name': 'stateGetError',
+            'value': e
+          })
+        })
+      HTTP.post(`GetGoods/`, {})
+        .then(response => {
+          var data = response.data
+          context.commit('updateStore', {
+            'name': 'goodsTypes',
+            'value': data
+          })
+          context.commit('updateStateLoadingDetails', {
+            'name': 'goodsTypes',
+            'value': true
+          })
+          context.dispatch('checkIfStateLoaded')
+        })
+        .catch(e => {
+          context.commit('updateStore', {
+            'name': 'stateGetError',
+            'value': e
+          })
+        })
+      HTTP.post(`GetEmployeePaymentTypes/`, {})
+        .then(response => {
+          var data = response.data
+          context.commit('updateStore', {
+            'name': 'employeePaymentTypes',
+            'value': data
+          })
+          context.commit('updateStateLoadingDetails', {
+            'name': 'employeePaymentTypes',
+            'value': true
+          })
+          context.dispatch('checkIfStateLoaded')
+        })
+        .catch(e => {
+          context.commit('updateStore', {
+            'name': 'stateGetError',
+            'value': e
+          })
+        })
+      HTTP.post(`GetSpendTypes/`, {})
+        .then(response => {
+          var data = response.data
+          context.commit('updateStore', {
+            'name': 'spendTypes',
+            'value': data
+          })
+          context.commit('updateStateLoadingDetails', {
+            'name': 'spendTypes',
+            'value': true
+          })
+          context.dispatch('checkIfStateLoaded')
+        })
+        .catch(e => {
+          context.commit('updateStore', {
+            'name': 'stateGetError',
+            'value': e
+          })
+        })
+      HTTP.post(`GetOffices/`, {})
+        .then(response => {
+          var data = response.data
+          context.commit('updateStore', {
+            'name': 'offices',
+            'value': data
+          })
+          context.commit('updateStateLoadingDetails', {
+            'name': 'offices',
+            'value': true
+          })
+          context.dispatch('checkIfStateLoaded')
+        })
+        .catch(e => {
+          context.commit('updateStore', {
+            'name': 'stateGetError',
+            'value': e
+          })
+        })
+      HTTP.post(`GetEmployees/`, {})
+        .then(response => {
+          var data = response.data
+          context.commit('updateStore', {
+            'name': 'employees',
+            'value': data
+          })
+          context.commit('updateStateLoadingDetails', {
+            'name': 'employees',
+            'value': true
+          })
+          context.dispatch('checkIfStateLoaded')
+        })
+        .catch(e => {
+          context.commit('updateStore', {
+            'name': 'stateGetError',
+            'value': e
+          })
+        })
+      HTTP.post(`GetClients/`, {q: ''})
+        .then(response => {
+          var data = response.data
+          context.commit('updateStore', {
+            'name': 'clients',
+            'value': data
+          })
+          context.commit('updateStateLoadingDetails', {
+            'name': 'clients',
+            'value': true
+          })
+          context.dispatch('checkIfStateLoaded')
+        })
+        .catch(e => {
+          context.commit('updateStore', {
+            'name': 'stateGetError',
+            'value': e
+          })
+        })
+      HTTP.post(`GetBarberCategories/`, {})
+        .then(response => {
+          var data = response.data
+          context.commit('updateStore', {
+            'name': 'masterCategories',
+            'value': data
+          })
+          context.commit('updateStateLoadingDetails', {
+            'name': 'masterCategories',
+            'value': true
+          })
+          context.dispatch('checkIfStateLoaded')
+        })
+        .catch(e => {
+          context.commit('updateStore', {
+            'name': 'stateGetError',
+            'value': e
           })
         })
     }
