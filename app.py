@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
-
 from flask import Flask, abort, url_for, render_template, request, Response, current_app, send_from_directory
 from werkzeug.wrappers import Request, Response
 import json
@@ -32,12 +29,8 @@ import urllib.parse
 import codecs
 import random
 
-UPLOAD_FOLDER = '/path/to/the/uploads'
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
-
 app = Flask(__name__, static_folder='./front/dist/static/', template_folder="./front/dist/")
 CORS(app)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def check_auth(username, password):
     if username == 'demo.user' and password == 'demo':
@@ -62,20 +55,6 @@ def writeLog(logEntry):
     with codecs.open("log.txt", "a", "utf-8") as logFile:
         json.dump(logEntry, logFile, ensure_ascii=False)
         logFile.write('\n')
-        
-def uploadfiles(request):
-    if 'file' in request.files:
-        uploaded_files = request.files.getlist("file[]")
-        for file in uploaded_files:
-            pictureUrlsList = []
-            if file.filename == '':
-                pass
-            elif file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                pictureUrl = os.path.join(app.config['UPLOAD_FOLDER']) + filename
-                pictureUrlsList.append(pictureUrlsList)
-        return pictureUrlsList
 
 @app.route('/api/GetUserData/', methods=['POST'])
 def GetUserData():
@@ -148,9 +127,10 @@ def GetOffice():
 def GetCurrentSession():
     if request.method == 'POST':
         data = request.get_json()
-        data['state'] = 'open'
         configkey = 'GetCurrentSession'
         result = get(configkey,data)
+        if 'warning' in json.loads(result):
+            result = {}
         return result
 
 @app.route('/api/GetSession/', methods=['POST'])
@@ -290,9 +270,6 @@ def EditClient():
     if request.method == 'POST':
         data = request.get_json()
         table = 'client'
-        pictureUrlsList = uploadfiles(request)
-        if pictureUrlsList:
-            data['pictureUrl'] = pictureUrlsList
         result = edit(table,data)
         return result
 
@@ -305,11 +282,6 @@ def EditOperations():
         firstservicewithpicture = True
         for elem in data:
             table = elem['operationType']
-#             if 'serviceoperation' in elem['operationType'] and firstservicewithpicture == True:
-#                 pictureUrlsList = uploadfiles(request)
-#                 if pictureUrlsList:
-#                     elem['photoUrls'] = pictureUrlsList
-#                     firstservicewithpicture = False
             del elem['operationType']
             result = edit(table,elem)
             results.append(json.loads(result))
@@ -320,9 +292,6 @@ def EditEmployee():
     if request.method == 'POST':
         data = request.get_json()
         table = 'employee'
-        pictureUrlsList = uploadfiles(request)
-        if pictureUrlsList:
-            data['pictureUrl'] = pictureUrlsList[0]                     
         result = edit(table,data)
         return result
     
@@ -417,22 +386,5 @@ def front(path):
 def page_not_found(e):
     return "Page not found", 404
     
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=5000, debug=True)
-
 if __name__ == '__main__':
-    from werkzeug.serving import run_simple
-    run_simple('localhost', 9000, app)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
+    app.run(host='0.0.0.0', port=5000, debug=True)
