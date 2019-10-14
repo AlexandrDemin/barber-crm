@@ -105,7 +105,7 @@ def getSessionsOperationsQuery(args):
     qdatetopart = ''
     idpart = ''
     statepart = ''
-    officeIdpart = ''
+    officeidpart = ''
     wherepartlist = []
         
     if 'dateFrom' in args['data']:
@@ -171,7 +171,7 @@ def getSessionsOperationsQuery(args):
             querypartslist.append(qpart)
         unions = "\nunion all\n".join(querypartslist)
         queryoperations = f'''select c."sessionId",array_agg(row_to_json(c)::jsonb-'sessionId') as "Operations" from
-        (select concatenated."sessionId",concatenated.type,array_agg(params) as operations from
+        (select concatenated."sessionId",concatenated.type,array_agg(params::jsonb-'sessionId') as operations from
         ({unions}) concatenated
         group by "sessionId",type) c
         group by "sessionId"'''
@@ -611,6 +611,21 @@ def generateQueryRead(args):
                 or  text(contacts) ilike '%{string}%'"""
                 orderpart = f"""
                 order by name asc"""
+                
+            elif args['type'] == 'GetClient':
+                fields = 'client.*,operations."Operations"'
+                orderpart = f"""
+                order by name asc"""
+                additionalpart = f"""
+left join
+(select c."clientId",array_agg(row_to_json(c)::jsonb-'clientId') as "Operations" from
+(select concatenated."clientId",concatenated.type,array_agg(params::jsonb-'clientId') as operations from
+(select "clientId",'serviceoperation' as type,row_to_json(serviceoperation) as params from serviceoperation 
+union all
+select "clientId",'goodsoperation' as type,row_to_json(goodsoperation) as params from goodsoperation) concatenated
+group by "clientId",type) c
+group by "clientId") operations
+on client.id = operations.\"clientId\""""
                                 
             query = f"""select {fields} from {table}{additionalpart}{wherepart}{orderpart}"""
         
@@ -619,6 +634,7 @@ def generateQueryRead(args):
             wherepart = generateWhere(args['data'])            
             
         query = f"""select {fields} from {table}{additionalpart}{wherepart}{orderpart}"""
+    print(query)
     return query
 
 def goToBase(host,database,user,password,query,commit=False):
