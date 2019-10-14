@@ -1,16 +1,4 @@
 /*
-Global transition
-*/
-
-html * {
-    transition: 0.1s;
-}
-
-html *:hover {
-    transition: 0.1s;
-}
-
-/*
 Global
 */
 .breadcrumbs {
@@ -38,6 +26,9 @@ label .button {
 }
 .table-link:hover {
   color: inherit;
+}
+.position-relative {
+    position: relative;
 }
 
 /*

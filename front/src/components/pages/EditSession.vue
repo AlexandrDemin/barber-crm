@@ -139,7 +139,7 @@ export default {
             'workHours': 6
           }
         ],
-        'officeId': 1,
+        'officeId': this.$store.state.currentOfficeId,
         'state': 'open'
       }
     }

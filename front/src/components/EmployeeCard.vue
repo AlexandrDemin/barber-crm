@@ -4,7 +4,7 @@
       <div class="cell small-2 medium-1">
         <img v-if="employee.pictureUrl" class="employee-card-picture" v-bind:src="employee.pictureUrl"/>
         <div v-if="!employee.pictureUrl" class="employee-card-picture employee-card-picture-placeholder">
-          {{getPicturePlaceholderText()}}
+          {{$store.getters.getUserPicturePlaceholderText(employee.name)}}
         </div>
       </div>
       <div class="cell auto">
@@ -70,16 +70,6 @@ export default {
       paymentSum: '',
       servicesSearch: '',
       goodsSearch: ''
-    }
-  },
-  methods: {
-    getPicturePlaceholderText: function () {
-      var name = this.employee.name
-      var initials = ''
-      name.split(' ').map(n => {
-        initials += n[0].toUpperCase()
-      })
-      return initials
     }
   },
   computed: {

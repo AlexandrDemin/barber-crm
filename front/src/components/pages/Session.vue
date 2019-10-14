@@ -1,10 +1,24 @@
 <template>
-  <main class="translucent-theme background">
+  <main class="background">
     <appMenu selected-element="session"></appMenu>
     <div v-if="!Object.keys(session).length" class="grid-x align-center-middle content">
       <div class="card cell shrink text-center greeting-card">
         <h1>{{getGreeting()}}<br>{{getGreetingEmojis()}}</h1>
-        <div><router-link to="/EditSession" class="button primary">Открыть смену</router-link></div>
+        <label>Отделение</label>
+        <select v-model="currentOfficeId" v-on:change="getCurrentSession" v-bind:disabled="isCurrentSessionLoading">
+          <option
+            v-for="office in offices"
+            v-bind:key="office.id"
+            v-bind:value="office.id"
+            v-bind:selected="office.id === currentOfficeId"
+          >
+            {{office.name}}
+          </option>
+        </select>
+        <div class="position-relative">
+          <vue-element-loading :active="isCurrentSessionLoading" color="#1C457D"/>
+          <router-link v-if="!Object.keys(session).length && currentOfficeId" to="/EditSession" class="button primary">Открыть смену</router-link>
+        </div>
       </div>
     </div>
     <div v-if="Object.keys(session).length" class="session-info grid-x align-middle">
@@ -120,12 +134,14 @@
 <script>
 import Menu from '@/components/Menu'
 import EmployeeCard from '@/components/EmployeeCard'
+import VueElementLoading from 'vue-element-loading'
 
 export default {
   name: 'Session',
   components: {
     appMenu: Menu,
-    employeeCard: EmployeeCard
+    employeeCard: EmployeeCard,
+    VueElementLoading
   },
   mounted: function () {
     document.title = this.$route.meta.title
@@ -183,6 +199,9 @@ export default {
     getDate: function () {
       var date = new Date()
       return date.toLocaleDateString('ru')
+    },
+    getCurrentSession: function () {
+      this.$store.dispatch('getCurrentSession')
     }
   },
   computed: {
@@ -191,9 +210,30 @@ export default {
         return this.$store.state.currentSession
       }
     },
+    currentOfficeId: {
+      get () {
+        return this.$store.state.currentOfficeId
+      },
+      set (value) {
+        this.$store.commit('updateStore', {
+          'name': 'currentOfficeId',
+          'value': value
+        })
+      }
+    },
+    isCurrentSessionLoading: {
+      get () {
+        return this.$store.state.isCurrentSessionLoading
+      }
+    },
     spendTypes: {
       get () {
         return this.$store.state.spendTypes
+      }
+    },
+    offices: {
+      get () {
+        return this.$store.state.offices
       }
     },
     servicesCount: function () {
