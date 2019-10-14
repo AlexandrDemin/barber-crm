@@ -170,7 +170,7 @@ def getSessionsOperationsQuery(args):
             qpart = f"""select "sessionId",'{table}' as type,row_to_json({table}) as params from {table} {clientidspart}"""
             querypartslist.append(qpart)
         unions = "\nunion all\n".join(querypartslist)
-        queryoperations = f'''select c."sessionId",array_agg(row_to_json(c)::jsonb-'sessionId') as "Operations" from
+        queryoperations = f'''select c."sessionId",array_agg(row_to_json(c)::jsonb-'sessionId') as "operations" from
         (select concatenated."sessionId",concatenated.type,array_agg(params::jsonb-'sessionId') as operations from
         ({unions}) concatenated
         group by "sessionId",type) c
@@ -618,7 +618,7 @@ def generateQueryRead(args):
                 order by name asc"""
                 additionalpart = f"""
 left join
-(select c."clientId",array_agg(row_to_json(c)::jsonb-'clientId') as "Operations" from
+(select c."clientId",array_agg(row_to_json(c)::jsonb-'clientId') as "operations" from
 (select concatenated."clientId",concatenated.type,array_agg(params::jsonb-'clientId') as operations from
 (select "clientId",'serviceoperation' as type,row_to_json(serviceoperation) as params from serviceoperation 
 union all
