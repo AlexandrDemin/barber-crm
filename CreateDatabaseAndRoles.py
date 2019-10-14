@@ -25,7 +25,7 @@ tables_and_roles = """
 CREATE TABLE EMPLOYEE(
 id SERIAL PRIMARY KEY NOT NULL,
 name TEXT NOT NULL,
-"pictureUrl" TEXT,
+"photo" JSONB,
 roles TEXT [],
 salary FLOAT(2) NOT NULL,
 "servicePercent" FLOAT(2),    
@@ -91,7 +91,7 @@ id SERIAL PRIMARY KEY NOT NULL,
 "totalRevenue" FLOAT(2),
 "clientRating" FLOAT(2),
 "review" TEXT, 
-"photoUrls" TEXT [],
+"photos" JSONB [],
 "comment" TEXT, 
 "controlRating" FLOAT(2));
 
@@ -156,6 +156,7 @@ CREATE TABLE CLIENT(
 id SERIAL PRIMARY KEY NOT NULL,
 name TEXT NOT NULL,
 contacts JSONB [],
+"photo" JSONB,
 comment TEXT);
 
 CREATE ROLE read_only WITH LOGIN PASSWORD 'User_ro';

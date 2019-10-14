@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
 
 import io
 import pandas as pd
@@ -22,26 +20,26 @@ argsconfig = {
     'GetUserData':{
         'table':'employee',
         'dataneeded':True,
-        'fields':['name','"pictureUrl"','roles']
+        'fields':['name','photo','roles']
     },
     'GetEmployees':{
         'table':'employee',
-        'fields':['name','"pictureUrl"','roles']
+        'fields':['name','photo','roles']
     },
     'GetEmployee':{
         'table':'employee',
         'dataneeded':True,
-        'fields':['name','"pictureUrl"','roles']
+        'fields':['name','photo','roles']
     },
     'GetAdmins':{
         'table':'employee',
         'type':'GetAdmins',
-        'fields':['id','name','"pictureUrl"','state','"servicePercent"','"goodsPercent"']
+        'fields':['id','name','photo','state','"servicePercent"','"goodsPercent"']
     },
     'GetMasters':{
         'table':'employee',
         'type':'GetMasters',
-        'fields':['id','name','"pictureUrl"','state','"servicePercent"','"goodsPercent"']
+        'fields':['id','name','photo','state','"servicePercent"','"goodsPercent"']
     },
     'GetBarberCategories':{
         'table':'barbercategory'
