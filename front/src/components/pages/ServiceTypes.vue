@@ -2,7 +2,7 @@
   <main>
     <appMenu selected-element="admin"></appMenu>
     <div class="content">
-      <h1>Услуги</h1>
+      <h1>Услуги <router-link to="/EditServiceType/" class="button no-margion">Добавить</router-link></h1>
       <div>
         <vue-element-loading :active="isLoading" color="#1C457D"/>
         <table class="hover">

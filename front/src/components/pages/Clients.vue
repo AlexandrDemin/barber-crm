@@ -2,11 +2,11 @@
   <main>
     <appMenu selected-element="clients"></appMenu>
     <div class="content">
-      <h1>Клиенты</h1>
+      <h1>Клиенты <router-link to="/EditClient/" class="button no-margion">Добавить</router-link></h1>
       <div class="input-group">
         <input class="input-group-field" v-model="q" v-on:keyup.enter.stop="loadClients" autofocus type="text" placeholder="Имя или контакт клиента"/>
         <div class="input-group-button">
-          <button type="button" class="button primary" @click="loadClients">Найти</button>
+          <button type="button" class="button" @click="loadClients">Найти</button>
         </div>
       </div>
       <div class="position-relative">
@@ -16,7 +16,7 @@
             <tr>
               <th>Имя</th>
               <th>Контакты</th>
-              <th>Количество операций</th>
+              <th>Комментарий</th>
             </tr>
           </thead>
           <tbody>
@@ -35,7 +35,7 @@
               </td>
               <td>
                 <router-link v-bind:to="'/EditClient/' + client.id" class="table-link">
-                  {{client.operationsCount}}
+                  {{client.comment}}
                 </router-link>
               </td>
             </tr>
@@ -59,7 +59,7 @@ export default {
   },
   mounted: function () {
     document.title = this.$route.meta.title
-    this.clients = this.storeClients
+    this.loadClients()
   },
   data () {
     return {
@@ -83,15 +83,13 @@ export default {
         })
     }
   },
-  computed: {
-    storeClients: function () {
-      return this.$store.state.clients
-    }
-  },
   watch: {
-    storeClients () {
+    clients () {
       if (this.q === '') {
-        this.clients = this.storeClients
+        this.$store.commit('updateStore', {
+          'name': 'clients',
+          'value': this.clients
+        })
       }
     }
   }

@@ -210,167 +210,47 @@ export default new Vuex.Store({
       },
       {
         id: 'employeepayment',
-        name: 'Продажа товара'
+        name: 'Выплата сотруднику'
       }
     ],
-    serviceTypes: [
+    officeStates: [
       {
-        'id': 1,
-        'name': 'Стрижка мужская',
-        'prices': {
-          1: 600,
-          2: 800
-        }
+        id: 'open',
+        name: 'Работает'
       },
       {
-        'id': 2,
-        'name': 'Стрижка женская',
-        'prices': {
-          1: 1000,
-          2: 1200
-        }
-      },
-      {
-        'id': 3,
-        'name': 'Укладка',
-        'prices': {
-          1: 300,
-          2: 500
-        }
-      },
-      {
-        'id': 4,
-        'name': 'Маникюр',
-        'prices': {
-          1: 300,
-          2: 800
-        }
-      },
-      {
-        'id': 5,
-        'name': 'Стрижка усов и бороды',
-        'prices': {
-          1: 300,
-          2: 500
-        }
+        id: 'closed',
+        name: 'Не работает'
       }
     ],
-    goodsTypes: [
+    goodsStates: [
       {
-        'id': 1,
-        'name': 'Восстанавливающая маска для поврежденных волос Ggongji Hair Pack 8мл',
-        'price': 1000
+        id: 'active',
+        name: 'В продаже'
       },
       {
-        'id': 2,
-        'name': 'Лак для волос сильной фиксации Mugens Impressive Control Hard Spray 300мл',
-        'price': 200
-      },
-      {
-        'id': 3,
-        'name': 'Эссенция для волос Around Me Rose Hip Perfume Water Essence 200мл',
-        'price': 200
-      },
-      {
-        'id': 4,
-        'name': 'Murray\'s eXelento Pomad - Помада для укладки волос',
-        'price': 200
-      },
-      {
-        'id': 5,
-        'name': 'Baxter of California Pomade: Cream - Средство для укладки волос 60 мл',
-        'price': 200
+        id: 'notactive',
+        name: 'Не продается'
       }
     ],
-    employeePaymentTypes: [
+    userRoles: [
       {
-        'id': 1,
-        'name': 'Расход',
-        'sum': 500
+        id: 'officeAdmin',
+        name: 'Администратор офиса'
       },
       {
-        'id': 2,
-        'name': 'Штраф',
-        'sum': 500
+        id: 'manager',
+        name: 'Управляющий'
       },
       {
-        'id': 1,
-        'name': 'Премия',
-        'sum': 1000
+        id: 'master',
+        name: 'Мастер'
+      },
+      {
+        id: 'other',
+        name: 'Сотрудник'
       }
     ],
-    spendTypes: [
-      {
-        'id': 1,
-        'name': 'Вывоз мусора',
-        'sum': 600
-      },
-      {
-        'id': 2,
-        'name': 'Прочие расходы',
-        'sum': 1000
-      }
-    ],
-    offices: [
-      {
-        'id': 1,
-        'name': 'Краснодар',
-        'state': 'works'
-      },
-      {
-        'id': 2,
-        'name': 'Калуга',
-        'sum': 'works'
-      },
-      {
-        'id': 3,
-        'name': 'Новороссийск',
-        'sum': 'doesntWork'
-      }
-    ],
-    employees: [
-      {
-        'id': 1,
-        'name': 'Алексей Луцай',
-        'pictureUrl': '',
-        'state': 'works',
-        'servicesPercent': 10,
-        'goodsPercent': 10,
-        'masterCategory': null,
-        'roles': ['officeAdmin']
-      },
-      {
-        'id': 2,
-        'name': 'Мария Попова',
-        'pictureUrl': 'static/user_photos/мария.jpg',
-        'state': 'works',
-        'servicesPercent': 10,
-        'goodsPercent': 10,
-        'masterCategory': 2,
-        'roles': ['master', 'officeAdmin']
-      },
-      {
-        'id': 3,
-        'name': 'Макс Корж',
-        'pictureUrl': 'static/user_photos/макс.jpg',
-        'state': 'works',
-        'servicesPercent': 10,
-        'goodsPercent': 10,
-        'masterCategory': 3,
-        'roles': ['master']
-      },
-      {
-        'id': 4,
-        'name': 'Прокофий Иванов',
-        'pictureUrl': '',
-        'state': 'works',
-        'servicesPercent': 10,
-        'goodsPercent': 10,
-        'masterCategory': 1,
-        'roles': ['master', 'officeAdmin']
-      }
-    ],
-    clients: [],
     contactTypes: [
       {
         id: 'phone',
@@ -409,6 +289,13 @@ export default new Vuex.Store({
         name: 'Другое'
       }
     ],
+    serviceTypes: [],
+    goodsTypes: [],
+    employeePaymentTypes: [],
+    spendTypes: [],
+    offices: [],
+    employees: [],
+    clients: [],
     masterCategories: []
   },
   getters: {
@@ -561,7 +448,7 @@ export default new Vuex.Store({
       }
       return '–'
     },
-    getOperationLink: (store) => (operation) => {
+    getOperationLink: (state) => (operation) => {
       if (operation.operationType === 'service') {
         return '/EditService/' + operation.id.toString()
       }
@@ -575,37 +462,28 @@ export default new Vuex.Store({
         return '/EditEmployeePayment/' + operation.id.toString()
       }
     },
-    getOfficeStateName: (store) => (officeState) => {
-      if (officeState === 'open') {
-        return 'Работает'
-      }
-      if (officeState === 'closed') {
-        return 'Не работает'
+    getOfficeStateName: (state) => (id) => {
+      var officeState = state.officeStates.filter(e => e.id === id)[0]
+      if (officeState) {
+        return officeState.name
       }
       return '–'
     },
-    getGoodsStateName: (store) => (goodsState) => {
-      if (goodsState === 'active') {
-        return 'В продаже'
-      }
-      if (goodsState === 'notactive') {
-        return 'Не продается'
+    getGoodsStateName: (state) => (id) => {
+      var goodsState = state.goodsStates.filter(e => e.id === id)[0]
+      if (goodsState) {
+        return goodsState.name
       }
       return '–'
     },
-    getUserRoleName: (store) => (role) => {
-      if (role === 'officeAdmin') {
-        return 'Администратор офиса'
-      }
-      if (role === 'manager') {
-        return 'Управляющий'
-      }
-      if (role === 'master') {
-        return 'Мастер'
+    getUserRoleName: (state) => (id) => {
+      var userRole = state.userRoles.filter(e => e.id === id)[0]
+      if (userRole) {
+        return userRole.name
       }
       return '–'
     },
-    getUserPicturePlaceholderText: (store) => (name) => {
+    getUserPicturePlaceholderText: (state) => (name) => {
       var initials = ''
       name.split(' ').map(n => {
         initials += n[0].toUpperCase()
