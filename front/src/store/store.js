@@ -10,7 +10,6 @@ export default new Vuex.Store({
     isStateLoading: false,
     isStateLoaded: false,
     stateLoadDetails: {
-      currentSession: false,
       serviceTypes: false,
       goodsTypes: false,
       employeePaymentTypes: false,
@@ -21,7 +20,11 @@ export default new Vuex.Store({
       masterCategories: false
     },
     stateGetError: '',
-    currentSession: {
+    currentOfficeId: null,
+    currentSessionGetError: '',
+    isCurrentSessionLoading: false,
+    currentSession: {},
+    currentSession1: {
       'id': 1,
       'dateOpened': '21.09.2019 09:30',
       'dateClosed': null,
@@ -367,47 +370,7 @@ export default new Vuex.Store({
         'roles': ['master', 'officeAdmin']
       }
     ],
-    clients: [
-      {
-        id: 1,
-        name: 'Иван',
-        photoUrl: '',
-        operationsCount: 6,
-        contacts: [
-          {
-            type: 'phone',
-            value: '89203342284'
-          },
-          {
-            type: 'email',
-            value: 'mail@gmail.com'
-          }
-        ]
-      },
-      {
-        id: 2,
-        name: 'Евгения',
-        photoUrl: '',
-        operationsCount: 1,
-        contacts: [
-          {
-            type: 'phone',
-            value: '89152286369'
-          },
-          {
-            type: 'email',
-            value: 'ewwwwe@mail.ru'
-          }
-        ]
-      },
-      {
-        id: 3,
-        name: 'Василий',
-        photoUrl: '',
-        operationsCount: 0,
-        contacts: []
-      }
-    ],
+    clients: [],
     contactTypes: [
       {
         id: 'phone',
@@ -502,6 +465,13 @@ export default new Vuex.Store({
     },
     getEmployeePaymentTypeName: (state) => (id) => {
       var item = state.employeePaymentTypes.filter(e => e.id === id)[0]
+      if (item) {
+        return item.name
+      }
+      return '–'
+    },
+    getMasterCategoryName: (state) => (id) => {
+      var item = state.masterCategories.filter(e => e.id === id)[0]
       if (item) {
         return item.name
       }
@@ -604,6 +574,43 @@ export default new Vuex.Store({
       if (operation.operationType === 'employeePayment') {
         return '/EditEmployeePayment/' + operation.id.toString()
       }
+    },
+    getOfficeStateName: (store) => (officeState) => {
+      if (officeState === 'open') {
+        return 'Работает'
+      }
+      if (officeState === 'closed') {
+        return 'Не работает'
+      }
+      return '–'
+    },
+    getGoodsStateName: (store) => (goodsState) => {
+      if (goodsState === 'active') {
+        return 'В продаже'
+      }
+      if (goodsState === 'notactive') {
+        return 'Не продается'
+      }
+      return '–'
+    },
+    getUserRoleName: (store) => (role) => {
+      if (role === 'officeAdmin') {
+        return 'Администратор офиса'
+      }
+      if (role === 'manager') {
+        return 'Управляющий'
+      }
+      if (role === 'master') {
+        return 'Мастер'
+      }
+      return '–'
+    },
+    getUserPicturePlaceholderText: (store) => (name) => {
+      var initials = ''
+      name.split(' ').map(n => {
+        initials += n[0].toUpperCase()
+      })
+      return initials
     }
   },
   mutations: {
@@ -622,16 +629,49 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    getCurrentSession (context) {
+      context.commit('updateStore', {
+        'name': 'isCurrentSessionLoading',
+        'value': true
+      })
+      HTTP.post(`GetCurrentSession/`, {
+        'officeId': context.state.currentOfficeId,
+        'withOperations': true
+      })
+        .then(response => {
+          var data = response.data
+          context.commit('updateStore', {
+            'name': 'currentSession',
+            'value': data
+          })
+          context.commit('updateStore', {
+            'name': 'isCurrentSessionLoading',
+            'value': false
+          })
+        })
+        .catch(e => {
+          context.commit('updateStore', {
+            'name': 'currentSessionGetError',
+            'value': e
+          })
+          context.commit('updateStore', {
+            'name': 'isCurrentSessionLoading',
+            'value': false
+          })
+        })
+    },
     checkIfStateLoaded (context) {
       var isLoaded = Object.values(context.state.stateLoadDetails).every(x => x)
-      context.commit('updateStore', {
-        'name': 'isStateLoaded',
-        'value': isLoaded
-      })
-      context.commit('updateStore', {
-        'name': 'isStateLoading',
-        'value': !isLoaded
-      })
+      if (isLoaded !== context.state.isStateLoaded) {
+        context.commit('updateStore', {
+          'name': 'isStateLoaded',
+          'value': isLoaded
+        })
+        context.commit('updateStore', {
+          'name': 'isStateLoading',
+          'value': !isLoaded
+        })
+      }
     },
     getState (context, actions) {
       if (!context.state.isStateLoaded) {

@@ -1,9 +1,17 @@
 <template>
   <main>
     <appMenu selected-element="admin"></appMenu>
-    <div class="content grid-x">
-      <h1 class="cell small-12">Загрузка расходов</h1>
-      <form class="cell small-6"></form>
+    <div class="content">
+      <h1>Загрузка расходов</h1>
+      <div class="grid-x grid-margin-x align-middle">
+        <div class="cell shrink">
+          <button class="button no-margin" type="button">Загрузить расходы</button>
+          <input type="file" ref="file" style="display:none">
+        </div>
+        <div class="cell auto">
+          <router-link to="">Скачать шаблон</router-link>
+        </div>
+      </div>
     </div>
   </main>
 </template>
