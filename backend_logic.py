@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
+
 
 import io
 import pandas as pd
@@ -19,27 +21,22 @@ import db_provider
 argsconfig = {
     'GetUserData':{
         'table':'employee',
-        'dataneeded':True,
-        'fields':['name','photo','roles']
+        'dataneeded':True
     },
     'GetEmployees':{
-        'table':'employee',
-        'fields':['name','photo','roles']
+        'table':'employee'
     },
     'GetEmployee':{
         'table':'employee',
-        'dataneeded':True,
-        'fields':['name','photo','roles']
+        'dataneeded':True
     },
     'GetAdmins':{
         'table':'employee',
-        'type':'GetAdmins',
-        'fields':['id','name','photo','state','"servicePercent"','"goodsPercent"']
+        'type':'GetAdmins'
     },
     'GetMasters':{
         'table':'employee',
-        'type':'GetMasters',
-        'fields':['id','name','photo','state','"servicePercent"','"goodsPercent"']
+        'type':'GetMasters'
     },
     'GetBarberCategories':{
         'table':'barbercategory'
@@ -118,6 +115,7 @@ argsconfig = {
     },
     'GetClient':{
         'table':'client',
+        'type':'GetClient',
         'dataneeded':True
     },
     'GetClients':{

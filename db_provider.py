@@ -114,7 +114,7 @@ def getSessionsOperationsQuery(args):
 
     if 'dateTo' in args['data']:
         dateraw = args['data']['dateTo']
-        qdatefrompart = generateDateQueryPart('"dateClosed"','<=',dateraw)
+        qdatefrompart = generateDateQueryPart('"dateOpened"','<=',dateraw)
         
     if 'id' in args['data']:
         _id = args['data']['id']
@@ -362,9 +362,7 @@ left join
 (select "officeId", count(distinct employeeid) as totalemployees,sum(total_time) as total_time,yearmonth from
 (select "officeId",date_trunc('month',"dateOpened") as yearmonth,
 cast((unnest(employees)->'userId')::text as int) as employeeid,
-(concat('2018-01-01 ',(unnest(employees)->>'endtime')::text)::timestamp -
-concat('2018-01-01 ',(unnest(employees)->>'starttime')::text)::timestamp)
-as total_time
+cast((unnest(employees)->'workHours')::text as int) as total_time
 from session) a
 group by "officeId",yearmonth) worktime 
 using ("officeId",yearmonth)
@@ -464,9 +462,7 @@ def GenerateEmployeeReportQuery(args):
     (select "officeId",employeeid, sum(total_time) as total_time,yearmonth from
     (select "officeId",date_trunc('month',"dateOpened") as yearmonth,
     cast((unnest(employees)->'userId')::text as int) as employeeid,
-    (concat('2018-01-01 ',(unnest(employees)->>'endtime')::text)::timestamp -
-    concat('2018-01-01 ',(unnest(employees)->>'starttime')::text)::timestamp)
-    as total_time
+    cast((unnest(employees)->'workHours')::text as int) as total_time
     from session) a
     {wherepart}
     group by "officeId",employeeid,yearmonth) worktime
