@@ -77,11 +77,11 @@ argsconfig = {
     },
     'GetServicesPrices':{
         'table':'service',
-        'dataneeded':True
+        'fields':['id','name','prices']
     },
     'GetService':{
         'table':'service',
-        'fields':['id','name','prices']
+        'dataneeded':True
     },
     'GetServiceOperation':{
         'table':'serviceoperation',
