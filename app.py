@@ -157,10 +157,11 @@ def GetServicesPrices():
         return result
 
 @app.route('/api/GetService/', methods=['POST'])
-def GetServicesPrices():
+def GetService():
     if request.method == 'POST':
         configkey = 'GetService'
-        result = get(configkey)
+        data = request.get_json()
+        result = get(configkey, data)
         return result
 
 @app.route('/api/GetServiceOperation/', methods=['POST'])
