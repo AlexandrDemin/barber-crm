@@ -106,7 +106,7 @@ export default {
       return {
         id: 'null',
         name: '',
-        defaultSum: '',
+        defaultSum: 0,
         state: 'active'
       }
     }

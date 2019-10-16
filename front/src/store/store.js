@@ -243,6 +243,26 @@ export default new Vuex.Store({
         name: 'Не используется'
       }
     ],
+    employeePaymentTypeStates: [
+      {
+        id: 'active',
+        name: 'Используется'
+      },
+      {
+        id: 'notactive',
+        name: 'Не используется'
+      }
+    ],
+    masterCategoryStates: [
+      {
+        id: 'active',
+        name: 'Используется'
+      },
+      {
+        id: 'notactive',
+        name: 'Не используется'
+      }
+    ],
     userRoles: [
       {
         id: 'officeAdmin',
@@ -490,6 +510,20 @@ export default new Vuex.Store({
       var spendTypeState = state.spendTypeStates.filter(e => e.id === id)[0]
       if (spendTypeState) {
         return spendTypeState.name
+      }
+      return '–'
+    },
+    getEmployeePaymentStateName: (state) => (id) => {
+      var employeePaymentTypeState = state.employeePaymentTypeStates.filter(e => e.id === id)[0]
+      if (employeePaymentTypeState) {
+        return employeePaymentTypeState.name
+      }
+      return '–'
+    },
+    getMasterCategoryStateName: (state) => (id) => {
+      var masterCategoryState = state.masterCategoryStates.filter(e => e.id === id)[0]
+      if (masterCategoryState) {
+        return masterCategoryState.name
       }
       return '–'
     },
