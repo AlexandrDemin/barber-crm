@@ -20,7 +20,7 @@
           <div v-for="price in mergedPrices" v-bind:key="price">
             <label>Категория мастера: {{$store.getters.getMasterCategoryName(price.category)}}</label>
             <label>Цена</label>
-            <input type="text" v-model="price.price"/>
+            <input type="number" v-model="price.price"/>
           </div>
           <div>
             <vue-element-loading :active="isSaving" color="#1C457D"/>
@@ -108,11 +108,10 @@ export default {
     mergedPrices () {
       var prices = []
       this.$store.state.masterCategories.map(x => {
-        var list = this.serviceType.prices.filter(t => t.id === x.id)
         var price = 0
-        if (list.length) {
-          price = list[0].price
-        }
+        try {
+          price = this.serviceType.prices.filter(t => t.category === x.id)[0].price
+        } catch (e) {}
         prices.push({
           'category': x.id,
           'price': price

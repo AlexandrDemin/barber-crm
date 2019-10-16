@@ -233,6 +233,16 @@ export default new Vuex.Store({
         name: 'Не продается'
       }
     ],
+    spendTypeStates: [
+      {
+        id: 'active',
+        name: 'Используется'
+      },
+      {
+        id: 'notactive',
+        name: 'Не используется'
+      }
+    ],
     userRoles: [
       {
         id: 'officeAdmin',
@@ -473,6 +483,13 @@ export default new Vuex.Store({
       var goodsState = state.goodsStates.filter(e => e.id === id)[0]
       if (goodsState) {
         return goodsState.name
+      }
+      return '–'
+    },
+    getSpendTypeStateName: (state) => (id) => {
+      var spendTypeState = state.spendTypeStates.filter(e => e.id === id)[0]
+      if (spendTypeState) {
+        return spendTypeState.name
       }
       return '–'
     },

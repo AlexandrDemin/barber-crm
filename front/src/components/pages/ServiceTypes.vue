@@ -65,7 +65,7 @@ export default {
       this.isLoading = true
       HTTP.post(`GetServicesPrices/`, {})
         .then(response => {
-          this.offices = response.data
+          this.serviceTypes = response.data
           this.isLoading = false
         })
         .catch(e => {
