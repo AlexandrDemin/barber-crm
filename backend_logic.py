@@ -77,6 +77,10 @@ argsconfig = {
     },
     'GetServicesPrices':{
         'table':'service',
+        'dataneeded':True
+    },
+    'GetService':{
+        'table':'service',
         'fields':['id','name','prices']
     },
     'GetServiceOperation':{
