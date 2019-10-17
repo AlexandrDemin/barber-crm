@@ -156,14 +156,14 @@ def splitCreateUpdate(data):
     createlist = []
     updatelist = []
     if type(data) is dict:
-        if data['id'] == 'null':
+        if data['id'] == None:
             del data['id']
             createlist.append(data)
         else:
             updatelist.append(data)
     elif type(data) is list:
         for item in data:
-            if item['id'] == 'null':
+            if item['id'] == None:
                 del item['id']
                 createlist.append(item)
             else:

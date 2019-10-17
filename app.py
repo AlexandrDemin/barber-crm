@@ -349,32 +349,35 @@ def GenerateCustomerReport():
         data = request.get_json()
         configkey = 'GenerateClientReport'
         result = get(configkey,data)
-#         report = pd.DataFrame(result)
-#         filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
-#         report.to_excel('./downloadable_files/' + filename)
-        return result #, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
-    
+        return result
+
 @app.route('/api/GenerateFinanceReport/', methods=['POST'])
 def GenerateFinanceReport():
     if request.method == 'POST':
         data = request.get_json()
         configkey = 'GenerateFinanceReport'
         result = get(configkey,data)
-#         report = pd.DataFrame(result)
-#         filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
-#         report.to_excel('./downloadable_files/' + filename)
-        return result #, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
-    
+        return result 
+
 @app.route('/api/GenerateEmployeeReport/', methods=['POST'])
 def GenerateEmployeeReport():
     if request.method == 'POST':
         data = request.get_json()
         configkey = 'GenerateEmployeeReport'
         result = get(configkey,data)
-#         report = pd.DataFrame(result)
-#         filename = configkey+str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex
-#         report.to_excel('./downloadable_files/' + filename)
-        return result #, Response(report,headers={"Content-Disposition":f"""attachment;filename={filename}.xlsx"""})
+        return result
+
+@app.route('/api/GenerateReportFile/', methods=['POST'])
+def GenerateReportFile():
+    if request.method == 'POST':
+        data = request.get_json()
+        if type(data) == dict:
+            report = pd.DataFrame(data, index = [0])
+        else:
+            report = pd.DataFrame(data)
+        filename = str(datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex+'.xlsx'
+        report.to_excel('./downloadable_files/' + filename)
+        return json.dumps({'filename': filename}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 @app.route('/static/<path:path>')
 def send_files(path):

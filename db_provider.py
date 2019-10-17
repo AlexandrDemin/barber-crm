@@ -58,7 +58,7 @@ def generateQueryUpdate(table,data):
     queryparts = []
     prepareDataToUpsert(data)
     for key,value in data.items():
-        qpart = f"""{key} = {value}"""
+        qpart = f"""\"{key}\" = {value}"""
         queryparts.append(qpart)
     setquery = ', '.join(queryparts)
     setquery = setquery.replace('\'null\'','null')
@@ -170,7 +170,7 @@ def getSessionsOperationsQuery(args):
             qpart = f"""select "sessionId",'{table}' as type,row_to_json({table}) as params from {table} {clientidspart}"""
             querypartslist.append(qpart)
         unions = "\nunion all\n".join(querypartslist)
-        queryoperations = f'''select c."sessionId",array_agg(row_to_json(c)::jsonb-'sessionId') as "operations" from
+        queryoperations = f'''select c."sessionId",array_agg(row_to_json(c)::jsonb-'sessionId') as "Operations" from
         (select concatenated."sessionId",concatenated.type,array_agg(params::jsonb-'sessionId') as operations from
         ({unions}) concatenated
         group by "sessionId",type) c
@@ -614,7 +614,7 @@ def generateQueryRead(args):
                 order by name asc"""
                 additionalpart = f"""
 left join
-(select c."clientId",array_agg(row_to_json(c)::jsonb-'clientId') as "operations" from
+(select c."clientId",array_agg(row_to_json(c)::jsonb-'clientId') as "Operations" from
 (select concatenated."clientId",concatenated.type,array_agg(params::jsonb-'clientId') as operations from
 (select "clientId",'serviceoperation' as type,row_to_json(serviceoperation) as params from serviceoperation 
 union all
@@ -630,7 +630,6 @@ on client.id = operations.\"clientId\""""
             wherepart = generateWhere(args['data'])            
             
         query = f"""select {fields} from {table}{additionalpart}{wherepart}{orderpart}"""
-    print(query)
     return query
 
 def goToBase(host,database,user,password,query,commit=False):
@@ -655,5 +654,5 @@ def goToBase(host,database,user,password,query,commit=False):
             return result_data
     except Exception as e:
         stacktrace = traceback.format_exc()
-        return {'error':e,'stacktrace':stacktrace}
+        return {'error':str(e),'stacktrace':stacktrace}
 
