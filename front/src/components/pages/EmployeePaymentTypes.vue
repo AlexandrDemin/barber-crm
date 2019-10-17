@@ -2,7 +2,7 @@
   <main>
     <appMenu selected-element="admin"></appMenu>
     <div class="content">
-      <h1>Типы выплат сотрудникам</h1>
+      <h1>Типы выплат сотрудникам <router-link to="/EditEmployeePaymentType/" class="button no-margion">Добавить</router-link></h1>
       <div>
         <vue-element-loading :active="isLoading" color="#1C457D"/>
         <table class="hover">
@@ -10,6 +10,7 @@
             <tr>
               <th>Название</th>
               <th>Сумма по умолчанию</th>
+              <th>Статус</th>
             </tr>
           </thead>
           <tbody>
@@ -22,6 +23,11 @@
               <td>
                 <router-link v-bind:to="'/EditEmployeePaymentType/' + item.id" class="table-link">
                   {{item.defaultSum}}
+                </router-link>
+              </td>
+              <td>
+                <router-link v-bind:to="'/EditEmployeePaymentType/' + item.id" class="table-link">
+                  {{$store.getters.getEmployeePaymentStateName(item.state)}}
                 </router-link>
               </td>
             </tr>
@@ -58,7 +64,7 @@ export default {
       this.isLoading = true
       HTTP.post(`GetEmployeePaymentTypes/`, {})
         .then(response => {
-          this.offices = response.data
+          this.employeePaymentTypes = response.data
           this.isLoading = false
         })
         .catch(e => {

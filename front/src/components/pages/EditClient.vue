@@ -8,12 +8,18 @@
         </ul>
       </nav>
       <h1>Клиент</h1>
+      <div v-if="loadingError" class="callout alert">
+        <h5>Произошла ошибка при загрузке данных</h5>
+        <p>{{loadingError}}</p>
+      </div>
       <div class="grid-x">
-        <form class="cell large-6">
+        <vue-element-loading :active="isLoading" color="#1C457D"/>
+        <div class="cell large-6">
           <label>Имя</label>
-          <input type="text" v-model="client.name"/>
+          <input type="text" v-model="client.name" autofocus/>
           <label>Фото</label>
-          <input type="file" accept="image/*">
+          <button type="button" class="button secondary">Выбрать</button>
+          <input type="file" accept="image/*" display="none" ref="photoSelector">
           <div v-for="(contact, index) in client.contacts" v-bind:key="contact">
             <label v-on:click.prevent class="grid-x">
               <span class="cell auto">Контакт {{index > 0 ? index + 1 : ''}}</span>
@@ -45,13 +51,20 @@
               Добавить контакт
             </button>
           </div>
+          <label>Комментарий</label>
+          <textarea rows="3" v-model="client.comment"></textarea>
           <div>
+            <vue-element-loading :active="isSaving" color="#1C457D"/>
             <button class="button primary" type="button" @click="save">Сохранить</button>
-            <button class="button secondary" type="button" @click="saveAndAddMore">Сохранить и добавить ещё клиента</button>
+            <button class="button secondary" type="button" @click="saveAndAddMore">Сохранить и добавить ещё</button>
           </div>
-        </form>
+          <div v-if="savingError" class="callout alert">
+            <h5>Произошла ошибка при сохранении клиента</h5>
+            <p>{{savingError}}</p>
+          </div>
+        </div>
       </div>
-      <div v-if="client.id">
+      <div v-if="client.id > 0">
         <h2>История операций по клиенту</h2>
         <table class="operations-table hover">
           <thead>
@@ -102,162 +115,35 @@
 
 <script>
 import Menu from '@/components/Menu'
+import { HTTP } from '../../api/api.js'
+import VueElementLoading from 'vue-element-loading'
 
 export default {
   name: 'EditClient',
   components: {
-    appMenu: Menu
+    appMenu: Menu,
+    VueElementLoading
   },
   mounted: function () {
     document.title = this.$route.meta.title
     if (this.$route.params.id) {
-      this.client = {
-        id: 1,
-        name: 'Иван',
-        photoUrl: '',
-        contacts: [
-          {
-            type: 'phone',
-            value: '89203342284'
-          },
-          {
-            type: 'telegram',
-            value: '89203342284'
-          }
-        ],
-        operations: [
-          {
-            'operationType': 'service',
-            'sessionId': 1,
-            'id': 1,
-            'officeId': 1,
-            'type': 1,
-            'startDatetime': '21.09.2019 09:30',
-            'finishDatetime': '21.09.2019 10:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 600,
-            'cashlessSum': 0,
-            'discountSum': 0,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'score': null,
-            'review': '',
-            'photoUrls': [],
-            'comment': ''
-          },
-          {
-            'operationType': 'goodSell',
-            'id': 2,
-            'officeId': 1,
-            'sessionId': 1,
-            'type': 1,
-            'datetime': '21.09.2019 09:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 0,
-            'cashlessSum': 2350,
-            'discountSum': 0,
-            'amount': 1,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'comment': ''
-          },
-          {
-            'operationType': 'goodSell',
-            'id': 3,
-            'officeId': 1,
-            'sessionId': 1,
-            'type': 2,
-            'datetime': '21.09.2019 09:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 0,
-            'cashlessSum': 2350,
-            'discountSum': 0,
-            'amount': 1,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'comment': ''
-          },
-          {
-            'operationType': 'goodSell',
-            'id': 4,
-            'officeId': 1,
-            'sessionId': 1,
-            'type': 3,
-            'datetime': '21.09.2019 09:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 0,
-            'cashlessSum': 2350,
-            'discountSum': 0,
-            'amount': 1,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'comment': ''
-          },
-          {
-            'operationType': 'goodSell',
-            'id': 5,
-            'officeId': 1,
-            'sessionId': 1,
-            'type': 4,
-            'datetime': '21.09.2019 09:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 0,
-            'cashlessSum': 2350,
-            'discountSum': 0,
-            'amount': 1,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'comment': ''
-          },
-          {
-            'operationType': 'goodSell',
-            'id': 6,
-            'officeId': 1,
-            'sessionId': 1,
-            'type': 5,
-            'datetime': '21.09.2019 09:30',
-            'adminId': 1,
-            'masterId': 3,
-            'clientId': 1,
-            'cashSum': 0,
-            'cashlessSum': 2350,
-            'discountSum': 0,
-            'amount': 1,
-            'adminBonus': 30,
-            'masterBonus': 120,
-            'comment': ''
-          }
-        ]
-      }
+      this.load(this.$route.params.id)
     }
   },
   data () {
     return {
-      client: {
-        id: null,
-        name: '',
-        photoUrl: '',
-        contacts: [
-          {
-            type: 'phone',
-            value: ''
-          }
-        ]
-      }
+      isLoading: false,
+      isSaving: false,
+      loadingError: '',
+      savingError: '',
+      client: this.getEmptyItem()
     }
   },
   methods: {
     addContact: function () {
+      if (!this.client.contacts) {
+        this.client.contacts = []
+      }
       this.client.contacts.push({
         type: 'phone',
         value: ''
@@ -266,20 +152,60 @@ export default {
     removeContact: function (index) {
       this.client.contacts.splice(index, 1)
     },
-    save: function () {},
+    load: function (id) {
+      this.isLoading = true
+      this.loadingError = ''
+      HTTP.post(`GetClient/`, {'id': id})
+        .then(response => {
+          this.client = response.data
+          this.isLoading = false
+        })
+        .catch(e => {
+          this.loadingError = e
+          this.isLoading = false
+        })
+    },
+    save: function () {
+      this.isSaving = true
+      this.savingError = ''
+      var client = this.client
+      if (client.photo === null) {
+        client.photo = 'null'
+      }
+      if (client.comment === null) {
+        client.comment = ''
+      }
+      if (client.contacts === null || client.contacts === []) {
+        client.contacts = 'null'
+      }
+      delete client.operations
+      HTTP.post(`EditClient/`, this.client)
+        .then(response => {
+          this.isSaving = false
+        })
+        .catch(e => {
+          this.savingError = e
+          this.isSaving = false
+        })
+    },
     saveAndAddMore: function () {
-      this.client = {
-        id: null,
+      this.save()
+      this.client = this.getEmptyItem()
+      this.$router.push('/EditClient')
+    },
+    getEmptyItem: function () {
+      return {
+        id: 'null',
         name: '',
-        photoUrl: '',
+        photo: 'null',
         contacts: [
           {
             type: 'phone',
             value: ''
           }
-        ]
+        ],
+        comment: ''
       }
-      this.$router.push('/EditClient')
     }
   },
   computed: {

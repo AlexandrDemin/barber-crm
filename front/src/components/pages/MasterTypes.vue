@@ -2,13 +2,14 @@
   <main>
     <appMenu selected-element="admin"></appMenu>
     <div class="content">
-      <h1>Категории мастеров</h1>
+      <h1>Категории мастеров <router-link to="/EditMasterType/" class="button no-margion">Добавить</router-link></h1>
       <div>
         <vue-element-loading :active="isLoading" color="#1C457D"/>
         <table class="hover">
           <thead>
             <tr>
               <th>Категория</th>
+              <th>Статус</th>
             </tr>
           </thead>
           <tbody>
@@ -16,6 +17,11 @@
               <td>
                 <router-link v-bind:to="'/EditMasterType/' + item.id" class="table-link">
                   {{item.name}}
+                </router-link>
+              </td>
+              <td>
+                <router-link v-bind:to="'/EditEmployeePaymentType/' + item.id" class="table-link">
+                  {{$store.getters.getMasterCategoryStateName(item.state)}}
                 </router-link>
               </td>
             </tr>
@@ -52,7 +58,7 @@ export default {
       this.isLoading = true
       HTTP.post(`GetBarberCategories/`, {})
         .then(response => {
-          this.offices = response.data
+          this.masterCategories = response.data
           this.isLoading = false
         })
         .catch(e => {

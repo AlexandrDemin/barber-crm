@@ -99,7 +99,7 @@ Submenu
 */
 .main-menu.submenu-shown {
     width: 325px;
-    z-index: 100;
+    z-index: 3001;
     box-shadow: 0 0px 30px rgba(56,52,46,.2);
 }
 .main-menu ul.submenu {

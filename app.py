@@ -154,7 +154,15 @@ def GetServicesPrices():
     if request.method == 'POST':
         configkey = 'GetServicesPrices'
         result = get(configkey)
-        return result    
+        return result
+
+@app.route('/api/GetService/', methods=['POST'])
+def GetService():
+    if request.method == 'POST':
+        configkey = 'GetService'
+        data = request.get_json()
+        result = get(configkey, data)
+        return result
 
 @app.route('/api/GetServiceOperation/', methods=['POST'])
 def GetServiceOperation():
@@ -327,7 +335,7 @@ def EditService():
         result = edit(table,data)
         return result
     
-@app.route('/api/EditSpendtype/', methods=['POST'])
+@app.route('/api/EditSpendType/', methods=['POST'])
 def EditSpendtype():
     if request.method == 'POST':
         data = request.get_json()
