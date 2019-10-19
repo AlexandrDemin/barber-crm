@@ -20,16 +20,16 @@
           <label>Сумма по умолчанию</label>
           <input type="number" v-model="spendType.defaultSum" autofocus/>
           <label>Статус</label>
-          <select v-model="spendType.state">
-            <option
-              v-for="item in spendTypeStates"
-              v-bind:key="item.id"
-              v-bind:value="item.id"
-              v-bind:selected="item.id === spendType.state"
-            >
-              {{item.name}}
-            </option>
-          </select>
+          <v-select
+            :clearable="false"
+            v-model="spendType.state"
+            :reduce="s => s.id"
+            :value="spendType.state"
+            label="name"
+            :options="spendTypeStates"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
           <div>
             <vue-element-loading :active="isSaving" color="#1C457D"/>
             <button class="button primary" type="button" @click="save">Сохранить</button>
@@ -49,12 +49,14 @@
 import Menu from '@/components/Menu'
 import { HTTP } from '../../api/api.js'
 import VueElementLoading from 'vue-element-loading'
+import vSelect from 'vue-select'
 
 export default {
   name: 'EditExpenseType',
   components: {
     appMenu: Menu,
-    VueElementLoading
+    VueElementLoading,
+    'v-select': vSelect
   },
   mounted: function () {
     document.title = this.$route.meta.title

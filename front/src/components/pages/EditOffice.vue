@@ -18,16 +18,16 @@
           <label>Название</label>
           <input type="text" v-model="office.name" autofocus/>
           <label>Статус</label>
-          <select v-model="office.state">
-            <option
-              v-for="item in officeStates"
-              v-bind:key="item.id"
-              v-bind:value="item.id"
-              v-bind:selected="item.id === office.state"
-            >
-              {{item.name}}
-            </option>
-          </select>
+          <v-select
+            :clearable="false"
+            v-model="office.state"
+            :reduce="s => s.id"
+            :value="office.state"
+            label="name"
+            :options="officeStates"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
           <div>
             <vue-element-loading :active="isSaving" color="#1C457D"/>
             <button class="button primary" type="button" @click="save">Сохранить</button>
@@ -47,12 +47,14 @@
 import Menu from '@/components/Menu'
 import { HTTP } from '../../api/api.js'
 import VueElementLoading from 'vue-element-loading'
+import vSelect from 'vue-select'
 
 export default {
   name: 'EditOffice',
   components: {
     appMenu: Menu,
-    VueElementLoading
+    VueElementLoading,
+    'v-select': vSelect
   },
   mounted: function () {
     document.title = this.$route.meta.title

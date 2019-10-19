@@ -3,78 +3,79 @@
     <appMenu selected-element="history"></appMenu>
     <div class="content">
       <h1>История смен и операций</h1>
-      <form class="grid-x grid-padding-x no-padding-small">
-        <div class="cell large-shrink small-12">
+      <div class="grid-x grid-padding-x no-padding-small">
+        <div class="cell large-4 small-12">
           <label>Дата от</label>
           <input type="date" v-model="dateFrom">
         </div>
-        <div class="cell large-shrink small-12">
+        <div class="cell large-4 small-12">
           <label>Дата до</label>
           <input type="date" v-model="dateTo">
         </div>
-        <div class="cell large-shrink small-12">
+        <div class="cell large-4 small-12">
           <label>Типы операций</label>
-          <select v-model="selectedOperationTypes" multiple="multiple">
-            <option
-              v-for="type in operationTypes"
-              v-bind:key="type.id"
-              v-bind:value="type.id"
-              v-bind:selected="selectedOperationTypes.filter(s => s.id === type.id).length > 0"
-            >
-              {{type.name}}
-            </option>
-          </select>
+          <v-select
+            multiple
+            v-model="selectedOperationTypes"
+            :reduce="s => s.id"
+            :value="selectedOperationTypes"
+            label="name"
+            :options="operationTypes"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
         </div>
-        <div class="cell large-shrink small-12">
+        <div class="cell large-4 small-12">
           <label>Отделения</label>
-          <select v-model="officeIds" multiple="multiple">
-            <option
-              v-for="office in offices"
-              v-bind:key="office.id"
-              v-bind:value="office.id"
-              v-bind:selected="officeIds.filter(s => s.id === office.id).length > 0"
-            >
-              {{office.name}}
-            </option>
-          </select>
+          <v-select
+            multiple
+            v-model="officeIds"
+            :reduce="s => s.id"
+            :value="officeIds"
+            label="name"
+            :options="offices"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
         </div>
-        <div class="cell large-shrink small-12">
+        <div class="cell large-4 small-12">
           <label>Клиенты</label>
-          <select v-model="clientIds" multiple="multiple">
-            <option
-              v-for="client in clients"
-              v-bind:key="client.id"
-              v-bind:value="client.id"
-              v-bind:selected="clientIds.filter(s => s.id === client.id).length > 0"
-            >
-              {{client.name}}
-            </option>
-          </select>
+          <v-select
+            multiple
+            v-model="clientIds"
+            :reduce="s => s.id"
+            :value="clientIds"
+            :get-option-label="$store.getters.getClientDescription"
+            :options="clients"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
         </div>
-        <div class="cell large-shrink small-12">
+        <div class="cell large-4 small-12">
           <label>Сотрудники</label>
-          <select v-model="employeeIds" multiple="multiple">
-            <option
-              v-for="employee in employees"
-              v-bind:key="employee.id"
-              v-bind:value="employee.id"
-              v-bind:selected="employeeIds.filter(s => s.id === employee.id).length > 0"
-            >
-              {{employee.name}}
-            </option>
-          </select>
+          <v-select
+            multiple
+            v-model="employeeIds"
+            :reduce="s => s.id"
+            :value="employeeIds"
+            label="name"
+            :options="employees"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
         </div>
-        <div class="cell large-shrink small-12">
-          <button class="button primary" type="button" @click="showSessions">Показать</button>
+        <div class="cell small-12">
+          <button class="button primary" type="button" @click="load">Показать</button>
           <button class="button secondary" type="button" @click="exportToExcel">Выгрузить в .xlsx</button>
         </div>
-      </form>
+      </div>
       <div
         v-if="sessions.length > 0"
         v-for="session in sessions"
         v-bind:key="session.id"
       >
-        <h3>Смена {{session.dateOpened}}</h3>
+        <vue-element-loading :active="isLoading" color="#1C457D"/>
+        <h3>Смена {{session.dateOpened}} {{$store.getters.getOfficeName(session.officeId)}}</h3>
         <table class="operations-table hover">
           <thead>
             <tr>
@@ -124,11 +125,15 @@
 
 <script>
 import Menu from '@/components/Menu'
+import VueElementLoading from 'vue-element-loading'
+import vSelect from 'vue-select'
 
 export default {
   name: 'SessionsHistory',
   components: {
-    appMenu: Menu
+    appMenu: Menu,
+    VueElementLoading,
+    'v-select': vSelect
   },
   mounted: function () {
     document.title = this.$route.meta.title
@@ -141,6 +146,8 @@ export default {
       employeeIds: [],
       clientIds: [],
       officeIds: [],
+      isLoading: false,
+      error: '',
       sessions: [
         {
           'id': 1,
@@ -488,7 +495,7 @@ export default {
     }
   },
   methods: {
-    showSessions: function () {},
+    load: function () {},
     exportToExcel: function () {}
   },
   computed: {

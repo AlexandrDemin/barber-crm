@@ -5,16 +5,18 @@
       <div class="card cell shrink text-center greeting-card">
         <h1>{{getGreeting()}}<br>{{getGreetingEmojis()}}</h1>
         <label>Отделение</label>
-        <select v-model="currentOfficeId" v-on:change="getCurrentSession" v-bind:disabled="isCurrentSessionLoading">
-          <option
-            v-for="office in offices"
-            v-bind:key="office.id"
-            v-bind:value="office.id"
-            v-bind:selected="office.id === currentOfficeId"
-          >
-            {{office.name}}
-          </option>
-        </select>
+        <v-select
+          v-on:input="getCurrentSession"
+          :disabled="isCurrentSessionLoading"
+          :clearable="false"
+          v-model="currentOfficeId"
+          :reduce="s => s.id"
+          :value="currentOfficeId"
+          label="name"
+          :options="offices"
+        >
+          <div slot="no-options">Ничего не найдено</div>
+        </v-select>
         <div class="position-relative">
           <vue-element-loading :active="isCurrentSessionLoading" color="#1C457D"/>
           <router-link v-if="!Object.keys(session).length && currentOfficeId" to="/EditSession" class="button primary">Открыть смену</router-link>
@@ -135,13 +137,15 @@
 import Menu from '@/components/Menu'
 import EmployeeCard from '@/components/EmployeeCard'
 import VueElementLoading from 'vue-element-loading'
+import vSelect from 'vue-select'
 
 export default {
   name: 'Session',
   components: {
     appMenu: Menu,
     employeeCard: EmployeeCard,
-    VueElementLoading
+    VueElementLoading,
+    'v-select': vSelect
   },
   mounted: function () {
     document.title = this.$route.meta.title
@@ -152,7 +156,6 @@ export default {
   },
   data () {
     return {
-      session1: {},
       selectedSpendType: 1,
       spendSum: '',
       time: this.getTime(),
@@ -201,6 +204,7 @@ export default {
       return date.toLocaleDateString('ru')
     },
     getCurrentSession: function () {
+      console.log('getCurrentSession', this.currentOfficeId)
       this.$store.dispatch('getCurrentSession')
     }
   },
