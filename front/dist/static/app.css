@@ -17,6 +17,9 @@ label .button {
 .no-margin {
     margin: 0;
 }
+.margin-bottom-30px {
+    margin-bottom: 30px;
+}
 .table-link {
   color: inherit;
   display: block;

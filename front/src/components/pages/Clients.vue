@@ -9,8 +9,12 @@
           <button type="button" class="button" @click="loadClients">Найти</button>
         </div>
       </div>
-      <div class="position-relative">
+      <div>
         <vue-element-loading :active="isLoading" color="#1C457D"/>
+        <div v-if="error" class="callout alert">
+          <h5>Произошла ошибка при загрузке данных</h5>
+          <p>{{error}}</p>
+        </div>
         <table class="hover">
           <thead>
             <tr>
