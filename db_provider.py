@@ -61,7 +61,7 @@ def generateQueryUpdate(table,data):
         qpart = f"""\"{key}\" = {value}"""
         queryparts.append(qpart)
     setquery = ', '.join(queryparts)
-    setquery = setquery.replace('\'null\'','null')
+    setquery = setquery.replace('None','null')
     setquery = setquery.replace('[','array [')
     setquery = setquery.replace('}\']','}\']::json[]')
     
@@ -75,7 +75,7 @@ def generateQueryCreate(table,data):
     prepareDataToUpsert(data)
     v = '(' + ",".join((list(data.values()))) + ')'
     
-    values = v.replace('\'null\'','null')
+    values = v.replace('None','null')
     values = values.replace('[','array [')
     values = values.replace('}\']','}\']::json[]')
 
