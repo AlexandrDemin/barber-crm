@@ -153,33 +153,30 @@ def getSessionsOperationsQuery(args):
         {wherelocalpart}) ssn"""
 
     if 'withOperations' in args['data']:
-        if args['data']['withOperations'] == 'true':
-            args['data']['operationType'] = [1,2,3,4]
+        if args['data']['withOperations'] == True:
+            args['data']['operationType'] = ['serviceoperation','goodsoperation',"spendoperation","employeepayment"]
 
     if 'operationType' in args['data']:
         clientidspart = ''
-        operationtypes = {1:"serviceoperation",2:"goodsoperation",3:"spendoperation",4:"employeepayment"}
         querypartslist = []
         for item in args['data']['operationType']:
-            table = operationtypes[item]
-            if operationtypes[item] in ['serviceoperation','goodsoperation']:
+            table = item
+            if item in ['serviceoperation','goodsoperation']:
                 if 'clientIds' in args['data']:
                     clientids = args['data']['clientIds']
                     clientidspartlist = [generateIdsQueryPart(clientids,'"clientId"')]
                     clientidspart = generateWhereFromList(clientidspartlist)
-            qpart = f"""select "sessionId",'{table}' as type,row_to_json({table}) as params from {table} {clientidspart}"""
+            qpart = f"""select "sessionId" as id,row_to_json({table})::jsonb||jsonb_build_object('type', '{table}') as params from {table} {clientidspart}"""
             querypartslist.append(qpart)
         unions = "\nunion all\n".join(querypartslist)
-        queryoperations = f'''select c."sessionId",array_agg(row_to_json(c)::jsonb-'sessionId') as "Operations" from
-        (select concatenated."sessionId",concatenated.type,array_agg(params::jsonb-'sessionId') as operations from
+        queryoperations = f'''select concatenated.id,array_agg(params::jsonb-'sessionId') as operations from
         ({unions}) concatenated
-        group by "sessionId",type) c
-        group by "sessionId"'''
+        group by id'''
 
         query = f'''{sessionquery}
         left join
         ({queryoperations}) operations
-        on ssn.id = operations."sessionId"'''
+        using (id)'''
         
     else:
         query = f'''{sessionquery}'''

@@ -141,8 +141,8 @@ def GetSession():
         result = get(configkey,data)
         return result
 
-@app.route('/api/GetSessionsWithOperations/', methods=['POST'])
-def GetSessionsWithOperations():
+@app.route('/api/GetSessions/', methods=['POST'])
+def GetSessions():
     if request.method == 'POST':
         data = request.get_json()
         configkey = 'GetSessionsWithOperations'
