@@ -105,7 +105,7 @@ def getSessionsOperationsQuery(args):
     qdatetopart = ''
     idpart = ''
     statepart = ''
-    officeidpart = ''
+    officeidspart = ''
     wherepartlist = []
         
     if 'dateFrom' in args['data']:
@@ -126,7 +126,7 @@ def getSessionsOperationsQuery(args):
         
     if 'officeId' in args['data']:
         officeid = args['data']['officeId']
-        officeidpart = f"""\"officeId\" = {officeid}"""
+        officeidspart = f"""\"officeId\" = {officeid}"""
 
     if 'employeeIds' in args['data']:
         fields_filtered = args['fields'].copy()
@@ -136,7 +136,7 @@ def getSessionsOperationsQuery(args):
         employeeidslistformatted = [* map(str, employeeids)]
         employeelisttoquery = '\''+'\',\''.join(employeeidslistformatted)+ '\''
         employeeidspart = f"""s.employeesunnsted->>'userId' in ({employeelisttoquery})"""
-        wherelist = [employeeidspart,qdatefrompart,qdatetopart,idpart,statepart,officeIdpart]
+        wherelist = [employeeidspart,qdatefrompart,qdatetopart,idpart,statepart,officeidspart]
         wherelistfiltered = list(filter(None, wherelist))
         wherelocalpart = 'where ' + ' and '.join(wherelistfiltered)
         sessionquery = f"""select * from
@@ -146,7 +146,7 @@ def getSessionsOperationsQuery(args):
         group by {fieldsFiltered}) ssn
         """
     else:
-        wherelist = [qdatefrompart,qdatetopart,idpart,statepart,officeidpart]
+        wherelist = [qdatefrompart,qdatetopart,idpart,statepart,officeidspart]
         wherelocalpart = generateWhereFromList(wherelist)
         sessionquery = f"""select * from
         (select {fields} from {table}
