@@ -1,147 +1,129 @@
 <template>
   <main>
     <appMenu selected-element="session"></appMenu>
-    <div class="content grid-x">
-      <h1 class="cell small-12">Смена</h1>
-      <form class="cell large-6">
-        <label>Отделение</label>
-        <select v-model="session.officeId">
-          <option
-            v-for="office in offices"
-            v-bind:key="office.id"
-            v-bind:value="office.id"
-            v-bind:selected="office.id === session.officeId"
-          >
-            {{office.name}}
-          </option>
-        </select>
-        <h2>Администраторы</h2>
-        <div v-for="(admin, index) in selectedAdmins" v-bind:key="admin.id">
-          <label v-on:click.prevent class="grid-x">
-            <span class="cell auto">Администратор {{index > 0 ? index + 1 : ''}}</span>
-            <button
-              type="button" class="button clear small cell shrink no-margin"
-              @click="removeEmployee(admin.id)"
-              v-if="index > 0"
-            >
-              Удалить
-            </button>
-          </label>
-          <select v-model="admin.id">
+    <div class="content">
+      <nav>
+        <ul class="breadcrumbs">
+          <li v-if="session.state = 'open'"><router-link to="/">Назад</router-link></li>
+          <li v-else><router-link to="/History/">Назад</router-link></li>
+        </ul>
+      </nav>
+      <h1>Смена</h1>
+      <div v-if="loadingError" class="callout alert">
+        <h5>Произошла ошибка при загрузке данных</h5>
+        <p>{{loadingError}}</p>
+      </div>
+      <div class="grid-x">
+        <vue-element-loading :active="isLoading" color="#1C457D"/>
+        <div class="cell large-6">
+          <label>Отделение</label>
+          <select v-model="session.officeId">
             <option
-              v-for="employee in admins"
-              v-bind:key="employee.id"
-              v-bind:value="employee.id"
-              v-bind:selected="employee.id === admin.id"
+              v-for="office in offices"
+              v-bind:key="office.id"
+              v-bind:value="office.id"
+              v-bind:selected="office.id === session.officeId"
             >
-              {{employee.name}}
+              {{office.name}}
             </option>
           </select>
-          <label>Продолжительность смены, часы</label>
-          <input type="number" v-model="admin.workHours">
-        </div>
-        <div>
-          <button class="button secondary" type="button" @click="addAdmin">Добавить администратора</button>
-        </div>
-        <h2>Мастера</h2>
-        <div v-for="(master, index) in selectedMasters" v-bind:key="master.id">
-          <label v-on:click.prevent class="grid-x">
-            <span class="cell auto">Мастер {{index > 0 ? index + 1 : ''}}</span>
-            <button
-              type="button" class="button clear small cell shrink no-margin"
-              @click="removeEmployee(master.id)"
+          <h2>Администраторы</h2>
+          <div v-for="(admin, index) in selectedAdmins" v-bind:key="admin.id">
+            <label v-on:click.prevent class="grid-x">
+              <span class="cell auto">Администратор {{index > 0 ? index + 1 : ''}}</span>
+              <button
+                type="button" class="button clear small cell shrink no-margin"
+                @click="removeEmployee(admin.id)"
+                v-if="index > 0"
+              >
+                Удалить
+              </button>
+            </label>
+            <v-select
+              :clearable="false"
+              v-model="admin.id"
+              :reduce="s => s.id"
+              :value="admin.id"
+              label="name"
+              :options="admins"
             >
-              Удалить
-            </button>
-          </label>
-          <select v-model="master.id">
-            <option
-              v-for="employee in masters"
-              v-bind:key="employee.id"
-              v-bind:value="employee.id"
-              v-bind:selected="employee.id === master.id"
+              <div slot="no-options">Ничего не найдено</div>
+            </v-select>
+            <label>Продолжительность смены, часы</label>
+            <input type="number" v-model="admin.workHours">
+          </div>
+          <div>
+            <button class="button secondary" type="button" @click="addAdmin">Добавить администратора</button>
+          </div>
+          <h2>Мастера</h2>
+          <div v-for="(master, index) in selectedMasters" v-bind:key="master.id">
+            <label v-on:click.prevent class="grid-x">
+              <span class="cell auto">Мастер {{index > 0 ? index + 1 : ''}}</span>
+              <button
+                type="button" class="button clear small cell shrink no-margin"
+                @click="removeEmployee(master.id)"
+                v-if="index > 0"
+              >
+                Удалить
+              </button>
+            </label>
+            <v-select
+              :clearable="false"
+              v-model="master.id"
+              :reduce="s => s.id"
+              :value="master.id"
+              label="name"
+              :options="masters"
             >
-              {{employee.name}}
-            </option>
-          </select>
-          <label>Продолжительность смены, часы</label>
-          <input type="number" v-model="master.workHours">
+              <div slot="no-options">Ничего не найдено</div>
+            </v-select>
+            <label>Продолжительность смены, часы</label>
+            <input type="number" v-model="master.workHours">
+          </div>
+          <div>
+            <button class="button secondary" type="button" @click="addMaster">Добавить мастера</button>
+          </div>
+          <div v-if-temp="session.state === 'open'" class="grid-x align-justify">
+            <vue-element-loading :active="isSaving" color="#1C457D"/>
+            <button class="button primary cell shrink" type="button" @click="save(false)">{{session.id && session.id !== 'null' ? 'Сохранить' : 'Открыть смену'}}</button>
+            <button v-if="session.id && session.id !== 'null'" class="button secondary alert cell shrink" type="button" @click="save(true)">Закрыть смену</button>
+          </div>
+          <div v-if="savingError" class="callout alert">
+            <h5>Произошла ошибка при сохранении смены</h5>
+            <p>{{savingError}}</p>
+          </div>
         </div>
-        <div>
-          <button class="button secondary" type="button" @click="addMaster">Добавить мастера</button>
-        </div>
-        <div v-if="session.state === 'open'" class="grid-x align-justify">
-          <button class="button primary cell shrink" type="button" @click="save">{{session.id ? 'Сохранить' : 'Открыть смену'}}</button>
-          <button v-if="session.id" class="button secondary alert cell shrink" type="button" @click="closeSession">Закрыть смену</button>
-        </div>
-      </form>
+      </div>
     </div>
   </main>
 </template>
 
 <script>
 import Menu from '@/components/Menu'
+import { HTTP } from '../../api/api.js'
+import VueElementLoading from 'vue-element-loading'
+import vSelect from 'vue-select'
 
 export default {
   name: 'EditSession',
   components: {
-    appMenu: Menu
+    appMenu: Menu,
+    VueElementLoading,
+    'v-select': vSelect
   },
   mounted: function () {
     document.title = this.$route.meta.title
     if (this.$route.params.id) {
-      this.session = {
-        'id': 1,
-        'dateOpened': '21.09.2019 09:30',
-        'dateClosed': null,
-        'employees': [
-          {
-            'id': 1,
-            'role': 'officeAdmin',
-            'workHours': 6
-          },
-          {
-            'id': 2,
-            'role': 'master',
-            'workHours': 6
-          },
-          {
-            'id': 3,
-            'role': 'master',
-            'workHours': 6
-          },
-          {
-            'id': 4,
-            'role': 'master',
-            'workHours': 6
-          }
-        ],
-        'officeId': 1,
-        'state': 'open'
-      }
+      this.load(this.$route.params.id)
     }
   },
   data () {
     return {
-      session: {
-        'id': null,
-        'dateOpened': null,
-        'dateClosed': null,
-        'employees': [
-          {
-            'id': 1,
-            'role': 'officeAdmin',
-            'workHours': 6
-          },
-          {
-            'id': 2,
-            'role': 'master',
-            'workHours': 6
-          }
-        ],
-        'officeId': this.$store.state.currentOfficeId,
-        'state': 'open'
-      }
+      isLoading: false,
+      isSaving: false,
+      loadingError: '',
+      savingError: '',
+      session: this.getEmptyItem()
     }
   },
   methods: {
@@ -163,8 +145,58 @@ export default {
       var employeeIndex = this.session.employees.findIndex(e => e.id === id)
       this.session.employees.splice(employeeIndex, 1)
     },
-    save: function () {},
-    closeSession: function () {}
+    load: function (id) {
+      this.isLoading = true
+      this.loadingError = ''
+      HTTP.post(`GetSession/`, {'id': id, withOperations: false})
+        .then(response => {
+          var session = response.data
+          if (session.employees === null) {
+            session.employees = []
+          }
+          if (session.dateOpened) {
+            session.dateOpened = this.moment(session.dateOpened, 'DD.MM.YYYY HH:mm')
+          }
+          if (session.dateClosed) {
+            session.dateClosed = this.moment(session.dateClosed, 'DD.MM.YYYY HH:mm')
+          }
+          this.session = session
+          this.isLoading = false
+        })
+        .catch(e => {
+          this.loadingError = e
+          this.isLoading = false
+        })
+    },
+    save: function (needClose) {
+      console.log(needClose)
+      this.isSaving = true
+      this.savingError = ''
+      var session = this.session
+      if (needClose) {
+        session.state = 'closed'
+        session.dateClosed = this.moment()
+      }
+      HTTP.post(`EditSession/`, this.session)
+        .then(response => {
+          this.isSaving = false
+        })
+        .catch(e => {
+          this.savingError = e
+          this.isSaving = false
+        })
+    },
+    getEmptyItem: function () {
+      return {
+        'id': 'null',
+        'dateOpened': this.moment(),
+        'dateClosed': 'null',
+        'employees': [],
+        'officeId': this.$store.state.currentOfficeId,
+        'state': 'open',
+        'openCash': 0
+      }
+    }
   },
   computed: {
     offices: {
@@ -184,7 +216,10 @@ export default {
     },
     selectedAdmins: {
       get () {
-        return this.session.employees.filter(e => e.role === 'officeAdmin')
+        if (this.session.employees) {
+          return this.session.employees.filter(e => e.role === 'officeAdmin')
+        }
+        return null
       },
       set (item) {
         var employeeIndex = this.session.employees.findIndex(e => e.id === item.id)
@@ -194,7 +229,10 @@ export default {
     },
     selectedMasters: {
       get () {
-        return this.session.employees.filter(e => e.role === 'master')
+        if (this.session.employees) {
+          return this.session.employees.filter(e => e.role === 'master')
+        }
+        return null
       },
       set (item) {
         var employeeIndex = this.session.employees.findIndex(e => e.id === item.id)

@@ -15,11 +15,13 @@
     "chartkick": "^2.2.4",
     "highcharts": "^6.2.0",
     "jquery": "^3.4.1",
+    "moment": "^2.24.0",
     "sticky-table-headers": "^0.1.24",
     "vue": "^2.5.2",
     "vue-chartkick": "^0.2.0",
     "vue-element-loading": "^1.1.5",
     "vue-router": "^3.0.1",
+    "vue-select": "^3.2.0",
     "vuex": "^3.1.1"
   },
   "devDependencies": {

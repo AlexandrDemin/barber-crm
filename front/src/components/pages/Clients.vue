@@ -4,7 +4,7 @@
     <div class="content">
       <h1>Клиенты <router-link to="/EditClient/" class="button no-margion">Добавить</router-link></h1>
       <div class="input-group">
-        <input class="input-group-field" v-model="q" v-on:keyup.enter.stop="loadClients" autofocus type="text" placeholder="Имя или контакт клиента"/>
+        <input class="input-group-field" v-model="q" v-on:keyup.enter.stop="loadClients" type="text" placeholder="Имя или контакт клиента"/>
         <div class="input-group-button">
           <button type="button" class="button" @click="loadClients">Найти</button>
         </div>

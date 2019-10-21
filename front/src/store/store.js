@@ -263,6 +263,16 @@ export default new Vuex.Store({
         name: 'Не используется'
       }
     ],
+    employeeStates: [
+      {
+        id: 'working',
+        name: 'Работает'
+      },
+      {
+        id: 'notworking',
+        name: 'Не работает'
+      }
+    ],
     userRoles: [
       {
         id: 'officeAdmin',
@@ -394,11 +404,14 @@ export default new Vuex.Store({
       }
       return '–'
     },
-    getClientDescription: (state) => (id) => {
-      if (id === null) {
+    getClientDescription: (state) => (clientOrClientId) => {
+      if (clientOrClientId === null) {
         return null
       }
-      var client = state.clients.filter(c => c.id === id)[0]
+      var client = clientOrClientId
+      if (typeof client === 'number') {
+        client = state.clients.filter(c => c.id === client)[0]
+      }
       if (client) {
         var phone = client.contacts.filter(c => c.type === 'phone')[0]
         if (phone) {
@@ -492,6 +505,13 @@ export default new Vuex.Store({
         return '/EditEmployeePayment/' + operation.id.toString()
       }
     },
+    getOfficeName: (state) => (id) => {
+      var office = state.offices.filter(e => e.id === id)[0]
+      if (office) {
+        return office.name
+      }
+      return '–'
+    },
     getOfficeStateName: (state) => (id) => {
       var officeState = state.officeStates.filter(e => e.id === id)[0]
       if (officeState) {
@@ -524,6 +544,13 @@ export default new Vuex.Store({
       var masterCategoryState = state.masterCategoryStates.filter(e => e.id === id)[0]
       if (masterCategoryState) {
         return masterCategoryState.name
+      }
+      return '–'
+    },
+    getEmployeeStateName: (state) => (id) => {
+      var employeeState = state.employeeStates.filter(e => e.id === id)[0]
+      if (employeeState) {
+        return employeeState.name
       }
       return '–'
     },

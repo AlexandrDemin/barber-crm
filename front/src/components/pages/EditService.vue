@@ -1,58 +1,71 @@
 <template>
   <main>
-    <appMenu v-bind:selected-element="$route.query.sessionId || 'session'"></appMenu>
+    <appMenu v-bind:selected-element="service.sessionId === $store.state.currentSession.id ? 'session' : 'history'"></appMenu>
     <div class="content">
+      <nav>
+        <ul class="breadcrumbs">
+          <li v-if="service.sessionId === $store.state.currentSession.id"><router-link to="/Session">Смена</router-link></li>
+          <li v-else><router-link to="/SessionsHistory">История смен и операций</router-link></li>
+        </ul>
+      </nav>
       <h1>Услуга</h1>
       <div class="grid-x">
-        <form class="cell large-6">
+        <vue-element-loading :active="isLoading" color="#1C457D"/>
+        <div class="cell large-6">
           <label>Услуга</label>
-          <select v-model="service.type">
-            <option
-              v-for="serviceType in serviceTypes"
-              v-bind:key="serviceType.id"
-              v-bind:value="serviceType.id"
-              v-bind:selected="serviceType.id === service.type"
-            >
-              {{serviceType.name}}
-            </option>
-          </select>
-          <label>Время начала</label>
-          <input type="time" v-model="service.startDatetime"/>
-          <label>Время завершения</label>
-          <input type="time" v-model="service.finishDatetime"/>
+          <v-select
+            :clearable="false"
+            v-model="service.type"
+            :reduce="s => s.id"
+            :value="service.type"
+            label="name"
+            :options="serviceTypes"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
+          <div class="grid-x grid-margin-x">
+            <div class="cell medium-6">
+              <label>Время начала</label>
+              <input type="time" v-model="service.startDatetime"/>
+            </div>
+            <div class="cell medium-6">
+              <label>Время завершения</label>
+              <input type="time" v-model="service.finishDatetime"/>
+            </div>
+          </div>
           <label>Администратор</label>
-          <select v-model="service.adminId">
-            <option
-              v-for="employee in admins"
-              v-bind:key="employee.id"
-              v-bind:value="employee.id"
-              v-bind:selected="employee.id === service.adminId"
-            >
-              {{employee.name}}
-            </option>
-          </select>
+          <v-select
+            :clearable="false"
+            v-model="service.adminId"
+            :reduce="s => s.id"
+            :value="service.adminId"
+            label="name"
+            :options="admins"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
           <label>Мастер</label>
-          <select v-model="service.masterId">
-            <option
-              v-for="employee in masters"
-              v-bind:key="employee.id"
-              v-bind:value="employee.id"
-              v-bind:selected="employee.id === service.masterId"
-            >
-              {{employee.name}}
-            </option>
-          </select>
+          <v-select
+            :clearable="false"
+            v-model="service.masterId"
+            :reduce="s => s.id"
+            :value="service.masterId"
+            label="name"
+            :options="masters"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
           <label>Клиент</label>
-          <select v-model="service.clientId">
-            <option
-              v-for="client in clients"
-              v-bind:key="client.id"
-              v-bind:value="client.id"
-              v-bind:selected="client.id === service.clientId"
-            >
-              {{$store.getters.getClientDescription(client.id) || 'Новый клиент'}}
-            </option>
-          </select>
+          <v-select
+            :clearable="false"
+            v-model="service.clientId"
+            :reduce="s => s.id"
+            :value="service.clientId"
+            :get-option-label="$store.getters.getClientDescription"
+            :options="clients"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
           <label>Сумма (наличка)</label>
           <input type="number" v-model="service.cashSum"/>
           <label>Сумма (безнал)</label>
@@ -64,7 +77,8 @@
           <label>Отзыв клиента</label>
           <textarea rows="2" v-model="service.review"></textarea>
           <label>Фотографии</label>
-          <input ref="images" type="file" multiple="multiple" accept="image/*">
+          <button class="button secondary">Загрузить фотографии</button>
+          <input ref="images" type="file" style="display:none" multiple="multiple" accept="image/*">
           <label>Комментарий</label>
           <textarea rows="2" v-model="service.comment"></textarea>
           <h2>Проданные товары</h2>
@@ -74,21 +88,21 @@
               <button
                 type="button" class="button clear small cell shrink no-margin"
                 @click="removeItem(soldItem)"
-                v-if="session.state === 'open'"
+                v-if="operations[0].sessionId === $store.state.currentSession.id"
               >
                 Удалить
               </button>
             </label>
-            <select v-model="soldItem.type">
-              <option
-                v-for="item in goodsTypes"
-                v-bind:key="item.id"
-                v-bind:value="item.id"
-                v-bind:selected="item.id === soldItem.type"
-              >
-                {{item.name}}
-              </option>
-            </select>
+            <v-select
+              :clearable="false"
+              v-model="soldItem.type"
+              :reduce="s => s.id"
+              :value="soldItem.type"
+              label="name"
+              :options="goodsTypes"
+            >
+              <div slot="no-options">Ничего не найдено</div>
+            </v-select>
             <label>Количество</label>
             <input type="number" v-model="soldItem.amount">
             <label>Сумма (наличка)</label>
@@ -105,7 +119,7 @@
               class="button secondary"
               type="button"
               @click="addItem"
-              v-if="session.state === 'open'"
+              v-if="operations[0].sessionId === $store.state.currentSession.id"
             >
               Добавить товар
             </button>
@@ -117,21 +131,21 @@
               <button
                 type="button" class="button clear small cell shrink no-margin"
                 @click="removeExpense(expense)"
-                v-if="session.state === 'open'"
+                v-if="operations[0].sessionId === $store.state.currentSession.id"
               >
                 Удалить
               </button>
             </label>
-            <select v-model="expense.type">
-              <option
-                v-for="item in spendTypes"
-                v-bind:key="item.id"
-                v-bind:value="item.id"
-                v-bind:selected="item.id === expense.type"
-              >
-                {{item.name}}
-              </option>
-            </select>
+            <v-select
+              :clearable="false"
+              v-model="expense.type"
+              :reduce="s => s.id"
+              :value="expense.type"
+              label="name"
+              :options="spendTypes"
+            >
+              <div slot="no-options">Ничего не найдено</div>
+            </v-select>
             <label>Сумма</label>
             <input type="number" v-model="expense.sum">
             <label>Комментарий</label>
@@ -147,21 +161,21 @@
               <button
                 type="button" class="button clear small cell shrink no-margin"
                 @click="removeEmployeePayment(payment)"
-                v-if="session.state === 'open'"
+                v-if="operations[0].sessionId === $store.state.currentSession.id"
               >
                 Удалить
               </button>
             </label>
-            <select v-model="payment.type">
-              <option
-                v-for="item in employeePaymentTypes"
-                v-bind:key="item.id"
-                v-bind:value="item.id"
-                v-bind:selected="item.id === payment.type"
-              >
-                {{item.name}}
-              </option>
-            </select>
+            <v-select
+              :clearable="false"
+              v-model="payment.type"
+              :reduce="s => s.id"
+              :value="payment.type"
+              label="name"
+              :options="employeePaymentTypes"
+            >
+              <div slot="no-options">Ничего не найдено</div>
+            </v-select>
             <label>Сумма</label>
             <input type="number" v-model="payment.sum">
             <label>Комментарий</label>
@@ -172,16 +186,16 @@
               class="button secondary"
               type="button"
               @click="addEmployeePayment"
-              v-if="session.state === 'open'"
+              v-if="operations[0].sessionId === $store.state.currentSession.id"
             >
               Добавить выплату мастеру
             </button>
           </div>
-          <div v-if="session.state === 'open'" class="grid-x align-justify">
-            <button class="button primary cell shrink" type="button" @click="save">Сохранить</button>
-            <button class="button alert cell shrink" type="button" @click="deleteOperation">Удалить</button>
+          <div v-if="operations[0].sessionId === $store.state.currentSession.id">
+            <vue-element-loading :active="isSaving" color="#1C457D"/>
+            <button class="button primary" type="button" @click="save">Сохранить</button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   </main>
@@ -189,18 +203,19 @@
 
 <script>
 import Menu from '@/components/Menu'
+import VueElementLoading from 'vue-element-loading'
+import vSelect from 'vue-select'
 
 export default {
   name: 'EditService',
   components: {
-    appMenu: Menu
+    appMenu: Menu,
+    VueElementLoading,
+    'v-select': vSelect
   },
   mounted: function () {
     document.title = this.$route.meta.title
     if (this.$route.params.id) {
-      this.session = {
-        'state': 'open'
-      }
       this.operations = [
         {
           'operationType': 'service',
@@ -339,9 +354,8 @@ export default {
   },
   data () {
     return {
-      session: {
-        'state': this.$route.query.sessionState || 'open'
-      },
+      isLoading: false,
+      isSaving: false,
       operations: [
         {
           'operationType': 'service',

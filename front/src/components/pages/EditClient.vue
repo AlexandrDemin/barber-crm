@@ -19,7 +19,7 @@
           <input type="text" v-model="client.name" autofocus/>
           <label>Фото</label>
           <button type="button" class="button secondary">Выбрать</button>
-          <input type="file" accept="image/*" display="none" ref="photoSelector">
+          <input type="file" accept="image/*" style="display:none" ref="photoSelector">
           <div v-for="(contact, index) in client.contacts" v-bind:key="contact">
             <label v-on:click.prevent class="grid-x">
               <span class="cell auto">Контакт {{index > 0 ? index + 1 : ''}}</span>
@@ -30,16 +30,16 @@
                 Удалить
               </button>
             </label>
-            <select v-model="contact.type">
-              <option
-                v-for="item in contactTypes"
-                v-bind:key="item.id"
-                v-bind:value="item.id"
-                v-bind:selected="item.id === contact.type"
-              >
-                {{item.name}}
-              </option>
-            </select>
+            <v-select
+              :clearable="false"
+              v-model="contact.type"
+              :reduce="s => s.id"
+              :value="contact.type"
+              label="name"
+              :options="contactTypes"
+            >
+              <div slot="no-options">Ничего не найдено</div>
+            </v-select>
             <input type="text" v-model="contact.value"/>
           </div>
           <div>
@@ -117,12 +117,14 @@
 import Menu from '@/components/Menu'
 import { HTTP } from '../../api/api.js'
 import VueElementLoading from 'vue-element-loading'
+import vSelect from 'vue-select'
 
 export default {
   name: 'EditClient',
   components: {
     appMenu: Menu,
-    VueElementLoading
+    VueElementLoading,
+    'v-select': vSelect
   },
   mounted: function () {
     document.title = this.$route.meta.title
