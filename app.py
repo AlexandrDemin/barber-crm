@@ -32,6 +32,13 @@ import random
 app = Flask(__name__, static_folder='./front/dist/static/', template_folder="./front/dist/")
 CORS(app)
 
+def geterrorcode(data):
+    if type(data) == dict:
+        if 'error' in data:
+            return 500
+    else:
+        return 200
+
 def check_auth(username, password):
     if username == 'demo.user' and password == 'demo':
         return True
@@ -62,14 +69,14 @@ def GetUserData():
         data = request.get_json()
         configkey = 'GetUserData'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetEmployees/', methods=['POST'])
 def GetEmployees():
     if request.method == 'POST':
         configkey = 'GetEmployees'
         result = get(configkey)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetEmployee/', methods=['POST'])
 def GetEmployee():
@@ -77,28 +84,28 @@ def GetEmployee():
         data = request.get_json()
         configkey = 'GetEmployee'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetAdmins/', methods=['POST'])
 def GetAdmins():
     if request.method == 'POST':
         configkey = 'GetAdmins'
         result = get(configkey)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetMasters/', methods=['POST'])
 def GetMasters():
     if request.method == 'POST':
         configkey = 'GetMasters'
         result = get(configkey)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetBarberCategories/', methods=['POST'])
 def GetBarberCategories():
     if request.method == 'POST':
         configkey = 'GetBarberCategories'
         result = get(configkey)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetBarberCategory/', methods=['POST'])
 def GetBarberCategory():
@@ -106,14 +113,14 @@ def GetBarberCategory():
         data = request.get_json()
         configkey = 'GetBarberCategory'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetOffices/', methods=['POST'])
 def GetOffices():
     if request.method == 'POST':
         configkey = 'GetOffices'
         result = get(configkey)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetOffice/', methods=['POST'])
 def GetOffice():
@@ -121,7 +128,7 @@ def GetOffice():
         data = request.get_json()
         configkey = 'GetOffice'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetCurrentSession/', methods=['POST'])
 def GetCurrentSession():
@@ -131,7 +138,7 @@ def GetCurrentSession():
         result = get(configkey,data)
         if 'warning' in json.loads(result):
             result = {}
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetSession/', methods=['POST'])
 def GetSession():
@@ -139,7 +146,7 @@ def GetSession():
         data = request.get_json()
         configkey = 'GetSession'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetSessions/', methods=['POST'])
 def GetSessions():
@@ -147,14 +154,14 @@ def GetSessions():
         data = request.get_json()
         configkey = 'GetSessionsWithOperations'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetServicesPrices/', methods=['POST'])
 def GetServicesPrices():
     if request.method == 'POST':
         configkey = 'GetServicesPrices'
         result = get(configkey)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetService/', methods=['POST'])
 def GetService():
@@ -162,7 +169,7 @@ def GetService():
         configkey = 'GetService'
         data = request.get_json()
         result = get(configkey, data)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetServiceOperation/', methods=['POST'])
 def GetServiceOperation():
@@ -170,14 +177,14 @@ def GetServiceOperation():
         data = request.get_json()
         configkey = 'GetServiceOperation'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetGoods/', methods=['POST'])
 def GetGoods():
     if request.method == 'POST':
         configkey = 'GetGoods'
         result = get(configkey)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetGood/', methods=['POST'])
 def GetGood():
@@ -185,7 +192,7 @@ def GetGood():
         data = request.get_json()
         configkey = 'GetGood'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetGoodsOperation/', methods=['POST'])
 def GetGoodsOperation():
@@ -193,14 +200,14 @@ def GetGoodsOperation():
         data = request.get_json()
         configkey = 'GetGoodsOperation'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetSpendTypes/', methods=['POST'])
 def GetSpendTypes():
     if request.method == 'POST':
         configkey = 'GetSpendTypes'
         result = get(configkey)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetSpendType/', methods=['POST'])
 def GetSpendType():
@@ -208,7 +215,7 @@ def GetSpendType():
         data = request.get_json()
         configkey = 'GetSpendType'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetSpendOperation/', methods=['POST'])
 def GetSpendOperation():
@@ -216,14 +223,14 @@ def GetSpendOperation():
         data = request.get_json()
         configkey = 'GetSpendOperation'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetEmployeePaymentTypes/', methods=['POST'])
 def GetEmployeePaymentTypes():
     if request.method == 'POST':
         configkey = 'GetEmployeePaymentTypes'
         result = get(configkey)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetEmployeePaymentType/', methods=['POST'])
 def GetEmployeePaymentType():
@@ -231,7 +238,7 @@ def GetEmployeePaymentType():
         data = request.get_json()
         configkey = 'GetEmployeePaymentType'
         result = get(configkey,data)
-        return result    
+        return result, geterrorcode(result)
     
 @app.route('/api/GetEmployeePaymentOperation/', methods=['POST'])
 def GetEmployeePaymentOperation():
@@ -239,7 +246,7 @@ def GetEmployeePaymentOperation():
         data = request.get_json()
         configkey = 'GetEmployeePaymentOperation'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/GetClient/', methods=['POST'])
 def GetClient():
@@ -247,7 +254,7 @@ def GetClient():
         data = request.get_json()
         configkey = 'GetClient'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/GetClients/', methods=['POST'])
 def GetClients():
@@ -255,7 +262,7 @@ def GetClients():
         data = request.get_json()
         configkey = 'GetClients'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/EditOffice/', methods=['POST'])
 def EditOffice():
@@ -263,7 +270,7 @@ def EditOffice():
         data = request.get_json()
         table = 'office'
         result = edit(table,data)
-        return result 
+        return result, geterrorcode(result)
     
 @app.route('/api/EditSession/', methods=['POST'])
 def EditSession():
@@ -271,7 +278,7 @@ def EditSession():
         data = request.get_json()
         table = 'session'
         result = edit(table,data)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/EditClient/', methods=['POST'])
 def EditClient():
@@ -279,7 +286,7 @@ def EditClient():
         data = request.get_json()
         table = 'client'
         result = edit(table,data)
-        return result
+        return result, geterrorcode(result)
 
 @app.route('/api/EditOperations/', methods=['POST'])
 
@@ -287,13 +294,13 @@ def EditOperations():
     if request.method == 'POST':
         data = request.get_json()
         results = []
-        firstservicewithpicture = True
         for elem in data:
             table = elem['operationType']
             del elem['operationType']
             result = edit(table,elem)
             results.append(json.loads(result))
-        return json.dumps(results)
+        result = json.dumps(results)
+        return result
 
 @app.route('/api/EditEmployee/', methods=['POST'])
 def EditEmployee():
@@ -301,7 +308,7 @@ def EditEmployee():
         data = request.get_json()
         table = 'employee'
         result = edit(table,data)
-        return result
+        return result, geterrorcode(result)
     
 @app.route('/api/EditBarberCategory/', methods=['POST'])
 def EditBarberCategory():
@@ -309,7 +316,7 @@ def EditBarberCategory():
         data = request.get_json()
         table = 'barbercategory'
         result = edit(table,data)
-        return result    
+        return result, geterrorcode(result)
 
 @app.route('/api/EditEmployeePaymentType/', methods=['POST'])
 def EditEmployeePaymentType():
@@ -317,7 +324,7 @@ def EditEmployeePaymentType():
         data = request.get_json()
         table = 'employeepaymenttype'
         result = edit(table,data)
-        return result    
+        return result, geterrorcode(result) 
 
 @app.route('/api/EditGood/', methods=['POST'])
 def EditGood():
@@ -325,7 +332,7 @@ def EditGood():
         data = request.get_json()
         table = 'good'
         result = edit(table,data)
-        return result
+        return result, geterrorcode(result) 
     
 @app.route('/api/EditService/', methods=['POST'])
 def EditService():
@@ -333,7 +340,7 @@ def EditService():
         data = request.get_json()
         table = 'service'
         result = edit(table,data)
-        return result
+        return result, geterrorcode(result) 
     
 @app.route('/api/EditSpendType/', methods=['POST'])
 def EditSpendtype():
@@ -341,7 +348,7 @@ def EditSpendtype():
         data = request.get_json()
         table = 'spendtype'
         result = edit(table,data)
-        return result
+        return result, geterrorcode(result) 
     
 @app.route('/api/GenerateClientReport/', methods=['POST'])
 def GenerateCustomerReport():
@@ -349,7 +356,7 @@ def GenerateCustomerReport():
         data = request.get_json()
         configkey = 'GenerateClientReport'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result) 
 
 @app.route('/api/GenerateFinanceReport/', methods=['POST'])
 def GenerateFinanceReport():
@@ -357,7 +364,7 @@ def GenerateFinanceReport():
         data = request.get_json()
         configkey = 'GenerateFinanceReport'
         result = get(configkey,data)
-        return result 
+        return result, geterrorcode(result)  
 
 @app.route('/api/GenerateEmployeeReport/', methods=['POST'])
 def GenerateEmployeeReport():
@@ -365,7 +372,7 @@ def GenerateEmployeeReport():
         data = request.get_json()
         configkey = 'GenerateEmployeeReport'
         result = get(configkey,data)
-        return result
+        return result, geterrorcode(result) 
 
 @app.route('/api/GenerateReportFile/', methods=['POST'])
 def GenerateReportFile():
