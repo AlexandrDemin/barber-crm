@@ -25,6 +25,7 @@ export default new Vuex.Store({
     currentSessionGetError: '',
     isCurrentSessionLoading: false,
     currentSession: {},
+    refreshSession: null,
     operationTypes: [
       {
         id: 'serviceoperation',
@@ -403,35 +404,37 @@ export default new Vuex.Store({
   },
   actions: {
     getCurrentSession (context) {
-      context.commit('updateStore', {
-        'name': 'isCurrentSessionLoading',
-        'value': true
-      })
-      HTTP.post(`GetCurrentSession/`, {
-        'officeId': context.state.currentOfficeId,
-        'withOperations': true
-      })
-        .then(response => {
-          var data = response.data
-          context.commit('updateStore', {
-            'name': 'currentSession',
-            'value': data
-          })
-          context.commit('updateStore', {
-            'name': 'isCurrentSessionLoading',
-            'value': false
-          })
+      if (context.state.currentOfficeId) {
+        context.commit('updateStore', {
+          'name': 'isCurrentSessionLoading',
+          'value': true
         })
-        .catch(e => {
-          context.commit('updateStore', {
-            'name': 'currentSessionGetError',
-            'value': e
-          })
-          context.commit('updateStore', {
-            'name': 'isCurrentSessionLoading',
-            'value': false
-          })
+        HTTP.post(`GetCurrentSession/`, {
+          'officeId': context.state.currentOfficeId,
+          'withOperations': true
         })
+          .then(response => {
+            var data = response.data
+            context.commit('updateStore', {
+              'name': 'currentSession',
+              'value': data
+            })
+            context.commit('updateStore', {
+              'name': 'isCurrentSessionLoading',
+              'value': false
+            })
+          })
+          .catch(e => {
+            context.commit('updateStore', {
+              'name': 'currentSessionGetError',
+              'value': e
+            })
+            context.commit('updateStore', {
+              'name': 'isCurrentSessionLoading',
+              'value': false
+            })
+          })
+      }
     },
     checkIfStateLoaded (context) {
       var isLoaded = Object.values(context.state.stateLoadDetails).every(x => x)

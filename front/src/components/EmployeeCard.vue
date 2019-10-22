@@ -1,54 +1,50 @@
 <template>
   <div class="cell large-6 columns card employee-card">
-    <div class="employee-card-header grid-x">
+    <div class="employee-card-header grid-x align-middle">
       <div class="cell small-2 medium-1">
         <img v-if="employee.pictureUrl" class="employee-card-picture" v-bind:src="employee.pictureUrl"/>
         <div v-if="!employee.pictureUrl" class="employee-card-picture employee-card-picture-placeholder">
-          {{$store.getters.getUserPicturePlaceholderText(employee.name)}}
+          {{$store.getters.getUserPicturePlaceholderText(employeeName)}}
         </div>
       </div>
       <div class="cell auto">
-        <h4>{{employee.name}}</h4>
+        <h4>{{employeeName}}</h4>
       </div>
       <div class="cell auto show-for-medium">
         <p>Длина смены <strong>{{employee.workHours}}</strong> ч.</p>
       </div>
     </div>
-    <div v-if="employee.role === 'master'" class="employee-card-content grid-x grid-padding-x grid-padding-y">
+    <div class="employee-card-content grid-x grid-padding-x grid-padding-y">
       <div class="cell small-6">
         <input type="text" v-model="servicesSearch" placeholder="Поиск по услугам"/>
         <ul class="services-goods-list">
-          <li v-for="service in filteredServices" v-bind:key="service.id">{{service.name}}</li>
+          <li v-for="service in filteredServices" v-bind:key="service.id">
+            <router-link :to="{path:'/EditService/', query: {serviceTypeId: service.id, masterId: employee.id}}">{{service.name}}</router-link>
+          </li>
         </ul>
       </div>
       <div class="cell small-6">
         <input type="text" v-model="goodsSearch" placeholder="Поиск по товарам"/>
         <ul class="services-goods-list">
-          <li v-for="good in filteredGoods" v-bind:key="good.id">{{good.name}}</li>
-        </ul>
-      </div>
-    </div>
-    <div v-if="employee.role === 'officeAdmin'" class="employee-card-content grid-x grid-padding-x grid-padding-y">
-      <div class="cell small-6">
-        <input type="text" v-model="servicesSearch" placeholder="Поиск по услугам"/>
-        <ul class="services-goods-list">
-          <li v-for="service in filteredServices" v-bind:key="service.id">{{service.name}}</li>
-        </ul>
-      </div>
-      <div class="cell small-6">
-        <input type="text" v-model="goodsSearch" placeholder="Поиск по товарам"/>
-        <ul class="services-goods-list">
-          <li v-for="good in filteredGoods" v-bind:key="good.id">{{good.name}}</li>
+          <li v-for="good in filteredGoods" v-bind:key="good.id">
+            <router-link :to="{path:'/EditGoodsSell/', query: {goodTypeId: good.id, masterId: employee.id}}">{{good.name}}</router-link>
+          </li>
         </ul>
       </div>
     </div>
     <div class="employee-card-footer grid-x grid-padding-x grid-padding-y">
+      <label class="cell small-12 no-padding-top-bottom">Выплата сотруднику</label>
       <div class="cell medium-6">
-        <select v-model="selectedEmployeePayment">
-          <option v-for="payment in employeePaymentTypes" v-bind:key="payment.id" v-bind:value="payment.id" v-bind:selected="payment.id === selectedEmployeePayment">
-            {{payment.name}}
-          </option>
-        </select>
+        <v-select
+          :clearable="false"
+          v-model="selectedEmployeePayment"
+          :reduce="s => s.id"
+          :value="selectedEmployeePayment"
+          label="name"
+          :options="employeePaymentTypes"
+        >
+          <div slot="no-options">Ничего не найдено</div>
+        </v-select>
       </div>
       <div class="cell auto">
         <input v-model="paymentSum" type="number" placeholder="Сумма"/>
@@ -61,8 +57,15 @@
 </template>
 
 <script>
+import VueElementLoading from 'vue-element-loading'
+import vSelect from 'vue-select'
+
 export default {
   name: 'EmployeeCard',
+  components: {
+    VueElementLoading,
+    'v-select': vSelect
+  },
   props: ['employee'],
   data () {
     return {
@@ -87,6 +90,9 @@ export default {
       get () {
         return this.$store.state.employeePaymentTypes
       }
+    },
+    employeeName: function () {
+      return this.$store.getters.getEmployeeName(this.employee.id)
     },
     filteredServices: function () {
       return this.services.filter(service => service.name.toLowerCase().includes(this.servicesSearch.toLowerCase()))

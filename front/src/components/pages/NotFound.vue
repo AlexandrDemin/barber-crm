@@ -1,8 +1,8 @@
 <template>
   <main>
     <appMenu></appMenu>
-    <div class="content grid-x">
-      <h1 class="cell small-12">Страница не найдена</h1>
+    <div class="content">
+      <h1>Страница не найдена</h1>
       <p><a href="/">На главную</a></p>
     </div>
   </main>

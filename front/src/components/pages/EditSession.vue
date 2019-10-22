@@ -1,11 +1,11 @@
 <template>
   <main>
-    <appMenu selected-element="session"></appMenu>
+    <appMenu :selected-element="session.id === $store.state.currentSession.id ? 'session' : 'history'"></appMenu>
     <div class="content">
       <nav>
         <ul class="breadcrumbs">
-          <li v-if="session.state = 'open'"><router-link to="/">Назад</router-link></li>
-          <li v-else><router-link to="/History/">Назад</router-link></li>
+          <li v-if="session.id === $store.state.currentSession.id"><router-link to="/">Назад</router-link></li>
+          <li v-else><router-link to="/SessionsHistory/">Назад</router-link></li>
         </ul>
       </nav>
       <h1>Смена</h1>
@@ -17,16 +17,17 @@
         <vue-element-loading :active="isLoading" color="#1C457D"/>
         <div class="cell large-6">
           <label>Отделение</label>
-          <select v-model="session.officeId">
-            <option
-              v-for="office in offices"
-              v-bind:key="office.id"
-              v-bind:value="office.id"
-              v-bind:selected="office.id === session.officeId"
-            >
-              {{office.name}}
-            </option>
-          </select>
+          <v-select
+            :clearable="false"
+            :disabled="!canEdit()"
+            v-model="session.officeId"
+            :reduce="s => s.id"
+            :value="session.officeId"
+            label="name"
+            :options="offices"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
           <h2>Администраторы</h2>
           <div v-for="(admin, index) in selectedAdmins" v-bind:key="admin.id">
             <label v-on:click.prevent class="grid-x">
@@ -34,13 +35,14 @@
               <button
                 type="button" class="button clear small cell shrink no-margin"
                 @click="removeEmployee(admin.id)"
-                v-if="index > 0"
+                v-if="index > 0 && canEdit()"
               >
                 Удалить
               </button>
             </label>
             <v-select
               :clearable="false"
+              :disabled="!canEdit()"
               v-model="admin.id"
               :reduce="s => s.id"
               :value="admin.id"
@@ -50,9 +52,9 @@
               <div slot="no-options">Ничего не найдено</div>
             </v-select>
             <label>Продолжительность смены, часы</label>
-            <input type="number" v-model="admin.workHours">
+            <input type="number" :disabled="!canEdit()" v-model="admin.workHours">
           </div>
-          <div>
+          <div v-if="canEdit()">
             <button class="button secondary" type="button" @click="addAdmin">Добавить администратора</button>
           </div>
           <h2>Мастера</h2>
@@ -62,13 +64,14 @@
               <button
                 type="button" class="button clear small cell shrink no-margin"
                 @click="removeEmployee(master.id)"
-                v-if="index > 0"
+                v-if="index > 0 && canEdit()"
               >
                 Удалить
               </button>
             </label>
             <v-select
               :clearable="false"
+              :disabled="!canEdit()"
               v-model="master.id"
               :reduce="s => s.id"
               :value="master.id"
@@ -78,15 +81,15 @@
               <div slot="no-options">Ничего не найдено</div>
             </v-select>
             <label>Продолжительность смены, часы</label>
-            <input type="number" v-model="master.workHours">
+            <input type="number" :disabled="!canEdit()" v-model="master.workHours">
           </div>
-          <div>
+          <div v-if="canEdit()">
             <button class="button secondary" type="button" @click="addMaster">Добавить мастера</button>
           </div>
-          <div v-if-temp="session.state === 'open'" class="grid-x align-justify">
+          <div v-if="canEdit()" class="grid-x align-justify">
             <vue-element-loading :active="isSaving" color="#1C457D"/>
-            <button class="button primary cell shrink" type="button" @click="save(false)">{{session.id && session.id !== 'null' ? 'Сохранить' : 'Открыть смену'}}</button>
-            <button v-if="session.id && session.id !== 'null'" class="button secondary alert cell shrink" type="button" @click="save(true)">Закрыть смену</button>
+            <button class="button primary cell shrink" type="button" @click="save(false)">{{session.id ? 'Сохранить' : 'Открыть смену'}}</button>
+            <button v-if="session.id && session.state === 'open'" class="button secondary alert cell shrink" type="button" @click="save(true)">Закрыть смену</button>
           </div>
           <div v-if="savingError" class="callout alert">
             <h5>Произошла ошибка при сохранении смены</h5>
@@ -177,9 +180,14 @@ export default {
         session.state = 'closed'
         session.dateClosed = this.moment()
       }
+      if (session.dateClosed === null) {
+        delete session.dateClosed
+      }
       HTTP.post(`EditSession/`, this.session)
         .then(response => {
           this.isSaving = false
+          this.$store.dispatch('getCurrentSession')
+          this.$router.push({ path: '/' })
         })
         .catch(e => {
           this.savingError = e
@@ -188,14 +196,17 @@ export default {
     },
     getEmptyItem: function () {
       return {
-        'id': 'null',
+        'id': null,
         'dateOpened': this.moment(),
-        'dateClosed': 'null',
+        'dateClosed': null,
         'employees': [],
         'officeId': this.$store.state.currentOfficeId,
         'state': 'open',
         'openCash': 0
       }
+    },
+    canEdit: function () {
+      return this.session.state === 'open' && (this.session.id === this.$store.state.currentSession.id || !this.session.id)
     }
   },
   computed: {

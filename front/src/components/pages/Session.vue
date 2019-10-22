@@ -70,11 +70,16 @@
           <div class="employee-card-footer grid-x grid-padding-x grid-padding-y">
             <h4 class="cell small-12">Внести расход</h4>
             <div class="cell medium-6">
-              <select v-model="selectedSpendType">
-                <option v-for="spend in spendTypes" v-bind:key="spend.id" v-bind:value="spend.id" v-bind:selected="spend.id === selectedSpendType">
-                  {{spend.name}}
-                </option>
-              </select>
+              <v-select
+                :clearable="false"
+                v-model="selectedSpendType"
+                :reduce="s => s.id"
+                :value="selectedSpendType"
+                label="name"
+                :options="spendTypes"
+              >
+                <div slot="no-options">Ничего не найдено</div>
+              </v-select>
             </div>
             <div class="cell auto">
               <input v-model="spendSum" type="number" placeholder="Сумма"/>
@@ -128,6 +133,9 @@
             </tbody>
           </table>
         </div>
+        <div class="cell large-6 columns card">
+          <button class="button secondary small" @click="changeOffice">Изменить отделение</button>
+        </div>
       </div>
     </div>
   </main>
@@ -153,6 +161,15 @@ export default {
       this.time = this.getTime()
       this.date = this.getDate()
     }, 1000)
+    this.$store.state.refreshCurrentSession = setInterval(() => {
+      this.getCurrentSession()
+    }, 10000)
+  },
+  beforeRouteLeave (to, from, next) {
+    if (this.$store.state.refreshCurrentSession) {
+      clearInterval(this.$store.state.refreshCurrentSession)
+    }
+    next()
   },
   data () {
     return {
@@ -200,8 +217,20 @@ export default {
       return this.moment().format('DD.MM.YY')
     },
     getCurrentSession: function () {
-      console.log('getCurrentSession', this.currentOfficeId)
       this.$store.dispatch('getCurrentSession')
+    },
+    changeOffice: function () {
+      this.$store.commit('updateStore', {
+        name: 'currentOfficeId',
+        value: null
+      })
+      this.$store.commit('updateStore', {
+        name: 'currentSession',
+        value: {}
+      })
+      if (this.$store.state.refreshCurrentSession) {
+        clearInterval(this.$store.state.refreshCurrentSession)
+      }
     }
   },
   computed: {
@@ -237,22 +266,22 @@ export default {
       }
     },
     servicesCount: function () {
-      if (Object.keys(this.session).length) {
-        return this.session.operations.filter(operation => operation.operationType === 'service').length
+      if (Object.keys(this.session).length && this.session.operations) {
+        return this.session.operations.filter(operation => operation.operationType === 'serviceoperation').length
       }
       return 0
     },
     goodsCount: function () {
-      if (Object.keys(this.session).length) {
-        return this.session.operations.filter(operation => operation.operationType === 'goodSell').length
+      if (Object.keys(this.session).length && this.session.operations) {
+        return this.session.operations.filter(operation => operation.operationType === 'goodsoperation').length
       }
       return 0
     },
     revenue: function () {
-      if (Object.keys(this.session).length) {
+      if (Object.keys(this.session).length && this.session.operations) {
         var revenue = 0
-        var services = this.session.operations.filter(operation => operation.operationType === 'service')
-        var goods = this.session.operations.filter(operation => operation.operationType === 'goodSell')
+        var services = this.session.operations.filter(operation => operation.operationType === 'serviceoperation')
+        var goods = this.session.operations.filter(operation => operation.operationType === 'goodsoperation')
         services.map(s => {
           revenue += s.cashSum + s.cashlessSum - s.discountSum
         })
@@ -264,9 +293,9 @@ export default {
       return 0
     },
     costs: function () {
-      if (Object.keys(this.session).length) {
+      if (Object.keys(this.session).length && this.session.operations) {
         var costs = 0
-        var spends = this.session.operations.filter(operation => operation.operationType === 'spend')
+        var spends = this.session.operations.filter(operation => operation.operationType === 'spendoperation')
         var employeePayments = this.session.operations.filter(operation => operation.operationType === 'employeePayment')
         spends.map(s => {
           costs += s.sum
@@ -279,10 +308,10 @@ export default {
       return 0
     },
     bonus: function () {
-      if (Object.keys(this.session).length) {
+      if (Object.keys(this.session).length && this.session.operations) {
         var bonus = 0
-        var services = this.session.operations.filter(operation => operation.operationType === 'service')
-        var goods = this.session.operations.filter(operation => operation.operationType === 'goodSell')
+        var services = this.session.operations.filter(operation => operation.operationType === 'serviceoperation')
+        var goods = this.session.operations.filter(operation => operation.operationType === 'goodsoperation')
         services.map(s => {
           bonus += s.adminBonus + s.masterBonus
         })
