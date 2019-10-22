@@ -157,7 +157,7 @@ def getSessionsOperationsQuery(args):
             args['data']['operationType'] = ['serviceoperation','goodsoperation',"spendoperation","employeepayment"]
 
     if 'operationType' in args['data']:
-        if args['data']['operationType'] = []:
+        if args['data']['operationType'] == []:
             args['data']['operationType'] = ['serviceoperation','goodsoperation',"spendoperation","employeepayment"]
         clientidspart = ''
         querypartslist = []

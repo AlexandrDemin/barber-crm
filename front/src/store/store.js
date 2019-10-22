@@ -1,6 +1,7 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
 import { HTTP } from '../api/api.js'
+import moment from 'moment'
 
 Vue.use(Vuex)
 Vue.config.devtools = true
@@ -24,177 +25,6 @@ export default new Vuex.Store({
     currentSessionGetError: '',
     isCurrentSessionLoading: false,
     currentSession: {},
-    currentSession1: {
-      'id': 1,
-      'dateOpened': '21.09.2019 09:30',
-      'dateClosed': null,
-      'employees': [
-        {
-          'id': 1,
-          'name': 'Алексей Луцай',
-          'role': 'officeAdmin',
-          'pictureUrl': '',
-          'workHours': 6
-        },
-        {
-          'id': 2,
-          'name': 'Мария Попова',
-          'role': 'master',
-          'pictureUrl': 'static/user_photos/мария.jpg',
-          'workHours': 6
-        },
-        {
-          'id': 3,
-          'name': 'Макс Корж',
-          'role': 'master',
-          'pictureUrl': 'static/user_photos/макс.jpg',
-          'workHours': 6
-        },
-        {
-          'id': 4,
-          'name': 'Прокофий Иванов',
-          'role': 'master',
-          'pictureUrl': '',
-          'workHours': 6
-        }
-      ],
-      'officeId': 1,
-      'state': 'open',
-      'operations': [
-        {
-          'operationType': 'service',
-          'sessionId': 1,
-          'id': 1,
-          'officeId': 1,
-          'type': 1,
-          'startDatetime': '21.09.2019 09:30',
-          'finishDatetime': '21.09.2019 10:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 600,
-          'cashlessSum': 0,
-          'discountSum': 0,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'score': null,
-          'review': '',
-          'photoUrls': [],
-          'comment': ''
-        },
-        {
-          'operationType': 'goodSell',
-          'id': 2,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 1,
-          'datetime': '21.09.2019 09:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 0,
-          'cashlessSum': 2350,
-          'discountSum': 0,
-          'amount': 1,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'comment': ''
-        },
-        {
-          'operationType': 'goodSell',
-          'id': 3,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 2,
-          'datetime': '21.09.2019 09:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 0,
-          'cashlessSum': 2350,
-          'discountSum': 0,
-          'amount': 1,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'comment': ''
-        },
-        {
-          'operationType': 'goodSell',
-          'id': 4,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 3,
-          'datetime': '21.09.2019 09:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 0,
-          'cashlessSum': 2350,
-          'discountSum': 0,
-          'amount': 1,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'comment': ''
-        },
-        {
-          'operationType': 'goodSell',
-          'id': 5,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 4,
-          'datetime': '21.09.2019 09:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 0,
-          'cashlessSum': 2350,
-          'discountSum': 0,
-          'amount': 1,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'comment': ''
-        },
-        {
-          'operationType': 'goodSell',
-          'id': 6,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 5,
-          'datetime': '21.09.2019 09:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 0,
-          'cashlessSum': 2350,
-          'discountSum': 0,
-          'amount': 1,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'comment': ''
-        },
-        {
-          'operationType': 'spend',
-          'id': 2,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 2,
-          'datetime': '21.09.2019 12:44',
-          'sum': 600,
-          'comment': ''
-        },
-        {
-          'operationType': 'employeePayment',
-          'id': 2,
-          'officeId': 1,
-          'sessionId': 1,
-          'employeeId': 4,
-          'type': 2,
-          'datetime': '21.09.2019 18:22',
-          'sum': 600,
-          'comment': ''
-        }
-      ]
-    },
     operationTypes: [
       {
         id: 'serviceoperation',
@@ -339,22 +169,6 @@ export default new Vuex.Store({
     masterCategories: []
   },
   getters: {
-    getZeroPaddedNumber: (state) => (number, len) => {
-      var strNum = number.toString()
-      while (strNum.length < len) {
-        strNum = '0' + strNum
-      }
-      return strNum
-    },
-    getDateTimeNow: (state, getters) => {
-      var date = new Date()
-      var hours = getters.getZeroPaddedNumber(date.getHours(), 2)
-      var minutes = getters.getZeroPaddedNumber(date.getMinutes(), 2)
-      var day = getters.getZeroPaddedNumber(date.getDate(), 2)
-      var month = getters.getZeroPaddedNumber(date.getMonth() + 1, 2)
-      var year = getters.getZeroPaddedNumber(date.getFullYear(), 2)
-      return `${day}.${month}.${year} ${hours}:${minutes}`
-    },
     getServiceName: (state) => (id) => {
       var service = state.serviceTypes.filter(e => e.id === id)[0]
       if (service) {
@@ -428,7 +242,7 @@ export default new Vuex.Store({
       } else if (operation.datetime) {
         datetimestr = operation.datetime
       }
-      return datetimestr
+      return moment(datetimestr).format('DD.MM.YYYY HH:mm')
     },
     getTimeFromOperation: (state) => (operation) => {
       var datetimestr = ''
@@ -437,8 +251,7 @@ export default new Vuex.Store({
       } else if (operation.datetime) {
         datetimestr = operation.datetime
       }
-      var len = datetimestr.length
-      return datetimestr.slice(len - 5, len)
+      return moment(datetimestr).format('HH:mm')
     },
     getEmployeeNameFromOperation: (state, getters) => (operation) => {
       if (operation.masterId) {
@@ -453,55 +266,59 @@ export default new Vuex.Store({
       return '–'
     },
     getOperationContent: (state, getters) => (operation) => {
-      if (operation.operationType === 'service') {
-        return getters.getServiceName(operation.type)
+      if (operation.type === 'serviceoperation') {
+        return getters.getServiceName(operation.serviceId)
       }
-      if (operation.operationType === 'goodSell') {
-        return getters.getItemName(operation.type)
+      if (operation.type === 'goodsoperation') {
+        var names = []
+        for (var i in operation.goodsIds) {
+          names.push(getters.getItemName(operation.goodsIds[i]))
+        }
+        return names.join('\n')
       }
-      if (operation.operationType === 'spend') {
-        return getters.getSpendTypeName(operation.type)
+      if (operation.type === 'spendoperation') {
+        return getters.getSpendTypeName(operation.expenseTypeId)
       }
-      if (operation.operationType === 'employeePayment') {
-        return getters.getEmployeePaymentTypeName(operation.type)
+      if (operation.type === 'employeepayment') {
+        return getters.getEmployeePaymentTypeName(operation.employeePaymentTypeId)
       }
       return '–'
     },
     getOperationSum: (state) => (operation) => {
-      if (operation.operationType === 'service') {
+      if (operation.type === 'serviceoperation') {
         return operation.cashSum + operation.cashlessSum - operation.discountSum
       }
-      if (operation.operationType === 'goodSell') {
+      if (operation.type === 'goodsoperation') {
         return operation.cashSum + operation.cashlessSum - operation.discountSum
       }
-      if (operation.operationType === 'spend') {
+      if (operation.type === 'spendoperation') {
         return operation.sum
       }
-      if (operation.operationType === 'employeePayment') {
+      if (operation.type === 'employeepayment') {
         return operation.sum
       }
       return '–'
     },
     getOperationBonus: (state) => (operation) => {
-      if (operation.operationType === 'service') {
+      if (operation.type === 'serviceoperation') {
         return operation.masterBonus + operation.adminBonus
       }
-      if (operation.operationType === 'goodSell') {
+      if (operation.type === 'goodsoperation') {
         return operation.masterBonus + operation.adminBonus
       }
       return '–'
     },
     getOperationLink: (state) => (operation) => {
-      if (operation.operationType === 'service') {
+      if (operation.type === 'serviceoperation') {
         return '/EditService/' + operation.id.toString()
       }
-      if (operation.operationType === 'goodSell') {
+      if (operation.type === 'goodsoperation') {
         return '/EditGoodsSell/' + operation.id.toString()
       }
-      if (operation.operationType === 'spend') {
+      if (operation.type === 'spendoperation') {
         return '/EditExpense/' + operation.id.toString()
       }
-      if (operation.operationType === 'employeePayment') {
+      if (operation.type === 'employeepayment') {
         return '/EditEmployeePayment/' + operation.id.toString()
       }
     },

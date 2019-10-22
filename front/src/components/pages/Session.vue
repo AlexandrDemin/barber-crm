@@ -194,14 +194,10 @@ export default {
       return res
     },
     getTime: function () {
-      var date = new Date()
-      var hours = date.getHours()
-      var minutes = date.getMinutes()
-      return this.$store.getters.getZeroPaddedNumber(hours, 2) + ' : ' + this.$store.getters.getZeroPaddedNumber(minutes, 2)
+      return this.moment().format('HH : mm')
     },
     getDate: function () {
-      var date = new Date()
-      return date.toLocaleDateString('ru')
+      return this.moment().format('DD.MM.YY')
     },
     getCurrentSession: function () {
       console.log('getCurrentSession', this.currentOfficeId)

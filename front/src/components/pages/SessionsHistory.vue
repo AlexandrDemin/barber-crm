@@ -66,17 +66,23 @@
         </div>
         <div class="cell small-12">
           <button class="button primary" type="button" @click="load">Показать</button>
-          <button class="button secondary" type="button" @click="exportToExcel">Выгрузить в .xlsx</button>
         </div>
       </div>
+      <div v-if="loadingError" class="callout alert">
+        <h5>Произошла ошибка при загрузке данных</h5>
+        <p>{{loadingError}}</p>
+      </div>
+      <div v-if="noSessions">Не найдено данных, подходящих под заданные фильтры</div>
+      <div v-if="isLoading">
+        <vue-element-loading :active="isLoading" color="#1C457D"/>
+      </div>
       <div
-        v-if="sessions.length > 0"
+        v-if="!noSessions && !isLoading"
         v-for="session in sessions"
         v-bind:key="session.id"
       >
-        <vue-element-loading :active="isLoading" color="#1C457D"/>
-        <h3>Смена {{session.dateOpened}} {{$store.getters.getOfficeName(session.officeId)}}</h3>
-        <table class="operations-table hover">
+        <h3>Смена {{moment(session.dateOpened, 'DD.MM.YYYY HH:mm').format('DD.MM.YY')}} {{$store.getters.getOfficeName(session.officeId)}}</h3>
+        <table class="operations-table hover margin-bottom-30px">
           <thead>
             <tr>
               <th>Время</th>
@@ -87,7 +93,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="operation in session.operations" v-bind:key="operation.id">
+            <tr v-for="operation in session.operations" v-bind:key="operation">
               <td>
                 <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
                   {{$store.getters.getTimeFromOperation(operation)}}
@@ -125,6 +131,7 @@
 
 <script>
 import Menu from '@/components/Menu'
+import { HTTP } from '../../api/api.js'
 import VueElementLoading from 'vue-element-loading'
 import vSelect from 'vue-select'
 
@@ -137,6 +144,7 @@ export default {
   },
   mounted: function () {
     document.title = this.$route.meta.title
+    this.load()
   },
   data () {
     return {
@@ -147,356 +155,49 @@ export default {
       clientIds: [],
       officeIds: [],
       isLoading: false,
-      error: '',
-      sessions: [
-        {
-          'id': 1,
-          'dateOpened': '21.09.2019 09:30',
-          'dateClosed': '21.09.2019 18:30',
-          'employees': [
-            {
-              'id': 1,
-              'name': 'Алексей Луцай',
-              'role': 'officeAdmin',
-              'pictureUrl': '',
-              'workHours': 6
-            },
-            {
-              'id': 2,
-              'name': 'Мария Попова',
-              'role': 'master',
-              'pictureUrl': 'static/user_photos/мария.jpg',
-              'workHours': 6
-            },
-            {
-              'id': 3,
-              'name': 'Макс Корж',
-              'role': 'master',
-              'pictureUrl': 'static/user_photos/макс.jpg',
-              'workHours': 6
-            },
-            {
-              'id': 4,
-              'name': 'Прокофий Иванов',
-              'role': 'master',
-              'pictureUrl': '',
-              'workHours': 6
-            }
-          ],
-          'officeId': 1,
-          'state': 'closed',
-          'operations': [
-            {
-              'operationType': 'service',
-              'sessionId': 1,
-              'id': 1,
-              'officeId': 1,
-              'type': 1,
-              'startDatetime': '21.09.2019 09:30',
-              'finishDatetime': '21.09.2019 10:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 600,
-              'cashlessSum': 0,
-              'discountSum': 0,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'score': null,
-              'review': '',
-              'photoUrls': [],
-              'comment': ''
-            },
-            {
-              'operationType': 'goodSell',
-              'id': 2,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 1,
-              'datetime': '21.09.2019 09:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 0,
-              'cashlessSum': 2350,
-              'discountSum': 0,
-              'amount': 1,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'comment': ''
-            },
-            {
-              'operationType': 'goodSell',
-              'id': 3,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 2,
-              'datetime': '21.09.2019 09:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 0,
-              'cashlessSum': 2350,
-              'discountSum': 0,
-              'amount': 1,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'comment': ''
-            },
-            {
-              'operationType': 'goodSell',
-              'id': 4,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 3,
-              'datetime': '21.09.2019 09:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 0,
-              'cashlessSum': 2350,
-              'discountSum': 0,
-              'amount': 1,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'comment': ''
-            },
-            {
-              'operationType': 'goodSell',
-              'id': 5,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 4,
-              'datetime': '21.09.2019 09:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 0,
-              'cashlessSum': 2350,
-              'discountSum': 0,
-              'amount': 1,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'comment': ''
-            },
-            {
-              'operationType': 'goodSell',
-              'id': 6,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 5,
-              'datetime': '21.09.2019 09:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 0,
-              'cashlessSum': 2350,
-              'discountSum': 0,
-              'amount': 1,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'comment': ''
-            },
-            {
-              'operationType': 'spend',
-              'id': 2,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 2,
-              'datetime': '21.09.2019 12:44',
-              'sum': 600,
-              'comment': ''
-            },
-            {
-              'operationType': 'employeePayment',
-              'id': 2,
-              'officeId': 1,
-              'sessionId': 1,
-              'employeeId': 4,
-              'type': 2,
-              'datetime': '21.09.2019 18:22',
-              'sum': 600,
-              'comment': ''
-            }
-          ]
-        },
-        {
-          'id': 2,
-          'dateOpened': '22.09.2019 09:25',
-          'dateClosed': '22.09.2019 19:25',
-          'employees': [
-            {
-              'id': 1,
-              'name': 'Алексей Луцай',
-              'role': 'officeAdmin',
-              'pictureUrl': '',
-              'workHours': 6
-            },
-            {
-              'id': 2,
-              'name': 'Мария Попова',
-              'role': 'master',
-              'pictureUrl': 'static/user_photos/мария.jpg',
-              'workHours': 6
-            },
-            {
-              'id': 3,
-              'name': 'Макс Корж',
-              'role': 'master',
-              'pictureUrl': 'static/user_photos/макс.jpg',
-              'workHours': 6
-            },
-            {
-              'id': 4,
-              'name': 'Прокофий Иванов',
-              'role': 'master',
-              'pictureUrl': '',
-              'workHours': 6
-            }
-          ],
-          'officeId': 1,
-          'state': 'open',
-          'operations': [
-            {
-              'operationType': 'service',
-              'sessionId': 1,
-              'id': 1,
-              'officeId': 1,
-              'type': 1,
-              'startDatetime': '21.09.2019 09:30',
-              'finishDatetime': '21.09.2019 10:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 600,
-              'cashlessSum': 0,
-              'discountSum': 0,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'score': null,
-              'review': '',
-              'photoUrls': [],
-              'comment': ''
-            },
-            {
-              'operationType': 'goodSell',
-              'id': 2,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 1,
-              'datetime': '21.09.2019 09:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 0,
-              'cashlessSum': 2350,
-              'discountSum': 0,
-              'amount': 1,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'comment': ''
-            },
-            {
-              'operationType': 'goodSell',
-              'id': 3,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 2,
-              'datetime': '21.09.2019 09:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 0,
-              'cashlessSum': 2350,
-              'discountSum': 0,
-              'amount': 1,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'comment': ''
-            },
-            {
-              'operationType': 'goodSell',
-              'id': 4,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 3,
-              'datetime': '21.09.2019 09:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 0,
-              'cashlessSum': 2350,
-              'discountSum': 0,
-              'amount': 1,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'comment': ''
-            },
-            {
-              'operationType': 'goodSell',
-              'id': 5,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 4,
-              'datetime': '21.09.2019 09:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 0,
-              'cashlessSum': 2350,
-              'discountSum': 0,
-              'amount': 1,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'comment': ''
-            },
-            {
-              'operationType': 'goodSell',
-              'id': 6,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 5,
-              'datetime': '21.09.2019 09:30',
-              'adminId': 1,
-              'masterId': 3,
-              'clientId': 1,
-              'cashSum': 0,
-              'cashlessSum': 2350,
-              'discountSum': 0,
-              'amount': 1,
-              'adminBonus': 30,
-              'masterBonus': 120,
-              'comment': ''
-            },
-            {
-              'operationType': 'spend',
-              'id': 2,
-              'officeId': 1,
-              'sessionId': 1,
-              'type': 2,
-              'datetime': '21.09.2019 12:44',
-              'sum': 600,
-              'comment': ''
-            },
-            {
-              'operationType': 'employeePayment',
-              'id': 2,
-              'officeId': 1,
-              'sessionId': 1,
-              'employeeId': 4,
-              'type': 2,
-              'datetime': '21.09.2019 18:22',
-              'sum': 600,
-              'comment': ''
-            }
-          ]
-        }
-      ]
+      loadingError: '',
+      noSessions: false,
+      sessions: []
     }
   },
   methods: {
-    load: function () {},
-    exportToExcel: function () {}
+    load: function () {
+      this.isLoading = true
+      this.noSessions = false
+      var data = {
+        withOperations: true
+      }
+      if (this.dateFrom) {
+        data.dateFrom = this.moment(this.dateFrom).format('DD.MM.YYYY')
+      }
+      if (this.dateTo) {
+        data.dateTo = this.moment(this.dateTo).format('DD.MM.YYYY')
+      }
+      if (this.selectedOperationTypes && this.selectedOperationTypes.length > 0) {
+        data.operationType = this.selectedOperationTypes
+      }
+      if (this.employeeIds && this.employeeIds.length > 0) {
+        data.employeeIds = this.employeeIds
+      }
+      if (this.clientIds && this.clientIds.length > 0) {
+        data.clientIds = this.clientIds
+      }
+      if (this.officeIds && this.officeIds.length > 0) {
+        data.officeIds = this.officeIds
+      }
+      HTTP.post(`GetSessions/`, data)
+        .then(response => {
+          this.sessions = response.data
+          if (!Array.isArray(this.sessions)) {
+            this.noSessions = true
+          }
+          this.isLoading = false
+        })
+        .catch(e => {
+          this.loadingError = e
+          this.isLoading = false
+        })
+    }
   },
   computed: {
     operationTypes: {
