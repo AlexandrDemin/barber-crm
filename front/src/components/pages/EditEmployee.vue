@@ -166,7 +166,14 @@ export default {
     save: function () {
       this.isSaving = true
       this.savingError = ''
-      HTTP.post(`EditEmployee/`, this.employee)
+      var employee = this.employee
+      if (employee.contacts.length === 0) {
+        delete employee.contacts
+      }
+      if (!employee.photo) {
+        delete employee.photo
+      }
+      HTTP.post(`EditEmployee/`, employee)
         .then(response => {
           this.isSaving = false
         })
@@ -193,9 +200,7 @@ export default {
         servicePercent: 0.1,
         goodsPercent: 0.1,
         categoryId: 0,
-        state: 'active',
-        employeeRating: null,
-        controlRating: null
+        state: 'working'
       }
     }
   },

@@ -25,7 +25,7 @@ export default new Vuex.Store({
     currentSessionGetError: '',
     isCurrentSessionLoading: false,
     currentSession: {},
-    refreshSession: null,
+    refreshCurrentSession: null,
     operationTypes: [
       {
         id: 'serviceoperation',
