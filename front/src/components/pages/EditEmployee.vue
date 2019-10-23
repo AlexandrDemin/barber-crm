@@ -189,7 +189,7 @@ export default {
     },
     getEmptyItem: function () {
       return {
-        id: 'null',
+        id: null,
         name: '',
         login: '',
         password: '',

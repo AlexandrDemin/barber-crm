@@ -79,7 +79,7 @@ def login():
             return 'Login Failed'
 
 @app.route('/logout', methods=['POST'])
-@login_required
+# @login_required
 def logout():
     logout_user()
     return 'Logged out'
@@ -90,7 +90,7 @@ def writeLog(logEntry):
         logFile.write('\n')
         
 @app.route('/api/GetCurrentUser/', methods=['POST'])
-@login_required
+# @login_required
 def GetCurrentUser():
     if request.method == 'POST':
         user = User.query.filter_by(id = current_user.id).first().__dict__
@@ -98,7 +98,7 @@ def GetCurrentUser():
         return user
 
 @app.route('/api/GetUserData/', methods=['POST'])
-@login_required
+# @login_required
 def GetUserData():
     if request.method == 'POST':
         data = request.get_json()
@@ -107,7 +107,7 @@ def GetUserData():
         return result,geterrorcode(result)
     
 @app.route('/api/GetEmployees/', methods=['POST'])
-@login_required
+# @login_required
 def GetEmployees():
     if request.method == 'POST':
         configkey = 'GetEmployees'
@@ -115,7 +115,7 @@ def GetEmployees():
         return result
     
 @app.route('/api/GetEmployee/', methods=['POST'])
-@login_required
+# @login_required
 def GetEmployee():
     if request.method == 'POST':
         data = request.get_json()
@@ -124,7 +124,7 @@ def GetEmployee():
         return result
     
 @app.route('/api/GetAdmins/', methods=['POST'])
-@login_required
+# @login_required
 def GetAdmins():
     if request.method == 'POST':
         configkey = 'GetAdmins'
@@ -132,7 +132,7 @@ def GetAdmins():
         return result
 
 @app.route('/api/GetMasters/', methods=['POST'])
-@login_required
+# @login_required
 def GetMasters():
     if request.method == 'POST':
         configkey = 'GetMasters'
@@ -140,7 +140,7 @@ def GetMasters():
         return result
 
 @app.route('/api/GetBarberCategories/', methods=['POST'])
-@login_required
+# @login_required
 def GetBarberCategories():
     if request.method == 'POST':
         configkey = 'GetBarberCategories'
@@ -148,7 +148,7 @@ def GetBarberCategories():
         return result
     
 @app.route('/api/GetBarberCategory/', methods=['POST'])
-@login_required
+# @login_required
 def GetBarberCategory():
     if request.method == 'POST':
         data = request.get_json()
@@ -157,7 +157,7 @@ def GetBarberCategory():
         return result
     
 @app.route('/api/GetOffices/', methods=['POST'])
-@login_required
+# @login_required
 def GetOffices():
     if request.method == 'POST':
         configkey = 'GetOffices'
@@ -165,7 +165,7 @@ def GetOffices():
         return result
 
 @app.route('/api/GetOffice/', methods=['POST'])
-@login_required
+# @login_required
 def GetOffice():
     if request.method == 'POST':
         data = request.get_json()
@@ -174,7 +174,7 @@ def GetOffice():
         return result
     
 @app.route('/api/GetCurrentSession/', methods=['POST'])
-@login_required
+# @login_required
 def GetCurrentSession():
     if request.method == 'POST':
         data = request.get_json()
@@ -185,7 +185,7 @@ def GetCurrentSession():
         return result
 
 @app.route('/api/GetSession/', methods=['POST'])
-@login_required
+# @login_required
 def GetSession():
     if request.method == 'POST':
         data = request.get_json()
@@ -194,7 +194,7 @@ def GetSession():
         return result
 
 @app.route('/api/GetSessions/', methods=['POST'])
-@login_required
+# @login_required
 def GetSessions():
     if request.method == 'POST':
         data = request.get_json()
@@ -203,7 +203,7 @@ def GetSessions():
         return result
     
 @app.route('/api/GetServicesPrices/', methods=['POST'])
-@login_required
+# @login_required
 def GetServicesPrices():
     if request.method == 'POST':
         configkey = 'GetServicesPrices'
@@ -211,7 +211,7 @@ def GetServicesPrices():
         return result
 
 @app.route('/api/GetService/', methods=['POST'])
-@login_required
+# @login_required
 def GetService():
     if request.method == 'POST':
         configkey = 'GetService'
@@ -220,7 +220,7 @@ def GetService():
         return result
 
 @app.route('/api/GetServiceOperation/', methods=['POST'])
-@login_required
+# @login_required
 def GetServiceOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -229,7 +229,7 @@ def GetServiceOperation():
         return result
 
 @app.route('/api/GetGoods/', methods=['POST'])
-@login_required
+# @login_required
 def GetGoods():
     if request.method == 'POST':
         configkey = 'GetGoods'
@@ -237,7 +237,7 @@ def GetGoods():
         return result
     
 @app.route('/api/GetGood/', methods=['POST'])
-@login_required
+# @login_required
 def GetGood():
     if request.method == 'POST':
         data = request.get_json()
@@ -246,7 +246,7 @@ def GetGood():
         return result
     
 @app.route('/api/GetGoodsOperation/', methods=['POST'])
-@login_required
+# @login_required
 def GetGoodsOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -255,7 +255,7 @@ def GetGoodsOperation():
         return result
 
 @app.route('/api/GetSpendTypes/', methods=['POST'])
-@login_required
+# @login_required
 def GetSpendTypes():
     if request.method == 'POST':
         configkey = 'GetSpendTypes'
@@ -263,7 +263,7 @@ def GetSpendTypes():
         return result
     
 @app.route('/api/GetSpendType/', methods=['POST'])
-@login_required
+# @login_required
 def GetSpendType():
     if request.method == 'POST':
         data = request.get_json()
@@ -272,7 +272,7 @@ def GetSpendType():
         return result
     
 @app.route('/api/GetSpendOperation/', methods=['POST'])
-@login_required
+# @login_required
 def GetSpendOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -281,7 +281,7 @@ def GetSpendOperation():
         return result
 
 @app.route('/api/GetEmployeePaymentTypes/', methods=['POST'])
-@login_required
+# @login_required
 def GetEmployeePaymentTypes():
     if request.method == 'POST':
         configkey = 'GetEmployeePaymentTypes'
@@ -289,7 +289,7 @@ def GetEmployeePaymentTypes():
         return result
 
 @app.route('/api/GetEmployeePaymentType/', methods=['POST'])
-@login_required
+# @login_required
 def GetEmployeePaymentType():
     if request.method == 'POST':
         data = request.get_json()
@@ -298,7 +298,7 @@ def GetEmployeePaymentType():
         return result    
     
 @app.route('/api/GetEmployeePaymentOperation/', methods=['POST'])
-@login_required
+# @login_required
 def GetEmployeePaymentOperation():
     if request.method == 'POST':
         data = request.get_json()
@@ -307,7 +307,7 @@ def GetEmployeePaymentOperation():
         return result
 
 @app.route('/api/GetClient/', methods=['POST'])
-@login_required
+# @login_required
 def GetClient():
     if request.method == 'POST':
         data = request.get_json()
@@ -316,7 +316,7 @@ def GetClient():
         return result
     
 @app.route('/api/GetClients/', methods=['POST'])
-@login_required
+# @login_required
 def GetClients():
     if request.method == 'POST':
         data = request.get_json()
@@ -325,7 +325,7 @@ def GetClients():
         return result
 
 @app.route('/api/EditOffice/', methods=['POST'])
-@login_required
+# @login_required
 def EditOffice():
     if request.method == 'POST':
         data = request.get_json()
@@ -334,7 +334,7 @@ def EditOffice():
         return result 
     
 @app.route('/api/EditSession/', methods=['POST'])
-@login_required
+# @login_required
 def EditSession():
     if request.method == 'POST':
         data = request.get_json()
@@ -343,7 +343,7 @@ def EditSession():
         return result
 
 @app.route('/api/EditClient/', methods=['POST'])
-@login_required
+# @login_required
 def EditClient():
     if request.method == 'POST':
         data = request.get_json()
@@ -352,7 +352,7 @@ def EditClient():
         return result
 
 @app.route('/api/EditOperations/', methods=['POST'])
-@login_required
+# @login_required
 def EditOperations():
     if request.method == 'POST':
         data = request.get_json()
@@ -366,7 +366,7 @@ def EditOperations():
         return json.dumps(results)
 
 @app.route('/api/EditEmployee/', methods=['POST'])
-@login_required
+# @login_required
 def EditEmployee():
     if request.method == 'POST':
         data = request.get_json()
@@ -375,7 +375,7 @@ def EditEmployee():
         return result
     
 @app.route('/api/EditBarberCategory/', methods=['POST'])
-@login_required
+# @login_required
 def EditBarberCategory():
     if request.method == 'POST':
         data = request.get_json()
@@ -384,7 +384,7 @@ def EditBarberCategory():
         return result    
 
 @app.route('/api/EditEmployeePaymentType/', methods=['POST'])
-@login_required
+# @login_required
 def EditEmployeePaymentType():
     if request.method == 'POST':
         data = request.get_json()
@@ -393,7 +393,7 @@ def EditEmployeePaymentType():
         return result    
 
 @app.route('/api/EditGood/', methods=['POST'])
-@login_required
+# @login_required
 def EditGood():
     if request.method == 'POST':
         data = request.get_json()
@@ -402,7 +402,7 @@ def EditGood():
         return result
     
 @app.route('/api/EditService/', methods=['POST'])
-@login_required
+# @login_required
 def EditService():
     if request.method == 'POST':
         data = request.get_json()
@@ -411,7 +411,7 @@ def EditService():
         return result
     
 @app.route('/api/EditSpendType/', methods=['POST'])
-@login_required
+# @login_required
 def EditSpendtype():
     if request.method == 'POST':
         data = request.get_json()
@@ -420,7 +420,7 @@ def EditSpendtype():
         return result
     
 @app.route('/api/GenerateClientReport/', methods=['POST'])
-@login_required
+# @login_required
 def GenerateCustomerReport():
     if request.method == 'POST':
         data = request.get_json()
@@ -429,7 +429,7 @@ def GenerateCustomerReport():
         return result
     
 @app.route('/api/GenerateFinanceReport/', methods=['POST'])
-@login_required
+# @login_required
 def GenerateFinanceReport():
     if request.method == 'POST':
         data = request.get_json()
@@ -438,7 +438,7 @@ def GenerateFinanceReport():
         return result
     
 @app.route('/api/GenerateEmployeeReport/', methods=['POST'])
-@login_required
+# @login_required
 def GenerateEmployeeReport():
     if request.method == 'POST':
         data = request.get_json()
@@ -447,7 +447,7 @@ def GenerateEmployeeReport():
         return result
 
 @app.route('/api/GenerateReportFile/', methods=['POST'])
-@login_required
+# @login_required
 def GenerateReportFile():
     if request.method == 'POST':
         data = request.get_json()
@@ -464,7 +464,7 @@ def send_files(path):
     return send_from_directory(app.static_folder, path)
 
 @app.route('/download/<path:filename>')
-@login_required
+# @login_required
 def download(filename):
     directory = os.path.join(current_app.root_path, './downloadable_files/')
     return send_from_directory(directory=directory, filename=filename, as_attachment=True)
