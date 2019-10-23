@@ -62,7 +62,7 @@ export default {
       this.isLoading = true
       HTTP.post(`GetEmployees/`, {})
         .then(response => {
-          this.offices = response.data
+          this.employees = response.data
           this.isLoading = false
         })
         .catch(e => {

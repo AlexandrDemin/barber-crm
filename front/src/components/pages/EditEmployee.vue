@@ -167,7 +167,7 @@ export default {
       this.isSaving = true
       this.savingError = ''
       var employee = this.employee
-      if (employee.contacts.length === 0) {
+      if (employee.contacts && employee.contacts.length === 0) {
         delete employee.contacts
       }
       if (!employee.photo) {
