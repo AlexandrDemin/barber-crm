@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
-
 import io
 import pandas as pd
 from datetime import date, datetime, timedelta
@@ -16,6 +13,7 @@ import urllib.parse
 import codecs
 import random
 import db_provider
+import re
 
 # на основе этих конфигов выполняются селекты в базу
 argsconfig = {
@@ -75,10 +73,6 @@ argsconfig = {
     'GetServicesPrices':{
         'table':'service',
         'fields':['id','name','prices']
-    },
-    'GetService':{
-        'table':'service',
-        'dataneeded':True
     },
     'GetServiceOperation':{
         'table':'serviceoperation',
@@ -190,10 +184,10 @@ def select(args=None):
     result = db_provider.goToBase("localhost","barbers","read_only","User_ro",query)
     return result
 
-def getResult(result):
+def getResult(result,configkey=''):
     getResult.result = result
     if type(result) == list:
-        if len(result) == 1:
+        if len(result) == 1 and not re.match(r"^Get.*s$", configkey):
             result = json.dumps(result[0],ensure_ascii=False, cls=DateEncoder)
         else:
             result = json.dumps([*map(dict, result)],ensure_ascii=False, cls=DateEncoder)
@@ -212,6 +206,6 @@ def get(configkey,args=None):
         raw_data['data']['state'] = 'open'
         raw_data['data']['withOperations'] = 'true'
     result = select(raw_data)
-    result = getResult(result)
+    result = getResult(result,configkey)
     return result
 

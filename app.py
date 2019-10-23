@@ -87,6 +87,14 @@ def writeLog(logEntry):
     with codecs.open("log.txt", "a", "utf-8") as logFile:
         json.dump(logEntry, logFile, ensure_ascii=False)
         logFile.write('\n')
+        
+@app.route('/api/GetCurrentUser/', methods=['POST'])
+@login_required
+def GetCurrentUser():
+    if request.method == 'POST':
+        user = User.query.filter_by(id = current_user.id).first().__dict__
+        del user['_sa_instance_state']
+        return user
 
 @app.route('/api/GetUserData/', methods=['POST'])
 @login_required
