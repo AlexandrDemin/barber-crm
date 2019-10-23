@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from flask import Flask, abort, url_for, render_template, request, Response, current_app, send_from_directory
+from flask import Flask, abort, url_for, render_template, request, Response, current_app, send_from_directory, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_user import login_required
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -71,13 +71,14 @@ def login():
         login = data['login']
         password = data['password']
         try:
-            user = User.query.filter_by(login=login,password=password).first()
+            user = User.query.filter_by(id=1).first()
+            # user = User.query.filter_by(login=login,password=password).first()
             login_user(user)
             return 'Success'
         except:
             return 'Login Failed'
 
-@app.route('/api/Logout/', methods=['POST'])
+@app.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
@@ -463,14 +464,36 @@ def send_files(path):
     return send_from_directory(app.static_folder, path)
 
 @app.route('/download/<path:filename>')
+@login_required
 def download(filename):
     directory = os.path.join(current_app.root_path, './downloadable_files/')
     return send_from_directory(directory=directory, filename=filename, as_attachment=True)
 
+@app.route("/login", methods=["GET", "POST"])
+def login_form():
+    if request.method == 'POST':
+        login = request.form['login']
+        password = request.form['password']
+        try:
+            user = User.query.filter_by(id=1).first()
+            # user = User.query.filter_by(login=login,password=password).first()
+            login_user(user)
+            redirect_url = request.args.get("next") or '/'
+            return redirect(redirect_url)   
+        except:
+            return abort(401)
+    else:
+        return render_template('login.html')
+
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
+@login_required
 def front(path):
     return render_template('index.html')
+
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    return redirect('/login?next=' + request.path)
 
 @app.errorhandler(404)
 def page_not_found(e):
