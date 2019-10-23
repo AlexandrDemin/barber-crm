@@ -450,6 +450,7 @@ export default new Vuex.Store({
       }
     },
     getState (context, actions) {
+      HTTP.post(`Login/`, {login: '1', password: '1'})
       if (!context.state.isStateLoaded) {
         context.commit('updateStore', {
           'name': 'isStateLoading',
