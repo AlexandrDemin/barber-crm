@@ -105,7 +105,7 @@ def getSessionsOperationsQuery(args):
     qdatetopart = ''
     idpart = ''
     statepart = ''
-    officeidspart = ''
+    officeidpart = ''
     wherepartlist = []
         
     if 'dateFrom' in args['data']:
@@ -114,7 +114,7 @@ def getSessionsOperationsQuery(args):
 
     if 'dateTo' in args['data']:
         dateraw = args['data']['dateTo']
-        qdatefrompart = generateDateQueryPart('"dateOpened"','<=',dateraw)
+        qdatetopart = generateDateQueryPart('"dateOpened"','<=',dateraw)
         
     if 'id' in args['data']:
         _id = args['data']['id']
@@ -126,7 +126,7 @@ def getSessionsOperationsQuery(args):
         
     if 'officeId' in args['data']:
         officeid = args['data']['officeId']
-        officeidspart = f"""\"officeId\" = {officeid}"""
+        officeidpart = f"""\"officeId\" = {officeid}"""
 
     if 'employeeIds' in args['data']:
         fields_filtered = args['fields'].copy()
@@ -136,7 +136,7 @@ def getSessionsOperationsQuery(args):
         employeeidslistformatted = [* map(str, employeeids)]
         employeelisttoquery = '\''+'\',\''.join(employeeidslistformatted)+ '\''
         employeeidspart = f"""s.employeesunnsted->>'userId' in ({employeelisttoquery})"""
-        wherelist = [employeeidspart,qdatefrompart,qdatetopart,idpart,statepart,officeidspart]
+        wherelist = [employeeidspart,qdatefrompart,qdatetopart,idpart,statepart,officeidpart]
         wherelistfiltered = list(filter(None, wherelist))
         wherelocalpart = 'where ' + ' and '.join(wherelistfiltered)
         sessionquery = f"""select * from
@@ -146,7 +146,7 @@ def getSessionsOperationsQuery(args):
         group by {fieldsFiltered}) ssn
         """
     else:
-        wherelist = [qdatefrompart,qdatetopart,idpart,statepart,officeidspart]
+        wherelist = [qdatefrompart,qdatetopart,idpart,statepart,officeidpart]
         wherelocalpart = generateWhereFromList(wherelist)
         sessionquery = f"""select * from
         (select {fields} from {table}
@@ -157,8 +157,6 @@ def getSessionsOperationsQuery(args):
             args['data']['operationType'] = ['serviceoperation','goodsoperation',"spendoperation","employeepayment"]
 
     if 'operationType' in args['data']:
-        if args['data']['operationType'] == []:
-            args['data']['operationType'] = ['serviceoperation','goodsoperation',"spendoperation","employeepayment"]
         clientidspart = ''
         querypartslist = []
         for item in args['data']['operationType']:
@@ -168,17 +166,26 @@ def getSessionsOperationsQuery(args):
                     clientids = args['data']['clientIds']
                     clientidspartlist = [generateIdsQueryPart(clientids,'"clientId"')]
                     clientidspart = generateWhereFromList(clientidspartlist)
-            qpart = f"""select "sessionId" as id,row_to_json({table})::jsonb||jsonb_build_object('type', '{table}') as params from {table} {clientidspart}"""
+                    
+            if item == 'serviceoperation':
+                qpart = f"""select "sessionId" as id,row_to_json({table})::jsonb-'finishDatetime'||jsonb_build_object('type', '{table}')||jsonb_build_object('datetime', "finishDatetime") as params from {table} {clientidspart}"""
+            else:
+                qpart = f"""select "sessionId" as id,row_to_json({table})::jsonb||jsonb_build_object('type', '{table}') as params from {table} {clientidspart}"""
+            
             querypartslist.append(qpart)
         unions = "\nunion all\n".join(querypartslist)
         queryoperations = f'''select concatenated.id,array_agg(params::jsonb-'sessionId') as operations from
-        ({unions}) concatenated
-        group by id'''
+(select * from 
+({unions}) unions
+order by params->>'datetime' desc, params->>'officeId' asc
+) concatenated
+group by id'''
 
         query = f'''{sessionquery}
-        left join
-        ({queryoperations}) operations
-        using (id)'''
+left join
+({queryoperations}) operations
+using (id)
+order by "dateOpened" desc,"officeId" asc'''
         
     else:
         query = f'''{sessionquery}'''
@@ -401,115 +408,94 @@ def GenerateEmployeeReportQuery(args):
     wherepartyearmonth = generateWhereFromList(wherelistdate)
 
     employeeinfopart = f"""-- сперва выбираем общую справочную информацию по всем работникам
-    select * from (select 'a' as joinfield, id as employeeid,name,roles,"categoryId",salary,"servicePercent","goodsPercent",state from employee) u
-    {wherepartemployeeid}) userinfo"""
+select * from (select 'a' as joinfield, id as employeeid,name,roles,"categoryId",salary,state from employee) u
+{wherepartemployeeid}) userinfo"""
 
     employeepaymentspart = f"""-- присоединяем данные по выплатам сотрудникам: зарплата, премия (за услуги и проданные товары), штрафы
-    left join
-    (select * from (select "officeId","employeeId" as employeeid,date_trunc('month',datetime) as yearmonth,
-    sum(sum)filter (where "employeePaymentTypeId" = 1) as paidsalary, 
-    sum(sum)filter (where "employeePaymentTypeId" = 2) as paidbonus,
-    sum(sum)filter (where "employeePaymentTypeId" = 3) as penalty
-    from employeepayment
-    group by "employeeId",yearmonth,"officeId") p
-    {wherepart}) payments
-    using (employeeid)"""
+left join
+(select * from (select "officeId","employeeId" as employeeid,date_trunc('month',datetime) as yearmonth,
+sum(sum)filter (where "employeePaymentTypeId" = 1) as paidsalary, 
+sum(sum)filter (where "employeePaymentTypeId" = 2) as paidbonus,
+sum(sum)filter (where "employeePaymentTypeId" = 3) as penalty
+from employeepayment
+group by "employeeId",yearmonth,"officeId") p
+{wherepart}) payments
+using (employeeid)"""
 
-    barberservicepercentpart = f"""-- присоединяем коэффициент отчисления за услуги барберу, который зависит от категории
-    left join
-    (select id as "categoryId","servicePercent" as barberservicepercent from barbercategory) barberservicepercent
-    using ("categoryId")"""
+    servicebonuspart = f"""-- присоединяем сумму бонусов с операций по услугам
+left join
+(select "officeId",yearmonth,employeeid,sum(serviceBonusSum) as servicebonus, count(*) filter(where type = 'master') as servicecount from 
+(select 'admin' as type,"officeId",date_trunc('month',"finishDatetime") as yearmonth, "adminId" as employeeid,"adminBonusSum" as serviceBonusSum from serviceoperation
+union 
+select 'master' as type,"officeId",date_trunc('month',"finishDatetime") as yearmonth, "masterId" as employeeid,"masterBonusSum" as serviceBonusSum from serviceoperation) sb
+{wherepart}
+group by "officeId",yearmonth,employeeid) servicesum
+using (employeeid)"""
 
-    servicebonuspart = f"""-- присоединяем сумму, полученную с операций по услугам админами
-    left join
-    (select * from (select "officeId", date_trunc('month',"finishDatetime") as yearmonth,
-    "adminId" as employeeid,
-    sum("cashSum"+"cashlessSum") as totalServiceSum, 
-    null as servicecount 
-    from serviceoperation
-    group by "officeId",yearmonth,"adminId"
-    -- объединяем с аналогичными данными по мастерам
-    union
-    select "officeId", date_trunc('month',"finishDatetime") as yearmonth,
-    "masterId" as employeeid,
-    sum("cashSum"+"cashlessSum") as totalServiceSum, 
-    count(*)::int as servicecount 
-    from serviceoperation
-    group by "officeId",yearmonth,"masterId")ss
-    {wherepart}) servicesum
-    using (employeeid)"""
-
-    goodsbonuspart = f"""-- присоединяем сумму, полученную с операций по товарам админами
-    left join
-    (select * from (select "officeId",date_trunc('month',datetime) as yearmonth,
-    "adminId" as employeeid,
-    sum("cashSum"+"cashlessSum") as totalGoodsSum 
-    from goodsoperation
-    group by "officeId",yearmonth,"adminId"
-    -- объединяем с аналогичными данными по мастерам
-    union
-    select "officeId",date_trunc('month',datetime) as yearmonth,
-    "masterId" as employeeid,
-    sum("cashSum"+"cashlessSum") as totalGoodsSum 
-    from goodsoperation
-    group by "officeId",yearmonth,"masterId")g
-    {wherepart}) goodssum
-    using (employeeid)"""
+    goodsbonuspart = f"""-- присоединяем сумму бонусов с операций по товарам
+left join
+(select "officeId",yearmonth,employeeid,sum(goodsbonussum) as goodsbonus from 
+(select "officeId",date_trunc('month',datetime) as yearmonth, "adminId" as employeeid,"adminBonusSum" as goodsbonussum from goodsoperation
+union 
+select "officeId",date_trunc('month',datetime) as yearmonth, "masterId" as employeeid,"masterBonusSum" as goodsbonussum from goodsoperation) gb
+{wherepart}
+group by "officeId",yearmonth,employeeid
+) goodssum
+using (employeeid)"""
 
     worktimepart = f"""-- присоединяем количество часов, отработанных работниками, их достаем из json-ов
-    left join 
-    (select "officeId",employeeid, sum(total_time) as total_time,yearmonth from
-    (select "officeId",date_trunc('month',"dateOpened") as yearmonth,
-    cast((unnest(employees)->'userId')::text as int) as employeeid,
-    cast((unnest(employees)->'workHours')::text as int) as total_time
-    from session) a
-    {wherepart}
-    group by "officeId",employeeid,yearmonth) worktime
-    using (employeeid)"""
+left join 
+(select "officeId",employeeid, sum(total_time) as total_time,yearmonth from
+(select "officeId",date_trunc('month',"dateOpened") as yearmonth,
+cast((unnest(employees)->'userId')::text as int) as employeeid,
+cast((unnest(employees)->'workHours')::text as int) as total_time
+from session) a
+{wherepart}
+group by "officeId",employeeid,yearmonth) worktime
+using (employeeid)"""
 
     repeatingvisitscount = f"""    -- присоединяем рассчитанное количество повторных визитов
-    -- здесь во вложенном запросе сперва считается количество уникальных комбинаций мастер-клиент
-    -- затем комбинация мастер-клиент встречается больше 1 раза, то к счетчику повторных визитов прибавляется 1
-    left join 
-    (select employeeid,sum(CASE WHEN repeatingvisitscount > 1 THEN 1 ELSE 0 END)::int as repeatingvisitscount from
-	(select "masterId" as employeeid, count(*) as repeatingvisitscount from serviceoperation 
-	where ("masterId", "clientId") in (
-	(select "masterId", "clientId" from (SELECT DISTINCT "officeId",date_trunc('month',"finishDatetime") as yearmonth,"masterId", "clientId" FROM serviceoperation) sd 
-	{wherepart}))
-	group by "masterId", "clientId") repeatingvisits
-	group by employeeid) repeatingvisitscount
-    using (employeeid)"""
+-- здесь во вложенном запросе сперва считается количество уникальных комбинаций мастер-клиент
+-- затем комбинация мастер-клиент встречается больше 1 раза, то к счетчику повторных визитов прибавляется 1
+left join 
+(select employeeid,sum(CASE WHEN repeatingvisitscount > 1 THEN 1 ELSE 0 END)::int as repeatingvisitscount from
+(select "masterId" as employeeid, count(*) as repeatingvisitscount from serviceoperation 
+where ("masterId", "clientId") in (
+(select "masterId", "clientId" from (SELECT DISTINCT "officeId",date_trunc('month',"finishDatetime") as yearmonth,"masterId", "clientId" FROM serviceoperation) sd 
+{wherepart}))
+group by "masterId", "clientId") repeatingvisits
+group by employeeid) repeatingvisitscount
+using (employeeid)"""
         
     totalworkinghourspart = f"""-- присоединяем общее число рабочих часов в периоде по дням, когда хотя бы в одном отделении была хотя бы одна операция
-    -- просто перем список дат операций, урезанных до дня, считаем количество уникальных дней и умножаем на 8
-    left join
-    (select 'a' as joinfield, '8 hours'::interval*count(*) as estimatedworkhours from
-    (select date_trunc('day',"finishDatetime") as yearmonthday,date_trunc('month',"finishDatetime") as yearmonth from serviceoperation
-    union
-    select date_trunc('day',datetime) as yearmonthday,date_trunc('month',datetime) as yearmonth from goodsoperation
-    union
-    select date_trunc('day',datetime) as yearmonthday,date_trunc('month',datetime) as yearmonth from spendoperation
-    union
-    select date_trunc('day',datetime) as yearmonthday,date_trunc('month',datetime) as yearmonth from employeepayment)d
-    {wherepartyearmonth}) dayswithoperations
-    using (joinfield)"""
-    
+-- просто перем список дат операций, урезанных до дня, считаем количество уникальных дней и умножаем на 8
+left join
+(select 'a' as joinfield, '8 hours'::interval*count(*) as estimatedworkhours from
+(select date_trunc('day',"finishDatetime") as yearmonthday,date_trunc('month',"finishDatetime") as yearmonth from serviceoperation
+union
+select date_trunc('day',datetime) as yearmonthday,date_trunc('month',datetime) as yearmonth from goodsoperation
+union
+select date_trunc('day',datetime) as yearmonthday,date_trunc('month',datetime) as yearmonth from spendoperation
+union
+select date_trunc('day',datetime) as yearmonthday,date_trunc('month',datetime) as yearmonth from employeepayment)d
+{wherepartyearmonth}) dayswithoperations
+using (joinfield)"""
     
     officenamejoinpart = f"""-- отдельно к верхнеуровневому селекту джоиним названия офисов
-    -- джоиним именно к верхнеуровневому, потому что на более низком уровне у нашей референтной таблицы employee нет привязанных офисов
-    left join
-    (select id as "officeId",name as officename from office) office
-    using ("officeId")"""
+-- джоиним именно к верхнеуровневому, потому что на более низком уровне у нашей референтной таблицы employee нет привязанных офисов
+left join
+(select id as "officeId",name as officename from office) office
+using ("officeId")"""
     
     globalquery = 'select * from'
     officegrouping = ''
     globalqueryallofficepart = f'''sum(salary) as totalsalary,sum(paidsalary) as totalpaidsalary,sum(penalty) as totalpenalty,sum(unpaidsalary) as totalunpaidsalary,
-    sum(servicecount) as totalservicecount,sum(repeatingvisitscount) as totalrepeatingvisitscount,sum(totalServiceSum) as totaltotalServiceSum,
-    sum(servicebonus) as totalservicebonus,
-    sum(goodsbonus) as totalgoodsbonus,
-    sum(paidbonus) as totalpaidbonus,
-    sum(unpaidbonus) as totalunpaidbonus,
-    sum(workload) as totalworkload'''
+sum(servicecount) as totalservicecount,sum(repeatingvisitscount) as totalrepeatingvisitscount,
+sum(servicebonus) as totalservicebonus,
+sum(goodsbonus) as totalgoodsbonus,
+sum(paidbonus) as totalpaidbonus,
+sum(unpaidbonus) as totalunpaidbonus,
+sum(workload) as totalworkload'''
     
     if args['data']['groupingtype'] == 'office':
         globalquery = f'''select "officeId",
@@ -524,33 +510,25 @@ def GenerateEmployeeReportQuery(args):
         officenamejoinpart = ''
 
     query = f"""{globalquery}
-    -- следующий селект - селект поверх большого числа джоинов. 
-    -- в нем выбираются все нужные параметры и высчитываются недостающие
-    (select name, worktime."officeId" as "officeId",state, roles,
-    salary,paidsalary,penalty,salary - paidsalary + penalty as unpaidsalary,
-    "categoryId","servicePercent" as adminservicepercent, barberservicepercent,
-    servicecount, repeatingvisitscount, totalServiceSum,
-    totalServiceSum * (case 
-    when barberservicepercent is not null then barberservicepercent
-    else "servicePercent" end) as servicebonus,
-    "goodsPercent",totalGoodsSum,totalGoodsSum * "goodsPercent" as goodsbonus,
-    paidbonus, totalServiceSum * (case 
-    when barberservicepercent is not null then barberservicepercent
-    else "servicePercent" end) + totalGoodsSum * "goodsPercent" - paidbonus as unpaidbonus,
-    total_time,estimatedworkhours,EXTRACT(epoch FROM total_time)/ EXTRACT(epoch FROM estimatedworkhours) as workload
-    from
-    ({employeeinfopart}
-    {employeepaymentspart}
-    {barberservicepercentpart}
-    {servicebonuspart}
-    {goodsbonuspart}
-    {worktimepart}
-    {repeatingvisitscount}
-    {totalworkinghourspart}
-    ) reportmain
-    {officenamejoinpart}
-    {officegrouping}
-    """
+-- следующий селект - селект поверх большого числа джоинов. 
+-- в нем выбираются все нужные параметры и высчитываются недостающие
+(select name, worktime."officeId" as "officeId",state, roles,
+salary,paidsalary,penalty,salary - paidsalary + penalty as unpaidsalary,
+servicecount::int, repeatingvisitscount,
+servicebonus,goodsbonus,paidbonus,servicebonus+goodsbonus-paidbonus as unpaidbonus,
+total_time,estimatedworkhours,total_time/ EXTRACT(epoch FROM estimatedworkhours) as workload
+from
+({employeeinfopart}
+{employeepaymentspart}
+{servicebonuspart}
+{goodsbonuspart}
+{worktimepart}
+{repeatingvisitscount}
+{totalworkinghourspart}
+) reportmain
+{officenamejoinpart}
+{officegrouping}
+"""
     
     return query
 
