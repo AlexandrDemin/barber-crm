@@ -104,7 +104,7 @@ export default {
     },
     getEmptyItem: function () {
       return {
-        id: 'null',
+        id: null,
         name: '',
         state: 'open',
         city: 'null',

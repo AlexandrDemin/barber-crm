@@ -172,13 +172,13 @@ export default {
       this.savingError = ''
       var client = this.client
       if (client.photo === null) {
-        client.photo = 'null'
+        delete client.photo
       }
       if (client.comment === null) {
         client.comment = ''
       }
       if (client.contacts === null || client.contacts === []) {
-        client.contacts = 'null'
+        delete client.contacts
       }
       delete client.operations
       HTTP.post(`EditClient/`, this.client)
@@ -197,9 +197,9 @@ export default {
     },
     getEmptyItem: function () {
       return {
-        id: 'null',
+        id: null,
         name: '',
-        photo: 'null',
+        photo: null,
         contacts: [
           {
             type: 'phone',

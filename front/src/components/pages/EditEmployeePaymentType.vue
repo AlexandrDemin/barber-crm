@@ -106,7 +106,7 @@ export default {
     },
     getEmptyItem: function () {
       return {
-        id: 'null',
+        id: null,
         name: '',
         defaultSum: 0,
         state: 'active'

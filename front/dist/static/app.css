@@ -1,4 +1,28 @@
 /*
+Theme
+*/
+
+:root {
+    --pure-black: #000000;
+    --black: #38342E;
+    --brand-blue: #2B69BF;
+    --brand-red: #D55044;
+    --gray-500: #575147;
+    --brand-blue-dark: #1C457D;
+    --brand-red-dark: #912A21;
+    --gray-400: #8F8576;
+    --gray-300: #C4BEB6;
+    --gray-200: #E3E1DD;
+    --gray-100: #F3F2F1;
+    --green-500: #4D9621;
+    --yellow-500: #F2C44C;
+    --orange-500: #F8822C;
+    --purple: #BB51E0;
+    --white: #FDFCFC;
+    --pure-white: #FFFFFF;
+}
+
+/*
 Global
 */
 .breadcrumbs {
@@ -47,6 +71,23 @@ Login
 .card.greeting-card.login-card {
     margin-top: 0;
 }
+.login-back {
+    background: url('/static/big-logo-transparent.svg');
+    background-color: var(--black);
+    background-position: 0 100px;
+    animation-duration: 20s;
+    animation-name: scroll;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+@keyframes scroll {
+    from {
+        background-position: 0 100px;
+    }
+    to {
+        background-position: 200px 100px;
+    }
+}
 
 /*
 Main menu
@@ -56,7 +97,7 @@ Main menu
     top: 0;
     left: 0;
     height: 100vh;
-    background: #F3F2F1;
+    background: var(--gray-100);
     overflow: auto;
 }
 .main-menu ul {
@@ -83,17 +124,17 @@ Main menu
     font-size: 12px;
 }
 .main-menu ul li.selected {
-    background: #1C457D;
+    background: var(--brand-blue-dark);
 }
 .main-menu ul li.selected a {
     cursor: default;
 }
 .main-menu ul li.selected label {
-    color: #FDFCFC;
+    color: var(--white);
 }
 .main-menu ul li:not(.selected):hover,
 .main-menu ul li.hovered:not(.selected) {
-    background: #FDFCFC;
+    background: var(--white);
 }
 .main-menu ul li:not(.with-submenu):hover,
 .main-menu ul li:not(.with-submenu):hover * {
@@ -111,6 +152,12 @@ Main menu
     display: none;
 }
 
+.logout {
+    position: absolute;
+    left:0;
+    bottom:0;
+}
+
 /*
 Submenu
 */
@@ -123,7 +170,7 @@ Submenu
     position: fixed;
     left: 75px;
     top: 0px;
-    background: #F3F2F1;
+    background: var(--gray-100);
     list-style: none;
     margin: 0;
     padding: 0;
@@ -131,7 +178,7 @@ Submenu
     height: 100vh;
 }
 .main-menu ul.submenu li {
-    border-bottom: 1px solid #C4BEB6;
+    border-bottom: 1px solid var(--gray-300);
     height: auto;
     width: auto;
     margin: 0;
@@ -145,14 +192,14 @@ Submenu
     height: auto;
 }
 .main-menu ul.submenu li a:hover {
-    background: #FDFCFC;
+    background: var(--white);
     cursor: pointer;
 }
 .main-menu ul.submenu li a,
 .main-menu ul.submenu li a:hover,
 .main-menu ul.submenu li a:active,
 .main-menu ul.submenu li a:visited {
-    color: #38342E;
+    color: var(--black);
 }
 .main-menu .submenu.shown {
     display: block;
@@ -175,7 +222,7 @@ Session
     width: calc(100vw - 75px);
     z-index: 1;
     height: 75px;
-    background: #F3F2F1;
+    background: var(--gray-100);
     padding: 10px 30px;
 }
 .session-info .session-info-block {
@@ -204,9 +251,10 @@ Employee card
     border-radius: 5px;
     box-shadow: 0 10px 15px -10px rgba(56,52,46,.2);
     overflow: visible;
+    background: var(--pure-white)
 }
 .employee-card-header {
-    background: #F3F2F1;
+    background: var(--gray-100);
     border-radius: 5px 5px 0 0;
 }
 .employee-card-header .employee-card-picture {
@@ -215,7 +263,7 @@ Employee card
 .employee-card-header .employee-card-picture-placeholder {
     font-size: 20px;
     font-weight: 300;
-    color: #E3E1DD;
+    color: var(--gray-200);
     padding: 10px 0;
     text-align: center;
 }
@@ -233,17 +281,22 @@ Employee card
     overflow: auto;
 }
 .services-goods-list li {
-    border-bottom: 1px solid #E3E1DD;
+    border-bottom: 1px solid var(--gray-200);
 }
 .services-goods-list li:last-child {
     border-bottom: none;
 }
-.services-goods-list li a,
-.services-goods-list li a:hover,
-.services-goods-list li a:visited {
+.services-goods-list li a {
     display: block;
     color: inherit;
-    padding: 5px 0;
+    padding: 0.5rem;
+}
+.services-goods-list li a:hover,
+.services-goods-list li a:visited {
+    color: inherit;
+}
+.services-goods-list li a:hover {
+    background-color: var(--gray-100)
 }
 
 /*
@@ -397,6 +450,7 @@ Vue Select
     font-family: inherit;
     margin: 0 0 1rem;
     box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
+    background: var(--pure-white);
 }
 
 .v-select,.v-select * {
@@ -437,7 +491,7 @@ Vue Select
 
 .vs--disabled .vs__clear,.vs--disabled .vs__dropdown-toggle,.vs--disabled .vs__open-indicator,.vs--disabled .vs__search,.vs--disabled .vs__selected {
     cursor: not-allowed;
-    background-color: #f8f8f8
+    background-color: var(--white)
 }
 
 .v-select[dir=rtl] .vs__actions {
@@ -465,7 +519,7 @@ Vue Select
     display: flex;
     padding: 0 0 4px;
     background: none;
-    border: 1px solid rgba(60,60,60,.26);
+    border: 1px solid var(--gray-200);
     border-radius: 4px;
     white-space: normal
 }
@@ -532,7 +586,7 @@ Vue Select
     position: absolute;
     top: calc(100% - 1px);
     left: 0;
-    z-index: 1000;
+    z-index: 10000;
     padding: 5px 0;
     margin: 0;
     width: 100%;
@@ -540,12 +594,12 @@ Vue Select
     min-width: 160px;
     overflow-y: auto;
     box-shadow: 0 3px 6px 0 rgba(0,0,0,.15);
-    border: 1px solid rgba(60,60,60,.26);
+    border: 1px solid var(--gray-200);
     border-top-style: none;
     border-radius: 0 0 4px 4px;
     text-align: left;
     list-style: none;
-    background: #fff
+    background: var(--pure-white)
 }
 
 .vs__no-options {
@@ -557,7 +611,7 @@ Vue Select
     display: block;
     padding: 3px 20px;
     clear: both;
-    color: #333;
+    color: var(--black);
     white-space: nowrap
 }
 
@@ -566,17 +620,17 @@ Vue Select
 }
 
 .vs__dropdown-option--highlight {
-    background: #5897fb;
-    color: #fff
+    background: var(--brand-blue);
+    color: var(--pure-white)
 }
 
 .vs__selected {
     display: flex;
     align-items: center;
-    background-color: #f0f0f0;
-    border: 1px solid rgba(60,60,60,.26);
+    background-color: var(--gray-200);
+    border: 1px solid var(--gray-300);
     border-radius: 4px;
-    color: #333;
+    color: var(--black);
     line-height: 1.4;
     margin: 4px 2px 0;
     padding: 0 .25em
@@ -593,7 +647,7 @@ Vue Select
     cursor: pointer;
     background: none;
     fill: rgba(60,60,60,.5);
-    text-shadow: 0 1px 0 #fff
+    text-shadow: 0 1px 0 var(--pure-white)
 }
 
 .vs--single .vs__selected {
@@ -685,5 +739,3 @@ Vue Select
 .vs--loading .vs__spinner {
     opacity: 1
 }
-
-/*# sourceMappingURL=vue-select.css.map*/

@@ -44,6 +44,8 @@ Base.metadata.reflect(engine)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://read_write:Rw_Us3r@localhost/barbers'
 app.config['SECRET_KEY'] = 's9cr9tk94'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
 db.Model.metadata.reflect(db.engine)
 

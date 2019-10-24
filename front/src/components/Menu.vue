@@ -89,7 +89,7 @@
         </svg>
         <label>Админка</label>
       </li>
-      <li class="with-submenu logout" @click="logout" style="position: relative; left:0; bottom:0">
+      <li class="with-submenu logout show-for-large" @click="logout">
         <svg class="main-menu-icon" viewBox="0 0 35 41" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M27.6499 15.5398C28.3715 14.8104 29.5415 14.8104 30.2631 15.5398L33.9588 19.2751C34.6804 20.0045 34.6804 21.1871 33.9588 21.9164L30.2631 25.6518C29.5415 26.3812 28.3715 26.3812 27.6499 25.6518C26.9283 24.9224 26.9283 23.7399 27.6499 23.0105L30.039 20.5958L27.6499 18.1811C26.9283 17.4517 26.9283 16.2691 27.6499 15.5398Z" fill="#38342E"/>
           <path fill-rule="evenodd" clip-rule="evenodd" d="M15.6522 20.5958C15.6522 19.5643 16.4795 18.7281 17.5 18.7281H30.8043C31.8249 18.7281 32.6522 19.5643 32.6522 20.5958C32.6522 21.6273 31.8249 22.4635 30.8043 22.4635H17.5C16.4795 22.4635 15.6522 21.6273 15.6522 20.5958Z" fill="#38342E"/>

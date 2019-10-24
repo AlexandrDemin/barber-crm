@@ -10,25 +10,6 @@
     <title>Вход</title>
   </head>
   <body>
-    <style>
-      .login-back {
-        background: url('/static/big-logo-transparent.svg');
-        background-position: 0 100px;
-        animation-duration: 20s;
-        animation-name: scroll;
-        animation-iteration-count: infinite;
-        animation-timing-function: linear;
-      }
-      @keyframes scroll {
-        from {
-          background-position: 0 100px;
-        }
-
-        to {
-          background-position: 200px 100px;
-        }
-      }
-    </style>
     <div class="grid-x align-center-middle grid-padding-x content-no-menu login-back">
       <form action="{{ url_for('login_form') }}" method="post" class="card cell shrink text-center greeting-card login-card">
         <label for="login">Логин</label>

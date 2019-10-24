@@ -1,10 +1,10 @@
 <template>
   <main>
-    <appMenu :selected-element="session.id === $store.state.currentSession.id ? 'session' : 'history'"></appMenu>
+    <appMenu :selected-element="canEdit() ? 'session' : 'history'"></appMenu>
     <div class="content">
       <nav>
         <ul class="breadcrumbs">
-          <li v-if="session.id === $store.state.currentSession.id"><router-link to="/">Назад</router-link></li>
+          <li v-if="canEdit()"><router-link to="/">Назад</router-link></li>
           <li v-else><router-link to="/SessionsHistory/">Назад</router-link></li>
         </ul>
       </nav>
