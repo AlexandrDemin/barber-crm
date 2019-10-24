@@ -808,19 +808,19 @@ select {
     background-image: none; }
 
 .is-invalid-input:not(:focus) {
-  border-color: var(--barand-red);
+  border-color: var(--brand-red);
   background-color: var(--gray-100); }
   .is-invalid-input:not(:focus)::-webkit-input-placeholder {
-    color: var(--barand-red); }
+    color: var(--brand-red); }
   .is-invalid-input:not(:focus):-ms-input-placeholder {
-    color: var(--barand-red); }
+    color: var(--brand-red); }
   .is-invalid-input:not(:focus)::-ms-input-placeholder {
-    color: var(--barand-red); }
+    color: var(--brand-red); }
   .is-invalid-input:not(:focus)::placeholder {
-    color: var(--barand-red); }
+    color: var(--brand-red); }
 
 .is-invalid-label {
-  color: var(--barand-red); }
+  color: var(--brand-red); }
 
 .form-error {
   display: none;
@@ -828,7 +828,7 @@ select {
   margin-bottom: 1rem;
   font-size: 0.75rem;
   font-weight: bold;
-  color: var(--barand-red); }
+  color: var(--brand-red); }
   .form-error.is-visible {
     display: block; }
 
@@ -992,19 +992,19 @@ select {
       background-color: var(--gray-200);
       color: var(--pure-black); }
   .button.alert {
-    background-color: var(--barand-red);
+    background-color: var(--brand-red);
     color: var(--pure-white); }
     .button.alert:hover, .button.alert:focus {
       background-color: var(--brand-red-dark);
       color: var(--pure-white); }
   .button.success {
-    background-color: var(--barand-green);
+    background-color: var(--brand-green);
     color: var(--black); }
     .button.success:hover, .button.success:focus {
       background-color: #4a831c;
       color: var(--black); }
   .button.warning {
-    background-color: var(--barand-orange);
+    background-color: var(--brand-orange);
     color: var(--black); }
     .button.warning:hover, .button.warning:focus {
       background-color: #cc8b00;
@@ -1043,19 +1043,19 @@ select {
       opacity: 0.25;
       cursor: not-allowed; }
       .button.disabled.alert, .button.disabled.alert:hover, .button.disabled.alert:focus, .button[disabled].alert, .button[disabled].alert:hover, .button[disabled].alert:focus {
-        background-color: var(--barand-red);
+        background-color: var(--brand-red);
         color: var(--white); }
     .button.disabled.success, .button[disabled].success {
       opacity: 0.25;
       cursor: not-allowed; }
       .button.disabled.success, .button.disabled.success:hover, .button.disabled.success:focus, .button[disabled].success, .button[disabled].success:hover, .button[disabled].success:focus {
-        background-color: var(--barand-green);
+        background-color: var(--brand-green);
         color: var(--black); }
     .button.disabled.warning, .button[disabled].warning {
       opacity: 0.25;
       cursor: not-allowed; }
       .button.disabled.warning, .button.disabled.warning:hover, .button.disabled.warning:focus, .button[disabled].warning, .button[disabled].warning:hover, .button[disabled].warning:focus {
-        background-color: var(--barand-orange);
+        background-color: var(--brand-orange);
         color: var(--black); }
     .button.disabled.body-font, .button[disabled].body-font {
       opacity: 0.25;
@@ -1101,32 +1101,32 @@ select {
           border: 1px solid var(--gray-200);
           color: var(--gray-200); }
     .button.hollow.alert {
-      border: 1px solid var(--barand-red);
-      color: var(--barand-red); }
+      border: 1px solid var(--brand-red);
+      color: var(--brand-red); }
       .button.hollow.alert:hover, .button.hollow.alert:focus {
         border-color: #63080a;
         color: #63080a; }
         .button.hollow.alert:hover.disabled, .button.hollow.alert:hover[disabled], .button.hollow.alert:focus.disabled, .button.hollow.alert:focus[disabled] {
-          border: 1px solid var(--barand-red);
-          color: var(--barand-red); }
+          border: 1px solid var(--brand-red);
+          color: var(--brand-red); }
     .button.hollow.success {
-      border: 1px solid var(--barand-green);
-      color: var(--barand-green); }
+      border: 1px solid var(--brand-green);
+      color: var(--brand-green); }
       .button.hollow.success:hover, .button.hollow.success:focus {
         border-color: #2f5212;
         color: #2f5212; }
         .button.hollow.success:hover.disabled, .button.hollow.success:hover[disabled], .button.hollow.success:focus.disabled, .button.hollow.success:focus[disabled] {
-          border: 1px solid var(--barand-green);
-          color: var(--barand-green); }
+          border: 1px solid var(--brand-green);
+          color: var(--brand-green); }
     .button.hollow.warning {
-      border: 1px solid var(--barand-orange);
-      color: var(--barand-orange); }
+      border: 1px solid var(--brand-orange);
+      color: var(--brand-orange); }
       .button.hollow.warning:hover, .button.hollow.warning:focus {
         border-color: #805700;
         color: #805700; }
         .button.hollow.warning:hover.disabled, .button.hollow.warning:hover[disabled], .button.hollow.warning:focus.disabled, .button.hollow.warning:focus[disabled] {
-          border: 1px solid var(--barand-orange);
-          color: var(--barand-orange); }
+          border: 1px solid var(--brand-orange);
+          color: var(--brand-orange); }
     .button.hollow.body-font {
       border: 1px solid var(--black);
       color: var(--black); }
@@ -1183,36 +1183,36 @@ select {
       .button.clear.secondary, .button.clear.secondary.disabled, .button.clear.secondary[disabled], .button.clear.secondary:hover, .button.clear.secondary:hover.disabled, .button.clear.secondary:hover[disabled], .button.clear.secondary:focus, .button.clear.secondary:focus.disabled, .button.clear.secondary:focus[disabled] {
         border-color: transparent; }
     .button.clear.alert {
-      border: 1px solid var(--barand-red);
-      color: var(--barand-red); }
+      border: 1px solid var(--brand-red);
+      color: var(--brand-red); }
       .button.clear.alert:hover, .button.clear.alert:focus {
         border-color: #63080a;
         color: #63080a; }
         .button.clear.alert:hover.disabled, .button.clear.alert:hover[disabled], .button.clear.alert:focus.disabled, .button.clear.alert:focus[disabled] {
-          border: 1px solid var(--barand-red);
-          color: var(--barand-red); }
+          border: 1px solid var(--brand-red);
+          color: var(--brand-red); }
       .button.clear.alert, .button.clear.alert.disabled, .button.clear.alert[disabled], .button.clear.alert:hover, .button.clear.alert:hover.disabled, .button.clear.alert:hover[disabled], .button.clear.alert:focus, .button.clear.alert:focus.disabled, .button.clear.alert:focus[disabled] {
         border-color: transparent; }
     .button.clear.success {
-      border: 1px solid var(--barand-green);
-      color: var(--barand-green); }
+      border: 1px solid var(--brand-green);
+      color: var(--brand-green); }
       .button.clear.success:hover, .button.clear.success:focus {
         border-color: #2f5212;
         color: #2f5212; }
         .button.clear.success:hover.disabled, .button.clear.success:hover[disabled], .button.clear.success:focus.disabled, .button.clear.success:focus[disabled] {
-          border: 1px solid var(--barand-green);
-          color: var(--barand-green); }
+          border: 1px solid var(--brand-green);
+          color: var(--brand-green); }
       .button.clear.success, .button.clear.success.disabled, .button.clear.success[disabled], .button.clear.success:hover, .button.clear.success:hover.disabled, .button.clear.success:hover[disabled], .button.clear.success:focus, .button.clear.success:focus.disabled, .button.clear.success:focus[disabled] {
         border-color: transparent; }
     .button.clear.warning {
-      border: 1px solid var(--barand-orange);
-      color: var(--barand-orange); }
+      border: 1px solid var(--brand-orange);
+      color: var(--brand-orange); }
       .button.clear.warning:hover, .button.clear.warning:focus {
         border-color: #805700;
         color: #805700; }
         .button.clear.warning:hover.disabled, .button.clear.warning:hover[disabled], .button.clear.warning:focus.disabled, .button.clear.warning:focus[disabled] {
-          border: 1px solid var(--barand-orange);
-          color: var(--barand-orange); }
+          border: 1px solid var(--brand-orange);
+          color: var(--brand-orange); }
       .button.clear.warning, .button.clear.warning.disabled, .button.clear.warning[disabled], .button.clear.warning:hover, .button.clear.warning:hover.disabled, .button.clear.warning:hover[disabled], .button.clear.warning:focus, .button.clear.warning:focus.disabled, .button.clear.warning:focus[disabled] {
         border-color: transparent; }
     .button.clear.body-font {
@@ -1258,11 +1258,11 @@ select {
   .button.dropdown.hollow.secondary::after, .button.dropdown.clear.secondary::after {
     border-top-color: var(--gray-200); }
   .button.dropdown.hollow.alert::after, .button.dropdown.clear.alert::after {
-    border-top-color: var(--barand-red); }
+    border-top-color: var(--brand-red); }
   .button.dropdown.hollow.success::after, .button.dropdown.clear.success::after {
-    border-top-color: var(--barand-green); }
+    border-top-color: var(--brand-green); }
   .button.dropdown.hollow.warning::after, .button.dropdown.clear.warning::after {
-    border-top-color: var(--barand-orange); }
+    border-top-color: var(--brand-orange); }
   .button.dropdown.hollow.body-font::after, .button.dropdown.clear.body-font::after {
     border-top-color: var(--black); }
   .button.dropdown.hollow.header::after, .button.dropdown.clear.header::after {
@@ -1354,19 +1354,19 @@ a.button:hover, a.button:focus {
       background-color: var(--gray-300);
       color: var(--black); }
   .button-group.alert .button {
-    background-color: var(--barand-red);
+    background-color: var(--brand-red);
     color: var(--white); }
     .button-group.alert .button:hover, .button-group.alert .button:focus {
       background-color: var(--brand-red-dark);
       color: var(--white); }
   .button-group.success .button {
-    background-color: var(--barand-green);
+    background-color: var(--brand-green);
     color: var(--black); }
     .button-group.success .button:hover, .button-group.success .button:focus {
       background-color: #4a831c;
       color: var(--black); }
   .button-group.warning .button {
-    background-color: var(--barand-orange);
+    background-color: var(--brand-orange);
     color: var(--black); }
     .button-group.warning .button:hover, .button-group.warning .button:focus {
       background-color: #cc8b00;
@@ -3398,13 +3398,13 @@ table.hover:not(.unstriped) tr:nth-of-type(even):hover {
     background: var(--gray-200);
     color: var(--black); }
   .badge.alert {
-    background: var(--barand-red);
+    background: var(--brand-red);
     color: var(--white); }
   .badge.success {
-    background: var(--barand-green);
+    background: var(--brand-green);
     color: var(--black); }
   .badge.warning {
-    background: var(--barand-orange);
+    background: var(--brand-orange);
     color: var(--black); }
   .badge.body-font {
     background: var(--black);
@@ -3430,13 +3430,13 @@ table.hover:not(.unstriped) tr:nth-of-type(even):hover {
     background: var(--gray-200);
     color: var(--black); }
   .label.alert {
-    background: var(--barand-red);
+    background: var(--brand-red);
     color: var(--white); }
   .label.success {
-    background: var(--barand-green);
+    background: var(--brand-green);
     color: var(--black); }
   .label.warning {
-    background: var(--barand-orange);
+    background: var(--brand-orange);
     color: var(--black); }
   .label.body-font {
     background: var(--black);
@@ -3455,11 +3455,11 @@ table.hover:not(.unstriped) tr:nth-of-type(even):hover {
   .progress.secondary .progress-meter {
     background-color: var(--gray-200); }
   .progress.alert .progress-meter {
-    background-color: var(--barand-red); }
+    background-color: var(--brand-red); }
   .progress.success .progress-meter {
-    background-color: var(--barand-green); }
+    background-color: var(--brand-green); }
   .progress.warning .progress-meter {
-    background-color: var(--barand-orange); }
+    background-color: var(--brand-orange); }
   .progress.body-font .progress-meter {
     background-color: var(--black); }
   .progress.header .progress-meter {

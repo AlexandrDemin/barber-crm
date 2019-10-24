@@ -89,7 +89,7 @@
           <div v-if="canEdit()" class="grid-x align-justify">
             <vue-element-loading :active="isSaving" color="#1C457D"/>
             <button class="button primary cell shrink" type="button" @click="save(false)">{{session.id ? 'Сохранить' : 'Открыть смену'}}</button>
-            <button v-if="session.id && session.state === 'open'" class="button secondary alert cell shrink" type="button" @click="save(true)">Закрыть смену</button>
+            <button class="button secondary alert cell shrink" type="button" @click="save(true)">Закрыть смену</button>
           </div>
           <div v-if="savingError" class="callout alert">
             <h5>Произошла ошибка при сохранении смены</h5>
