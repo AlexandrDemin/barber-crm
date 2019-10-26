@@ -84,9 +84,10 @@ Login
     margin-top: 0;
 }
 .login-back {
-    background: url('/static/big-logo-transparent.svg');
-    background-color: var(--black);
-    background-position: 0 100px;
+    background: url('/static/big-logo-transparent.svg'), url('/static/wp.jpg') no-repeat;
+    background-position: 0 100px, center;
+    background-size: auto, cover;
+    background-blend-mode: multiply, normal;
     animation-duration: 20s;
     animation-name: scroll;
     animation-iteration-count: infinite;
@@ -94,10 +95,10 @@ Login
 }
 @keyframes scroll {
     from {
-        background-position: 0 100px;
+        background-position: 0 100px, center;
     }
     to {
-        background-position: 200px 100px;
+        background-position: 200px 100px, center;
     }
 }
 
