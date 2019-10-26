@@ -73,8 +73,8 @@ def login():
         login = data['login']
         password = data['password']
         try:
-            user = User.query.filter_by(id=1).first()
-            # user = User.query.filter_by(login=login,password=password).first()
+            # user = User.query.filter_by(id=1).first()
+            user = User.query.filter_by(login=login,password=password).first()
             login_user(user)
             return 'Success'
         except:
@@ -359,7 +359,6 @@ def EditOperations():
     if request.method == 'POST':
         data = request.get_json()
         results = []
-        firstservicewithpicture = True
         for elem in data:
             table = elem['operationType']
             del elem['operationType']
@@ -477,13 +476,13 @@ def login_form():
         login = request.form['login']
         password = request.form['password']
         try:
-            user = User.query.filter_by(id=1).first()
-            # user = User.query.filter_by(login=login,password=password).first()
+            # user = User.query.filter_by(id=1).first()
+            user = User.query.filter_by(login=login,password=password).first()
             login_user(user)
             redirect_url = request.args.get("next") or '/'
             return redirect(redirect_url)   
         except:
-            return abort(401)
+            return render_template('login.html', login_error = True)
     else:
         return render_template('login.html')
 
@@ -499,7 +498,7 @@ def unauthorized_callback():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return "Page not found", 404
+    return 'Страница не найдена. <a href="/">На главную</a>', 404
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

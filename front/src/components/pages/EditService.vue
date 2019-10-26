@@ -1,10 +1,10 @@
 <template>
   <main>
-    <appMenu v-bind:selected-element="service.sessionId === $store.state.currentSession.id ? 'session' : 'history'"></appMenu>
+    <appMenu v-bind:selected-element="canEdit ? 'session' : 'history'"></appMenu>
     <div class="content">
       <nav>
         <ul class="breadcrumbs">
-          <li v-if="service.sessionId === $store.state.currentSession.id"><router-link to="/Session">Смена</router-link></li>
+          <li v-if="canEdit"><router-link to="/">Назад</router-link></li>
           <li v-else><router-link to="/SessionsHistory">История смен и операций</router-link></li>
         </ul>
       </nav>
@@ -66,6 +66,50 @@
           >
             <div slot="no-options">Ничего не найдено</div>
           </v-select>
+          <div v-if="service.clientId === null">
+            <label>Имя</label>
+            <input type="text" v-model="newClient.name" autofocus/>
+            <label>Фото</label>
+            <button type="button" class="button secondary">Выбрать</button>
+            <input type="file" accept="image/*" style="display:none" ref="photoSelector">
+            <div v-for="(contact, index) in newClient.contacts" v-bind:key="contact">
+              <label v-on:click.prevent class="grid-x">
+                <span class="cell auto">Контакт {{index > 0 ? index + 1 : ''}}</span>
+                <button
+                  type="button" class="button clear small cell shrink no-margin"
+                  @click="removeContact(index)"
+                >
+                  Удалить
+                </button>
+              </label>
+              <v-select
+                :clearable="false"
+                v-model="contact.type"
+                :reduce="s => s.id"
+                :value="contact.type"
+                label="name"
+                :options="contactTypes"
+              >
+                <div slot="no-options">Ничего не найдено</div>
+              </v-select>
+              <input type="text" v-model="contact.value"/>
+            </div>
+            <div>
+              <button
+                class="button secondary"
+                type="button"
+                @click="addContact"
+              >
+                Добавить контакт
+              </button>
+            </div>
+            <label>Комментарий</label>
+            <textarea rows="3" v-model="newClient.comment"></textarea>
+            <div v-if="savingError" class="callout alert">
+              <h5>Произошла ошибка при сохранении клиента</h5>
+              <p>{{savingError}}</p>
+            </div>
+          </div>
           <label>Сумма (наличка)</label>
           <input type="number" v-model="service.cashSum"/>
           <label>Сумма (безнал)</label>
@@ -88,7 +132,7 @@
               <button
                 type="button" class="button clear small cell shrink no-margin"
                 @click="removeItem(soldItem)"
-                v-if="operations[0].sessionId === $store.state.currentSession.id"
+                v-if="canEdit"
               >
                 Удалить
               </button>
@@ -119,7 +163,7 @@
               class="button secondary"
               type="button"
               @click="addItem"
-              v-if="operations[0].sessionId === $store.state.currentSession.id"
+              v-if="canEdit"
             >
               Добавить товар
             </button>
@@ -131,7 +175,7 @@
               <button
                 type="button" class="button clear small cell shrink no-margin"
                 @click="removeExpense(expense)"
-                v-if="operations[0].sessionId === $store.state.currentSession.id"
+                v-if="canEdit"
               >
                 Удалить
               </button>
@@ -151,8 +195,14 @@
             <label>Комментарий</label>
           <textarea rows="2" v-model="expense.comment"></textarea>
           </div>
-          <div>
-            <button class="button secondary" type="button" @click="addExpense">Добавить расход</button>
+          <div v-if="canEdit">
+            <button
+              class="button secondary"
+              type="button"
+              @click="addExpense"
+            >
+              Добавить расход
+            </button>
           </div>
           <h2>Выплаты мастеру</h2>
           <div v-for="(payment, index) in employeePayments" v-bind:key="payment.id">
@@ -161,7 +211,7 @@
               <button
                 type="button" class="button clear small cell shrink no-margin"
                 @click="removeEmployeePayment(payment)"
-                v-if="operations[0].sessionId === $store.state.currentSession.id"
+                v-if="canEdit"
               >
                 Удалить
               </button>
@@ -181,17 +231,16 @@
             <label>Комментарий</label>
           <textarea rows="2" v-model="payment.comment"></textarea>
           </div>
-          <div>
+          <div v-if="canEdit">
             <button
               class="button secondary"
               type="button"
               @click="addEmployeePayment"
-              v-if="operations[0].sessionId === $store.state.currentSession.id"
             >
               Добавить выплату мастеру
             </button>
           </div>
-          <div v-if="operations[0].sessionId === $store.state.currentSession.id">
+          <div v-if="canEdit">
             <vue-element-loading :active="isSaving" color="#1C457D"/>
             <button class="button primary" type="button" @click="save">Сохранить</button>
           </div>
@@ -203,6 +252,7 @@
 
 <script>
 import Menu from '@/components/Menu'
+import { HTTP } from '../../api/api.js'
 import VueElementLoading from 'vue-element-loading'
 import vSelect from 'vue-select'
 
@@ -216,169 +266,19 @@ export default {
   mounted: function () {
     document.title = this.$route.meta.title
     if (this.$route.params.id) {
-      this.operations = [
-        {
-          'operationType': 'service',
-          'sessionId': 1,
-          'id': 1,
-          'officeId': 1,
-          'type': 1,
-          'startDatetime': '21.09.2019 09:30',
-          'finishDatetime': '21.09.2019 10:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 600,
-          'cashlessSum': 0,
-          'discountSum': 0,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'score': null,
-          'review': '',
-          'photoUrls': [],
-          'comment': ''
-        },
-        {
-          'operationType': 'goodSell',
-          'id': 2,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 1,
-          'datetime': '21.09.2019 09:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 0,
-          'cashlessSum': 2350,
-          'discountSum': 0,
-          'amount': 1,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'comment': ''
-        },
-        {
-          'operationType': 'goodSell',
-          'id': 3,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 2,
-          'datetime': '21.09.2019 09:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 0,
-          'cashlessSum': 2350,
-          'discountSum': 0,
-          'amount': 1,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'comment': ''
-        },
-        {
-          'operationType': 'goodSell',
-          'id': 4,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 3,
-          'datetime': '21.09.2019 09:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 0,
-          'cashlessSum': 2350,
-          'discountSum': 0,
-          'amount': 1,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'comment': ''
-        },
-        {
-          'operationType': 'goodSell',
-          'id': 5,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 4,
-          'datetime': '21.09.2019 09:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 0,
-          'cashlessSum': 2350,
-          'discountSum': 0,
-          'amount': 1,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'comment': ''
-        },
-        {
-          'operationType': 'goodSell',
-          'id': 6,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 5,
-          'datetime': '21.09.2019 09:30',
-          'adminId': 1,
-          'masterId': 3,
-          'clientId': 1,
-          'cashSum': 0,
-          'cashlessSum': 2350,
-          'discountSum': 0,
-          'amount': 1,
-          'adminBonus': 30,
-          'masterBonus': 120,
-          'comment': ''
-        },
-        {
-          'operationType': 'spend',
-          'id': 7,
-          'officeId': 1,
-          'sessionId': 1,
-          'type': 2,
-          'datetime': '21.09.2019 12:44',
-          'sum': 600,
-          'comment': ''
-        },
-        {
-          'operationType': 'employeePayment',
-          'id': 8,
-          'officeId': 1,
-          'sessionId': 1,
-          'employeeId': 4,
-          'type': 2,
-          'datetime': '21.09.2019 18:22',
-          'sum': 600,
-          'comment': ''
-        }
-      ]
+      this.load(this.$route.params.id)
+    } else {
+      this.operations = this.getEmptyItem()
     }
   },
   data () {
     return {
       isLoading: false,
       isSaving: false,
-      operations: [
-        {
-          'operationType': 'service',
-          'sessionId': this.$route.query.sessionId,
-          'id': null,
-          'officeId': this.$route.query.officeId,
-          'type': this.$route.query.serviceTypeId,
-          'startDatetime': this.$store.getters.getDateTimeNow,
-          'finishDatetime': null,
-          'adminId': this.$route.query.adminId,
-          'masterId': this.$route.query.masterId,
-          'clientId': null,
-          'cashSum': 0,
-          'cashlessSum': 0,
-          'discountSum': 0,
-          'adminBonus': 0,
-          'masterBonus': 0,
-          'score': null,
-          'review': '',
-          'photoUrls': [],
-          'comment': ''
-        }
-      ]
+      loadingError: '',
+      savingError: '',
+      operations: [],
+      newClient: this.getEmptyClient()
     }
   },
   methods: {
@@ -439,8 +339,72 @@ export default {
       var index = this.operations.findIndex(o => o.operationType === 'employeePayment' && o.type === item.type && o.id === item.id)
       this.operations.splice(index, 1)
     },
-    save: function () {},
-    deleteOperation: function () {}
+    load: function (id) {
+      this.isLoading = true
+      this.loadingError = ''
+      HTTP.post(`GetServiceOperation/`, {'id': id})
+        .then(response => {
+          var service = response.data
+          this.service = service
+          this.isLoading = false
+        })
+        .catch(e => {
+          this.loadingError = e
+          this.isLoading = false
+        })
+    },
+    save: function () {
+      this.isSaving = true
+      this.savingError = ''
+      HTTP.post(`EditOperations/`, this.operations)
+        .then(response => {
+          this.$store.dispatch('getCurrentSession')
+          this.$router.push({ path: '/' })
+          this.isSaving = false
+        })
+        .catch(e => {
+          this.savingError = e
+          this.isSaving = false
+        })
+    },
+    getEmptyItem: function () {
+      return [
+        {
+          'operationType': 'service',
+          'sessionId': this.$store.state.currentSession.id,
+          'id': null,
+          'officeId': this.$store.state.currentSession.officeId,
+          'type': this.$route.query.serviceTypeId,
+          'startDatetime': this.moment().subtract(1, 'hours'),
+          'finishDatetime': this.moment(),
+          'adminId': this.$route.query.adminId,
+          'masterId': this.$route.query.masterId,
+          'clientId': null,
+          'cashSum': 0,
+          'cashlessSum': 0,
+          'discountSum': 0,
+          'adminBonus': 0,
+          'masterBonus': 0,
+          'score': null,
+          'review': '',
+          'photoUrls': null,
+          'comment': ''
+        }
+      ]
+    },
+    getEmptyClient: function () {
+      return {
+        id: null,
+        name: '',
+        photoUrl: '',
+        contacts: [
+          {
+            type: 'phone',
+            value: ''
+          }
+        ]
+      }
+    }
   },
   computed: {
     serviceTypes: {
@@ -451,17 +415,7 @@ export default {
     clients: {
       get () {
         var clientsCopy = [...this.$store.state.clients]
-        clientsCopy.unshift({
-          id: null,
-          name: '',
-          photoUrl: '',
-          contacts: [
-            {
-              type: 'phone',
-              value: ''
-            }
-          ]
-        })
+        clientsCopy.unshift(this.getEmptyClient())
         return clientsCopy
       }
     },
@@ -525,6 +479,12 @@ export default {
         var index = this.operations.findIndex(o => o.operationType === 'employeePayment' && o.type === item.type && o.id === item.id && o.employeeId === item.employeeId)
         this.operations.$set(index, item)
       }
+    },
+    canEdit: function () {
+      if (this.operations[0]) {
+        return !this.operations[0].id || (this.operations[0].sessionId === this.$store.state.currentSession.id)
+      }
+      return false
     }
   }
 }

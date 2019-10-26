@@ -221,7 +221,7 @@ export default new Vuex.Store({
     },
     getClientDescription: (state) => (clientOrClientId) => {
       if (clientOrClientId === null) {
-        return null
+        return 'Новый клиент'
       }
       var client = clientOrClientId
       if (typeof client === 'number') {

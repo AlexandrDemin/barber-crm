@@ -177,7 +177,7 @@ body {
   margin: 0;
   padding: 0;
   background: var(--white);
-  font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-family: "Roboto", Roboto, Arial, sans-serif;
   font-weight: normal;
   line-height: 1.5;
   color: var(--black);
@@ -287,9 +287,9 @@ h3, .h3,
 h4, .h4,
 h5, .h5,
 h6, .h6 {
-  font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-family: "Roboto", Roboto, Arial, sans-serif;
   font-style: normal;
-  font-weight: normal;
+  font-weight: 900;
   color: inherit;
   text-rendering: optimizeLegibility; }
   h1 small, .h1 small,
@@ -956,6 +956,7 @@ select {
   -webkit-transition: background-color 0.25s ease-out, color 0.25s ease-out;
   transition: background-color 0.25s ease-out, color 0.25s ease-out;
   font-family: inherit;
+  font-weight: 400;
   font-size: 0.9rem;
   -webkit-appearance: none;
   line-height: 1;
@@ -3093,13 +3094,13 @@ a.button:hover, a.button:focus {
   .callout > :last-child {
     margin-bottom: 0; }
   .callout.primary {
-    background-color: #def2f8;
+    background-color: var(--brand-blue-light);
     color: var(--black); }
   .callout.secondary {
-    background-color: #fcfcfc;
+    background-color: var(--gray-100);
     color: var(--black); }
   .callout.alert {
-    background-color: #fcd6d6;
+    background-color: var(--brand-red-light);
     color: var(--black); }
   .callout.success {
     background-color: #e6f7d9;

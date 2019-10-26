@@ -19,7 +19,7 @@
         <input type="text" v-model="servicesSearch" placeholder="Поиск по услугам"/>
         <ul class="services-goods-list">
           <li v-for="service in filteredServices" v-bind:key="service.id">
-            <router-link :to="{path:'/EditService/', query: {serviceTypeId: service.id, masterId: employee.id}}">{{service.name}}</router-link>
+            <router-link :to="{path:'/EditService/', query: {serviceTypeId: service.id, masterId: employee.id, adminId: adminId}}">{{service.name}}</router-link>
           </li>
         </ul>
       </div>
@@ -27,7 +27,7 @@
         <input type="text" v-model="goodsSearch" placeholder="Поиск по товарам"/>
         <ul class="services-goods-list">
           <li v-for="good in filteredGoods" v-bind:key="good.id">
-            <router-link :to="{path:'/EditGoodsSell/', query: {goodTypeId: good.id, masterId: employee.id}}">{{good.name}}</router-link>
+            <router-link :to="{path:'/EditGoodsSell/', query: {goodTypeId: good.id, masterId: employee.id, adminId: adminId}}">{{good.name}}</router-link>
           </li>
         </ul>
       </div>
@@ -99,6 +99,9 @@ export default {
     },
     filteredGoods: function () {
       return this.goods.filter(good => good.name.toLowerCase().includes(this.goodsSearch.toLowerCase()))
+    },
+    adminId: function () {
+      return this.$store.state.currentSession.employees.filter(e => e.role === 'officeAdmin')[0].id
     }
   }
 }

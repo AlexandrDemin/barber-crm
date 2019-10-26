@@ -1,10 +1,10 @@
 <template>
   <main>
-    <appMenu :selected-element="canEdit() ? 'session' : 'history'"></appMenu>
+    <appMenu :selected-element="canEdit ? 'session' : 'history'"></appMenu>
     <div class="content">
       <nav>
         <ul class="breadcrumbs">
-          <li v-if="canEdit()"><router-link to="/">Назад</router-link></li>
+          <li v-if="canEdit"><router-link to="/">Назад</router-link></li>
           <li v-else><router-link to="/SessionsHistory/">Назад</router-link></li>
         </ul>
       </nav>
@@ -19,7 +19,7 @@
           <label>Отделение</label>
           <v-select
             :clearable="false"
-            :disabled="!canEdit()"
+            :disabled="!canEdit"
             v-model="session.officeId"
             :reduce="s => s.id"
             :value="session.officeId"
@@ -35,14 +35,14 @@
               <button
                 type="button" class="button clear small cell shrink no-margin"
                 @click="removeEmployee(admin.id)"
-                v-if="index > 0 && canEdit()"
+                v-if="index > 0 && canEdit"
               >
                 Удалить
               </button>
             </label>
             <v-select
               :clearable="false"
-              :disabled="!canEdit()"
+              :disabled="!canEdit"
               v-model="admin.id"
               :reduce="s => s.id"
               :value="admin.id"
@@ -52,9 +52,9 @@
               <div slot="no-options">Ничего не найдено</div>
             </v-select>
             <label>Продолжительность смены, часы</label>
-            <input type="number" :disabled="!canEdit()" v-model="admin.workHours">
+            <input type="number" :disabled="!canEdit" v-model="admin.workHours">
           </div>
-          <div v-if="canEdit()">
+          <div v-if="canEdit">
             <button class="button secondary" type="button" @click="addAdmin">Добавить администратора</button>
           </div>
           <h2>Мастера</h2>
@@ -64,14 +64,14 @@
               <button
                 type="button" class="button clear small cell shrink no-margin"
                 @click="removeEmployee(master.id)"
-                v-if="index > 0 && canEdit()"
+                v-if="index > 0 && canEdit"
               >
                 Удалить
               </button>
             </label>
             <v-select
               :clearable="false"
-              :disabled="!canEdit()"
+              :disabled="!canEdit"
               v-model="master.id"
               :reduce="s => s.id"
               :value="master.id"
@@ -81,15 +81,15 @@
               <div slot="no-options">Ничего не найдено</div>
             </v-select>
             <label>Продолжительность смены, часы</label>
-            <input type="number" :disabled="!canEdit()" v-model="master.workHours">
+            <input type="number" :disabled="!canEdit" v-model="master.workHours">
           </div>
-          <div v-if="canEdit()">
+          <div v-if="canEdit">
             <button class="button secondary" type="button" @click="addMaster">Добавить мастера</button>
           </div>
-          <div v-if="canEdit()" class="grid-x align-justify">
+          <div v-if="canEdit" class="grid-x align-justify">
             <vue-element-loading :active="isSaving" color="#1C457D"/>
             <button class="button primary cell shrink" type="button" @click="save(false)">{{session.id ? 'Сохранить' : 'Открыть смену'}}</button>
-            <button class="button secondary alert cell shrink" type="button" @click="save(true)">Закрыть смену</button>
+            <button v-if="session.id" class="button secondary alert cell shrink" type="button" @click="save(true)">Закрыть смену</button>
           </div>
           <div v-if="savingError" class="callout alert">
             <h5>Произошла ошибка при сохранении смены</h5>
@@ -172,7 +172,6 @@ export default {
         })
     },
     save: function (needClose) {
-      console.log(needClose)
       this.isSaving = true
       this.savingError = ''
       var session = this.session
@@ -204,9 +203,6 @@ export default {
         'state': 'open',
         'openCash': 0
       }
-    },
-    canEdit: function () {
-      return this.session.state === 'open' && (this.session.id === this.$store.state.currentSession.id || !this.session.id)
     }
   },
   computed: {
@@ -250,6 +246,9 @@ export default {
         item.role = 'master'
         this.session.employees.$set(employeeIndex, item)
       }
+    },
+    canEdit: function () {
+      return this.session.state === 'open' && (this.session.id === this.$store.state.currentSession.id || !this.session.id)
     }
   }
 }
