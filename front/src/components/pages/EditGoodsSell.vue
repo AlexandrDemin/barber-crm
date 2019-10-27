@@ -185,7 +185,7 @@ export default {
       return {
         'operationType': 'goodsoperation',
         'id': null,
-        'goodsId': this.goodsTypes[0].id,
+        'goodsId': this.$route.query.goodTypeId || this.goodsTypes[0].id,
         'sessionId': this.currentSession.id,
         'officeId': this.currentSession.officeId,
         'datetime': this.moment(),
