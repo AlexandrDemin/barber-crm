@@ -105,10 +105,6 @@
             </div>
             <label>Комментарий к клиенту</label>
             <textarea rows="3" v-model="newClient.comment"></textarea>
-            <div v-if="savingError" class="callout alert">
-              <h5>Произошла ошибка при сохранении клиента</h5>
-              <p>{{savingError}}</p>
-            </div>
           </div>
           <label>Сумма (наличка)</label>
           <input type="number" v-model="service.cashSum"/>
@@ -157,7 +153,7 @@
               <label>Скидка, руб.</label>
               <input type="number" v-model="soldItem.discountSum">
               <label>Комментарий</label>
-            <textarea rows="2" v-model="soldItem.comment"></textarea>
+              <textarea rows="2" v-model="soldItem.comment"></textarea>
             </div>
             <div>
               <button

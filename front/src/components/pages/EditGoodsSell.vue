@@ -255,7 +255,7 @@ export default {
             HTTP.post(`EditOperations/`, this.operations)
               .then(response => {
                 this.$store.dispatch('getCurrentSession')
-                // this.$router.push({ path: '/' })
+                this.$router.push({ path: '/' })
                 this.isSaving = false
               })
               .catch(e => {
@@ -279,7 +279,7 @@ export default {
         HTTP.post(`EditOperations/`, this.operations)
           .then(response => {
             this.$store.dispatch('getCurrentSession')
-            // this.$router.push({ path: '/' })
+            this.$router.push({ path: '/' })
             this.isSaving = false
           })
           .catch(e => {
