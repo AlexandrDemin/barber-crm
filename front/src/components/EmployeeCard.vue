@@ -8,7 +8,7 @@
         </div>
       </div> -->
       <div class="cell auto">
-        <h4>{{employeeName}}</h4>
+        <h5>{{employeeName}}</h5>
       </div>
       <div class="cell auto show-for-medium">
         <p>Длина смены <strong>{{employee.workHours}}</strong> ч.</p>

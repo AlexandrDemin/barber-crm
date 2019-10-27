@@ -220,14 +220,14 @@ export default new Vuex.Store({
       return '–'
     },
     getClientDescription: (state) => (clientOrClientId) => {
-      if (clientOrClientId === null) {
-        return 'Новый клиент'
-      }
       var client = clientOrClientId
       if (typeof client === 'number') {
         client = state.clients.filter(c => c.id === client)[0]
       }
       if (client) {
+        if (client.id === null) {
+          return 'Новый клиент'
+        }
         var phone = client.contacts.filter(c => c.type === 'phone')[0]
         if (phone) {
           return `${client.name} (${phone.value})`
@@ -302,10 +302,10 @@ export default new Vuex.Store({
     },
     getOperationBonus: (state) => (operation) => {
       if (operation.type === 'serviceoperation') {
-        return operation.masterBonus + operation.adminBonus
+        return operation.masterBonusSum + operation.adminBonusSum
       }
       if (operation.type === 'goodsoperation') {
-        return operation.masterBonus + operation.adminBonus
+        return operation.masterBonusSum + operation.adminBonusSum
       }
       return '–'
     },
@@ -410,8 +410,8 @@ export default new Vuex.Store({
           'value': true
         })
         HTTP.post(`GetCurrentSession/`, {
-          'officeId': context.state.currentOfficeId,
-          'withOperations': true
+          officeId: context.state.currentOfficeId,
+          withOperations: true
         })
           .then(response => {
             var data = response.data
@@ -450,7 +450,6 @@ export default new Vuex.Store({
       }
     },
     getState (context, actions) {
-      HTTP.post(`Login/`, {login: '1', password: '1'})
       if (!context.state.isStateLoaded) {
         context.commit('updateStore', {
           'name': 'isStateLoading',

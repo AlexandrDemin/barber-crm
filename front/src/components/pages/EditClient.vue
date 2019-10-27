@@ -17,9 +17,9 @@
         <div class="cell large-6">
           <label>Имя</label>
           <input type="text" v-model="client.name" autofocus/>
-          <label>Фото</label>
+          <!-- <label>Фото</label>
           <button type="button" class="button secondary">Выбрать</button>
-          <input type="file" accept="image/*" style="display:none" ref="photoSelector">
+          <input type="file" accept="image/*" style="display:none" ref="photoSelector"> -->
           <div v-for="(contact, index) in client.contacts" v-bind:key="contact">
             <label v-on:click.prevent class="grid-x">
               <span class="cell auto">Контакт {{index > 0 ? index + 1 : ''}}</span>
@@ -181,7 +181,7 @@ export default {
         delete client.contacts
       }
       delete client.operations
-      HTTP.post(`EditClient/`, this.client)
+      HTTP.post(`EditClient/`, client)
         .then(response => {
           this.isSaving = false
         })

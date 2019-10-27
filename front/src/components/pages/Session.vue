@@ -90,7 +90,7 @@
           </div>
         </div>
         <div class="cell small-12 columns card">
-          <table class="unstriped operations-table">
+          <table class="operations-table stack hover">
             <thead>
               <tr>
                 <th>Время</th>

@@ -152,10 +152,8 @@ def getSessionsOperationsQuery(args):
         (select {fields} from {table}
         {wherelocalpart}) ssn"""
 
-    if 'withOperations' in args['data']:
-        if args['data']['withOperations'] == True:
-            args['data']['operationType'] = ['serviceoperation','goodsoperation',"spendoperation","employeepayment"]
-
+    if 'operationType' not in args['data'] and 'withOperations' in args['data'] and (args['data']['withOperations'] == True or args['data']['withOperations'] == 'true'):
+        args['data']['operationType'] = ['serviceoperation','goodsoperation',"spendoperation","employeepayment"]
     if 'operationType' in args['data']:
         clientidspart = ''
         querypartslist = []
