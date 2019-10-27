@@ -118,7 +118,7 @@
           <textarea rows="2" v-model="service.review"></textarea>
           <!-- <label>Фотографии</label>
           <button class="button secondary">Загрузить фотографии</button>
-          <input ref="images" type="fi -->le" style="display:none" multiple="multiple" accept="image/*">
+          <input ref="images" type="file" style="display:none" multiple="multiple" accept="image/*"> -->
           <label>Комментарий</label>
           <textarea rows="2" v-model="service.comment"></textarea>
           <div v-if="canEdit">

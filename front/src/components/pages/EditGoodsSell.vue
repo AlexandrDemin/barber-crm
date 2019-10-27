@@ -11,7 +11,7 @@
       <h1>Продажа товаров</h1>
       <div class="grid-x">
         <vue-element-loading :active="isLoading" color="#1C457D"/>
-        <div class="cell large-6">
+        <div class="cell large-6" v-if="operations.length">
           <label>Администратор</label>
           <v-select
             :clearable="false"
