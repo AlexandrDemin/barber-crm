@@ -1,12 +1,12 @@
 <template>
   <div class="cell large-6 columns card employee-card">
-    <div class="employee-card-header grid-x align-middle">
-      <div class="cell small-2 medium-1">
+    <div class="employee-card-header grid-x grid-padding-x align-middle">
+      <!-- <div class="cell small-2 medium-1">
         <img v-if="employee.pictureUrl" class="employee-card-picture" v-bind:src="employee.pictureUrl"/>
         <div v-if="!employee.pictureUrl" class="employee-card-picture employee-card-picture-placeholder">
           {{$store.getters.getUserPicturePlaceholderText(employeeName)}}
         </div>
-      </div>
+      </div> -->
       <div class="cell auto">
         <h4>{{employeeName}}</h4>
       </div>
