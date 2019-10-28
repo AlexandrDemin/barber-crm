@@ -14,6 +14,7 @@
         <div class="cell large-6" v-if="service">
           <label>Услуга</label>
           <v-select
+            @input="updateServiceSum"
             :clearable="false"
             v-model="service.serviceId"
             :reduce="s => s.id"
@@ -135,6 +136,7 @@
                 </button>
               </label>
               <v-select
+                @input="updateItemSum(soldItem)"
                 :clearable="false"
                 v-model="soldItem.goodsId"
                 :reduce="s => s.id"
@@ -145,7 +147,7 @@
                 <div slot="no-options">Ничего не найдено</div>
               </v-select>
               <label>Количество</label>
-              <input type="number" v-model="soldItem.amount">
+              <input type="number" v-model="soldItem.amount" @input="updateItemSum(soldItem)">
               <label>Сумма (наличка)</label>
               <input type="number" v-model="soldItem.cashSum">
               <label>Сумма (безнал)</label>
@@ -316,20 +318,29 @@ export default {
         'officeId': this.currentSession.officeId,
         'datetime': this.moment(),
         'adminId': this.service.adminId,
-        'masterId': this.service.masterId,
+        'employeeId': this.service.masterId,
         'clientId': this.service.clientId,
         'amount': 1,
         'cashSum': this.goodsTypes[0].price,
         'cashlessSum': 0,
         'discountSum': 0,
         'adminBonusSum': 0,
-        'masterBonusSum': 0,
+        'employeeBonusSum': 0,
         'comment': ''
       })
     },
     removeItem: function (item) {
       var index = this.operations.findIndex(o => o.operationType === 'goodsoperation' && o.goodsId === item.goodsId && o.id === item.id)
       this.operations.splice(index, 1)
+    },
+    updateServiceSum: function () {
+      console.log(this.service)
+      this.service.cashSum = this.getServiceSum(this.service.serviceId, this.service.masterId)
+      this.service.cashlessSum = 0
+    },
+    updateItemSum: function (operation) {
+      operation.cashSum = this.goodsTypes.filter(x => x.id === operation.goodsId)[0].price * operation.amount
+      operation.cashlessSum = 0
     },
     addExpense: function () {
       this.operations.push({
@@ -371,8 +382,8 @@ export default {
         .then(response => {
           var service = response.data
           service.operationType = 'serviceoperation'
-          service.startDatetime = this.moment(service.startDatetime, 'DD.MM.YYYY HH:mm')
-          service.finishDatetime = this.moment(service.startDatetime, 'DD.MM.YYYY HH:mm')
+          service.startDatetime = this.moment.utc(service.startDatetime, 'DD.MM.YYYY HH:mm').local()
+          service.finishDatetime = this.moment.utc(service.startDatetime, 'DD.MM.YYYY HH:mm').local()
           this.operations = [service]
           this.isLoading = false
         })
@@ -387,11 +398,16 @@ export default {
       var operations = this.operations
       for (var index in operations) {
         console.log(index, operations[index])
-        if (operations[index].operationType === 'serviceoperation' || operations[index].operationType === 'goodsoperation') {
+        if (operations[index].operationType === 'serviceoperation') {
           operations[index].adminBonusSum = this.getAdminBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].adminId, operations[index].operationType)
           operations[index].masterBonusSum = this.getMasterBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].masterId, operations[index].operationType)
         }
-        console.log(index, operations[index])
+        if (operations[index].operationType === 'goodsoperation') {
+          operations[index].adminBonusSum = this.getAdminBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].adminId, operations[index].operationType)
+          if (operations[index].employeeId && operations[index].employeeId !== operations[index].adminId) {
+            operations[index].employeeBonusSum = this.getEmployeeBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].employeeId, operations[index].operationType)
+          }
+        }
       }
       this.operations = operations
       if (this.service.clientId === null) {
@@ -457,9 +473,14 @@ export default {
       }
     },
     getServiceSum: function (serviceTypeId, masterId) {
+      console.log('serviceTypeId', serviceTypeId)
+      console.log('masterId', masterId)
       var serviceType = this.serviceTypes.filter(x => x.id === serviceTypeId)[0]
+      console.log('serviceType', serviceType)
       var master = this.masters.filter(x => x.id === masterId)[0]
+      console.log('master', master)
       var price = serviceType.prices.filter(x => x.category === master.categoryId)
+      console.log('price', price)
       if (price.length) {
         return price[0].price
       }
@@ -484,6 +505,11 @@ export default {
       if (operationType === 'goodsoperation') {
         return sum * master.goodsPercent
       }
+    },
+    getEmployeeBonus: function (sum, employeeId, operationType) {
+      var employee = this.employees.filter(x => x.id === employeeId)[0]
+      console.log(employee)
+      return sum * employee.goodsPercent
     },
     addContact: function () {
       if (!this.newClient.contacts) {
@@ -518,12 +544,26 @@ export default {
     },
     admins: {
       get () {
+        if (this.currentSession && Object.keys(this.currentSession).length) {
+          return this.currentSession.employees.filter(e => e.role === 'officeAdmin')
+        }
         return this.$store.state.employees.filter(e => e.roles.includes('officeAdmin'))
       }
     },
     masters: {
       get () {
+        if (this.currentSession && Object.keys(this.currentSession).length) {
+          return this.currentSession.employees.filter(e => e.role === 'master')
+        }
         return this.$store.state.employees.filter(e => e.roles.includes('master'))
+      }
+    },
+    employees: {
+      get () {
+        if (this.currentSession && Object.keys(this.currentSession).length) {
+          return this.currentSession.employees
+        }
+        return this.$store.state.employees
       }
     },
     goodsTypes: {

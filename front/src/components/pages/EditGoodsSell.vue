@@ -23,14 +23,13 @@
           >
             <div slot="no-options">Ничего не найдено</div>
           </v-select>
-          <label>Мастер</label>
+          <label>Сотрудник, которому пойдёт продажа в премию, кроме администратора</label>
           <v-select
-            :clearable="false"
-            v-model="masterId"
+            v-model="employeeId"
             :reduce="s => s.id"
-            :value="masterId"
+            :value="employeeId"
             label="name"
-            :options="masters"
+            :options="employees"
           >
             <div slot="no-options">Ничего не найдено</div>
           </v-select>
@@ -97,6 +96,7 @@
               </button>
             </label>
             <v-select
+              @input="updateSum(soldItem, index)"
               :clearable="false"
               v-model="soldItem.goodsId"
               :reduce="s => s.id"
@@ -107,7 +107,7 @@
               <div slot="no-options">Ничего не найдено</div>
             </v-select>
             <label>Количество</label>
-            <input type="number" v-model="soldItem.amount">
+            <input type="number" v-model="soldItem.amount" @input="updateSum(soldItem, index)">
             <label>Сумма (наличка)</label>
             <input type="number" v-model="soldItem.cashSum">
             <label>Сумма (безнал)</label>
@@ -151,10 +151,11 @@ export default {
     'v-select': vSelect
   },
   created: function () {
+    this.adminId = this.$route.query.adminId || this.admins[0].id
+    this.employeeId = this.$route.query.employeeId
+    this.operations = [this.getEmptyItem()]
     if (this.$route.params.id) {
       this.load(this.$route.params.id)
-    } else {
-      this.operations = [this.getEmptyItem()]
     }
   },
   mounted: function () {
@@ -168,8 +169,8 @@ export default {
       savingError: '',
       newClient: this.getEmptyClient(),
       operations: [],
-      adminId: this.$route.query.adminId || this.admins[0].id,
-      masterId: this.$route.query.masterId || this.masters[0].id,
+      adminId: null,
+      employeeId: null,
       clientId: null
     }
   },
@@ -190,16 +191,21 @@ export default {
         'officeId': this.currentSession.officeId,
         'datetime': this.moment(),
         'adminId': this.adminId,
-        'masterId': this.masterId,
+        'employeeId': this.employeeId,
         'clientId': null,
         'amount': 1,
         'cashSum': this.goodsTypes[0].price,
         'cashlessSum': 0,
         'discountSum': 0,
         'adminBonusSum': 0,
-        'masterBonusSum': 0,
+        'employeeBonusSum': 0,
         'comment': ''
       }
+    },
+    updateSum: function (operation, index) {
+      operation.cashSum = this.goodsTypes.filter(x => x.id === operation.goodsId)[0].price * operation.amount
+      operation.cashlessSum = 0
+      this.$set(this.operations, index, operation)
     },
     load: function (id) {
       this.isLoading = true
@@ -208,8 +214,11 @@ export default {
         .then(response => {
           var operation = response.data
           operation.operationType = 'goodsoperation'
-          operation.datetime = this.moment(operation.datetime, 'DD.MM.YYYY HH:mm')
+          operation.datetime = this.moment.utc(operation.datetime, 'DD.MM.YYYY HH:mm').local()
           this.operations = [operation]
+          this.adminId = operation.adminId
+          this.employeeId = operation.employeeId
+          this.clientId = operation.clientId
           this.isLoading = false
         })
         .catch(e => {
@@ -222,13 +231,13 @@ export default {
       this.savingError = ''
       var operations = this.operations
       for (var index in operations) {
-        if (operations[index].operationType === 'serviceoperation' || operations[index].operationType === 'goodsoperation') {
-          operations[index].adminBonusSum = this.getAdminBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].adminId, operations[index].operationType)
-          operations[index].masterBonusSum = this.getMasterBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].masterId, operations[index].operationType)
-          operations[index].adminId = this.adminId
-          operations[index].masterId = this.masterId
-          operations[index].clientId = this.clientId
+        operations[index].adminBonusSum = this.getAdminBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].adminId, operations[index].operationType)
+        if (operations[index].employeeId && operations[index].employeeId !== operations[index].adminId) {
+          operations[index].employeeBonusSum = this.getEmployeeBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].employeeId, operations[index].operationType)
         }
+        operations[index].adminId = this.adminId
+        operations[index].employeeId = this.employeeId
+        operations[index].clientId = this.clientId
       }
       this.operations = operations
       if (this.clientId === null) {
@@ -303,7 +312,6 @@ export default {
     },
     getAdminBonus: function (sum, adminId, operationType) {
       var admin = this.admins.filter(x => x.id === adminId)[0]
-      console.log(admin)
       if (operationType === 'serviceoperation') {
         return sum * admin.servicePercent
       }
@@ -311,14 +319,13 @@ export default {
         return sum * admin.goodsPercent
       }
     },
-    getMasterBonus: function (sum, masterId, operationType) {
-      var master = this.masters.filter(x => x.id === masterId)[0]
-      console.log(master)
+    getEmployeeBonus: function (sum, employeeId, operationType) {
+      var employee = this.employees.filter(x => x.id === employeeId)[0]
       if (operationType === 'serviceoperation') {
-        return sum * master.servicePercent
+        return sum * employee.servicePercent
       }
       if (operationType === 'goodsoperation') {
-        return sum * master.goodsPercent
+        return sum * employee.goodsPercent
       }
     },
     addContact: function () {
@@ -342,17 +349,25 @@ export default {
     },
     clients: {
       get () {
-        return this.$store.state.clients
+        var clientsCopy = [...this.$store.state.clients]
+        clientsCopy.unshift(this.getEmptyClient())
+        return clientsCopy
       }
     },
     admins: {
       get () {
+        if (this.currentSession && Object.keys(this.currentSession).length) {
+          return this.currentSession.employees.filter(e => e.role === 'officeAdmin')
+        }
         return this.$store.state.employees.filter(e => e.roles.includes('officeAdmin'))
       }
     },
-    masters: {
+    employees: {
       get () {
-        return this.$store.state.employees.filter(e => e.roles.includes('master'))
+        if (this.currentSession && Object.keys(this.currentSession).length) {
+          return this.currentSession.employees
+        }
+        return this.$store.state.employees
       }
     },
     goodsTypes: {

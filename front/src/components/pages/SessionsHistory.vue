@@ -81,7 +81,7 @@
         v-for="session in sessions"
         v-bind:key="session.id"
       >
-        <h4><router-link :to="'/EditSession/' + session.id.toString()">Смена {{moment(session.dateOpened, 'DD.MM.YYYY HH:mm').format('DD.MM.YY')}} {{$store.getters.getOfficeName(session.officeId)}}</h4>
+        <h4><router-link :to="'/EditSession/' + session.id.toString()">Смена {{moment.utc(session.dateOpened, 'DD.MM.YYYY HH:mm').local().format('DD.MM.YY')}} {{$store.getters.getOfficeName(session.officeId)}}</h4>
         <table class="operations-table hover margin-bottom-30px">
           <thead>
             <tr>

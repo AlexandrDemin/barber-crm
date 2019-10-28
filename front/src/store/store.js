@@ -238,12 +238,12 @@ export default new Vuex.Store({
     },
     getDateTimeFromOperation: (state) => (operation) => {
       var datetimestr = ''
-      if (operation.startDatetime) {
-        datetimestr = operation.startDatetime
+      if (operation.finishDatetime) {
+        datetimestr = operation.finishDatetime
       } else if (operation.datetime) {
         datetimestr = operation.datetime
       }
-      return moment(datetimestr).format('DD.MM.YYYY HH:mm')
+      return moment.utc(datetimestr).local().format('DD.MM.YYYY HH:mm')
     },
     getTimeFromOperation: (state) => (operation) => {
       var datetimestr = ''
@@ -252,17 +252,17 @@ export default new Vuex.Store({
       } else if (operation.datetime) {
         datetimestr = operation.datetime
       }
-      return moment(datetimestr).format('HH:mm')
+      return moment.utc(datetimestr).local().format('HH:mm')
     },
     getEmployeeNameFromOperation: (state, getters) => (operation) => {
+      if (operation.employeeId) {
+        return getters.getEmployeeName(operation.employeeId)
+      }
       if (operation.masterId) {
         return getters.getEmployeeName(operation.masterId)
       }
       if (operation.adminId) {
         return getters.getEmployeeName(operation.adminId)
-      }
-      if (operation.employeeId) {
-        return getters.getEmployeeName(operation.employeeId)
       }
       return '–'
     },
@@ -271,11 +271,7 @@ export default new Vuex.Store({
         return getters.getServiceName(operation.serviceId)
       }
       if (operation.type === 'goodsoperation') {
-        var names = []
-        for (var i in operation.goodsIds) {
-          names.push(getters.getItemName(operation.goodsIds[i]))
-        }
-        return names.join('\n')
+        return getters.getItemName(operation.goodsId)
       }
       if (operation.type === 'spendoperation') {
         return getters.getSpendTypeName(operation.expenseTypeId)
@@ -305,7 +301,7 @@ export default new Vuex.Store({
         return operation.masterBonusSum + operation.adminBonusSum
       }
       if (operation.type === 'goodsoperation') {
-        return operation.masterBonusSum + operation.adminBonusSum
+        return operation.employeeBonusSum + operation.adminBonusSum
       }
       return '–'
     },
@@ -415,6 +411,11 @@ export default new Vuex.Store({
         })
           .then(response => {
             var data = response.data
+            data.employees = data.employees.map(e => {
+              var employee = context.state.employees.filter(x => x.id === e.id)[0]
+              employee.role = e.role
+              return employee
+            })
             context.commit('updateStore', {
               'name': 'currentSession',
               'value': data

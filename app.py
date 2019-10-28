@@ -5,7 +5,6 @@ from flask import Flask, abort, url_for, render_template, request, Response, cur
 from flask_sqlalchemy import SQLAlchemy
 from flask_user import login_required
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from werkzeug.wrappers import Request, Response
 import json
 from flask_cors import CORS
 from backend_logic import *
@@ -37,7 +36,6 @@ from sqlalchemy.orm import Session
 
 app = Flask(__name__, static_folder='./front/dist/static/', template_folder="./front/dist/")
 CORS(app, resources={r"/*": {"origins": "*"}})
-app.config['CORS_HEADERS'] = 'Content-Type'
 
 engine = create_engine('postgresql://read_write:Rw_Us3r@localhost/barbers', convert_unicode=True, echo=False)
 Base = declarative_base()
@@ -98,7 +96,7 @@ def GetCurrentUser():
     if request.method == 'POST':
         user = User.query.filter_by(id = current_user.id).first().__dict__
         del user['_sa_instance_state']
-        return user
+        return Response(user, geterrorcode(user), mimetype='application/json')
 
 @app.route('/api/GetUserData/', methods=['POST'])
 # @login_required
@@ -107,7 +105,7 @@ def GetUserData():
         data = request.get_json()
         configkey = 'GetUserData'
         result = get(configkey,data)
-        return result,geterrorcode(result)
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetEmployees/', methods=['POST'])
 # @login_required
@@ -115,7 +113,7 @@ def GetEmployees():
     if request.method == 'POST':
         configkey = 'GetEmployees'
         result = get(configkey)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetEmployee/', methods=['POST'])
 # @login_required
@@ -124,7 +122,7 @@ def GetEmployee():
         data = request.get_json()
         configkey = 'GetEmployee'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetAdmins/', methods=['POST'])
 # @login_required
@@ -132,7 +130,7 @@ def GetAdmins():
     if request.method == 'POST':
         configkey = 'GetAdmins'
         result = get(configkey)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetMasters/', methods=['POST'])
 # @login_required
@@ -140,7 +138,7 @@ def GetMasters():
     if request.method == 'POST':
         configkey = 'GetMasters'
         result = get(configkey)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetBarberCategories/', methods=['POST'])
 # @login_required
@@ -148,7 +146,7 @@ def GetBarberCategories():
     if request.method == 'POST':
         configkey = 'GetBarberCategories'
         result = get(configkey)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetBarberCategory/', methods=['POST'])
 # @login_required
@@ -157,7 +155,7 @@ def GetBarberCategory():
         data = request.get_json()
         configkey = 'GetBarberCategory'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetOffices/', methods=['POST'])
 # @login_required
@@ -165,7 +163,7 @@ def GetOffices():
     if request.method == 'POST':
         configkey = 'GetOffices'
         result = get(configkey)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetOffice/', methods=['POST'])
 # @login_required
@@ -174,7 +172,7 @@ def GetOffice():
         data = request.get_json()
         configkey = 'GetOffice'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetCurrentSession/', methods=['POST'])
 # @login_required
@@ -185,7 +183,7 @@ def GetCurrentSession():
         result = get(configkey,data)
         if 'warning' in json.loads(result):
             result = json.dumps({})
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetSession/', methods=['POST'])
 # @login_required
@@ -194,7 +192,7 @@ def GetSession():
         data = request.get_json()
         configkey = 'GetSession'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetSessions/', methods=['POST'])
 # @login_required
@@ -203,7 +201,7 @@ def GetSessions():
         data = request.get_json()
         configkey = 'GetSessionsWithOperations'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetServicesPrices/', methods=['POST'])
 # @login_required
@@ -211,7 +209,7 @@ def GetServicesPrices():
     if request.method == 'POST':
         configkey = 'GetServicesPrices'
         result = get(configkey)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetService/', methods=['POST'])
 # @login_required
@@ -220,7 +218,7 @@ def GetService():
         configkey = 'GetService'
         data = request.get_json()
         result = get(configkey, data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetServiceOperation/', methods=['POST'])
 # @login_required
@@ -229,7 +227,7 @@ def GetServiceOperation():
         data = request.get_json()
         configkey = 'GetServiceOperation'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetGoods/', methods=['POST'])
 # @login_required
@@ -237,7 +235,7 @@ def GetGoods():
     if request.method == 'POST':
         configkey = 'GetGoods'
         result = get(configkey)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetGood/', methods=['POST'])
 # @login_required
@@ -246,7 +244,7 @@ def GetGood():
         data = request.get_json()
         configkey = 'GetGood'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetGoodsOperation/', methods=['POST'])
 # @login_required
@@ -255,7 +253,7 @@ def GetGoodsOperation():
         data = request.get_json()
         configkey = 'GetGoodsOperation'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetSpendTypes/', methods=['POST'])
 # @login_required
@@ -263,7 +261,7 @@ def GetSpendTypes():
     if request.method == 'POST':
         configkey = 'GetSpendTypes'
         result = get(configkey)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetSpendType/', methods=['POST'])
 # @login_required
@@ -272,7 +270,7 @@ def GetSpendType():
         data = request.get_json()
         configkey = 'GetSpendType'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetSpendOperation/', methods=['POST'])
 # @login_required
@@ -281,7 +279,7 @@ def GetSpendOperation():
         data = request.get_json()
         configkey = 'GetSpendOperation'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetEmployeePaymentTypes/', methods=['POST'])
 # @login_required
@@ -289,7 +287,7 @@ def GetEmployeePaymentTypes():
     if request.method == 'POST':
         configkey = 'GetEmployeePaymentTypes'
         result = get(configkey)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetEmployeePaymentType/', methods=['POST'])
 # @login_required
@@ -298,7 +296,7 @@ def GetEmployeePaymentType():
         data = request.get_json()
         configkey = 'GetEmployeePaymentType'
         result = get(configkey,data)
-        return result    
+        return Response(result, geterrorcode(result), mimetype='application/json')  
     
 @app.route('/api/GetEmployeePaymentOperation/', methods=['POST'])
 # @login_required
@@ -307,7 +305,7 @@ def GetEmployeePaymentOperation():
         data = request.get_json()
         configkey = 'GetEmployeePaymentOperation'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GetClient/', methods=['POST'])
 # @login_required
@@ -316,7 +314,7 @@ def GetClient():
         data = request.get_json()
         configkey = 'GetClient'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GetClients/', methods=['POST'])
 # @login_required
@@ -325,7 +323,7 @@ def GetClients():
         data = request.get_json()
         configkey = 'GetClients'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/EditOffice/', methods=['POST'])
 # @login_required
@@ -334,7 +332,7 @@ def EditOffice():
         data = request.get_json()
         table = 'office'
         result = edit(table,data)
-        return result 
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/EditSession/', methods=['POST'])
 # @login_required
@@ -343,7 +341,7 @@ def EditSession():
         data = request.get_json()
         table = 'session'
         result = edit(table,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/EditClient/', methods=['POST'])
 # @login_required
@@ -352,7 +350,7 @@ def EditClient():
         data = request.get_json()
         table = 'client'
         result = edit(table,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/EditOperations/', methods=['POST'])
 # @login_required
@@ -365,7 +363,7 @@ def EditOperations():
             del elem['operationType']
             result = edit(table,elem)
             results.append(json.loads(result))
-        return json.dumps(results)
+        return Response(results, 200, mimetype='application/json')
 
 @app.route('/api/EditEmployee/', methods=['POST'])
 # @login_required
@@ -374,7 +372,7 @@ def EditEmployee():
         data = request.get_json()
         table = 'employee'
         result = edit(table,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/EditBarberCategory/', methods=['POST'])
 # @login_required
@@ -383,7 +381,7 @@ def EditBarberCategory():
         data = request.get_json()
         table = 'barbercategory'
         result = edit(table,data)
-        return result    
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/EditEmployeePaymentType/', methods=['POST'])
 # @login_required
@@ -392,7 +390,7 @@ def EditEmployeePaymentType():
         data = request.get_json()
         table = 'employeepaymenttype'
         result = edit(table,data)
-        return result    
+        return Response(result, geterrorcode(result), mimetype='application/json')  
 
 @app.route('/api/EditGood/', methods=['POST'])
 # @login_required
@@ -401,7 +399,7 @@ def EditGood():
         data = request.get_json()
         table = 'good'
         result = edit(table,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/EditService/', methods=['POST'])
 # @login_required
@@ -410,7 +408,7 @@ def EditService():
         data = request.get_json()
         table = 'service'
         result = edit(table,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/EditSpendType/', methods=['POST'])
 # @login_required
@@ -419,7 +417,7 @@ def EditSpendtype():
         data = request.get_json()
         table = 'spendtype'
         result = edit(table,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GenerateClientReport/', methods=['POST'])
 # @login_required
@@ -428,7 +426,7 @@ def GenerateCustomerReport():
         data = request.get_json()
         configkey = 'GenerateClientReport'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GenerateFinanceReport/', methods=['POST'])
 # @login_required
@@ -437,7 +435,7 @@ def GenerateFinanceReport():
         data = request.get_json()
         configkey = 'GenerateFinanceReport'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
     
 @app.route('/api/GenerateEmployeeReport/', methods=['POST'])
 # @login_required
@@ -446,7 +444,7 @@ def GenerateEmployeeReport():
         data = request.get_json()
         configkey = 'GenerateEmployeeReport'
         result = get(configkey,data)
-        return result
+        return Response(result, geterrorcode(result), mimetype='application/json')
 
 @app.route('/api/GenerateReportFile/', methods=['POST'])
 # @login_required
@@ -459,7 +457,7 @@ def GenerateReportFile():
             report = pd.DataFrame(data)
         filename = str(datetime.now().strftime("%Y-%m-%d-%H-%M"))+'_'+uuid.uuid4().hex+'.xlsx'
         report.to_excel('./downloadable_files/' + filename)
-        return json.dumps({'filename': filename}, ensure_ascii=False), 200, {'Content-Type': 'application/json; charset=utf-8'}
+        return Response(json.dumps({'filename': filename}, ensure_ascii=False), 200, mimetype='application/json')
 
 @app.route('/static/<path:path>')
 def send_files(path):

@@ -58,13 +58,6 @@
           v-for="employee in session.employees"
           v-bind:key="employee.id"
           v-bind:employee="employee"
-          v-if="employee.role === 'master'"
-          />
-        <employeeCard
-          v-for="employee in session.employees"
-          v-bind:key="employee.id"
-          v-bind:employee="employee"
-          v-if="employee.role === 'officeAdmin'"
           />
         <div class="cell large-6 columns card employee-card">
           <div class="employee-card-footer grid-x grid-padding-x grid-padding-y">
@@ -89,7 +82,7 @@
             </div>
           </div>
         </div>
-        <div class="cell small-12 columns card">
+        <div class="cell small-12 columns card" v-if="session.operations">
           <table class="operations-table stack hover">
             <thead>
               <tr>

@@ -8,14 +8,14 @@
         </div>
       </div> -->
       <div class="cell auto">
-        <h5>{{employeeName}}</h5>
+        <h5>{{employee.name}}</h5>
       </div>
       <div class="cell auto show-for-medium">
         <p>Длина смены <strong>{{employee.workHours}}</strong> ч.</p>
       </div>
     </div>
     <div class="employee-card-content grid-x grid-padding-x grid-padding-y">
-      <div class="cell small-6">
+      <div class="cell small-6" v-if="employee.role === 'master'">
         <input type="text" v-model="servicesSearch" placeholder="Поиск по услугам"/>
         <ul class="services-goods-list">
           <li v-for="service in filteredServices" v-bind:key="service.id">
@@ -27,7 +27,7 @@
         <input type="text" v-model="goodsSearch" placeholder="Поиск по товарам"/>
         <ul class="services-goods-list">
           <li v-for="good in filteredGoods" v-bind:key="good.id">
-            <router-link :to="{path:'/EditGoodsSell/', query: {goodTypeId: good.id, masterId: employee.id, adminId: adminId}}">{{good.name}}</router-link>
+            <router-link :to="{path:'/EditGoodsSell/', query: {goodTypeId: good.id, employeeId: employee.id === adminId ? null : employee.id, adminId: adminId}}">{{good.name}}</router-link>
           </li>
         </ul>
       </div>
@@ -90,9 +90,6 @@ export default {
       get () {
         return this.$store.state.employeePaymentTypes
       }
-    },
-    employeeName: function () {
-      return this.$store.getters.getEmployeeName(this.employee.id)
     },
     filteredServices: function () {
       return this.services.filter(service => service.name.toLowerCase().includes(this.servicesSearch.toLowerCase()))

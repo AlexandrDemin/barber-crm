@@ -158,10 +158,10 @@ export default {
             session.employees = []
           }
           if (session.dateOpened) {
-            session.dateOpened = this.moment(session.dateOpened, 'DD.MM.YYYY HH:mm')
+            session.dateOpened = this.moment.utc(session.dateOpened, 'DD.MM.YYYY HH:mm').local()
           }
           if (session.dateClosed) {
-            session.dateClosed = this.moment(session.dateClosed, 'DD.MM.YYYY HH:mm')
+            session.dateClosed = this.moment.utc(session.dateClosed, 'DD.MM.YYYY HH:mm').local()
           }
           this.session = session
           this.isLoading = false
