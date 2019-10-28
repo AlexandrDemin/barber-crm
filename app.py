@@ -183,7 +183,7 @@ def GetCurrentSession():
         configkey = 'GetCurrentSession'
         result = get(configkey,data)
         if 'warning' in json.loads(result):
-            result = {}
+            result = json.dumps({})
         return result
 
 @app.route('/api/GetSession/', methods=['POST'])

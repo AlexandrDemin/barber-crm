@@ -584,19 +584,20 @@ def generateQueryRead(args):
                 order by name asc"""
                 
             elif args['type'] == 'GetClient':
-                fields = 'client.*,operations."Operations"'
+                fields = 'client.*,operations.operations'
                 orderpart = f"""
                 order by name asc"""
                 additionalpart = f"""
 left join
-(select c."clientId",array_agg(row_to_json(c)::jsonb-'clientId') as "Operations" from
-(select concatenated."clientId",concatenated.type,array_agg(params::jsonb-'clientId') as operations from
-(select "clientId",'serviceoperation' as type,row_to_json(serviceoperation) as params from serviceoperation 
+(select concatenated.id,array_agg(params::jsonb-'clientId') as operations from
+(select * from
+(select "clientId" as id,row_to_json(serviceoperation)::jsonb||jsonb_build_object('type', 'serviceoperation') as params from serviceoperation 
 union all
-select "clientId",'goodsoperation' as type,row_to_json(goodsoperation) as params from goodsoperation) concatenated
-group by "clientId",type) c
-group by "clientId") operations
-on client.id = operations.\"clientId\""""
+select "clientId" as id,row_to_json(goodsoperation)::jsonb||jsonb_build_object('type', 'goodsoperation') as params from goodsoperation) unions
+order by params->>'datetime' desc, params->>'officeId' asc
+) concatenated
+group by id) operations
+using (id)"""
                                 
             query = f"""select {fields} from {table}{additionalpart}{wherepart}{orderpart}"""
         
