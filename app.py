@@ -36,7 +36,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
 
 app = Flask(__name__, static_folder='./front/dist/static/', template_folder="./front/dist/")
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 engine = create_engine('postgresql://read_write:Rw_Us3r@localhost/barbers', convert_unicode=True, echo=False)
 Base = declarative_base()
