@@ -435,7 +435,7 @@ left join
 (select "officeId",yearmonth,employeeid,sum(goodsbonussum) as goodsbonus from 
 (select "officeId",date_trunc('month',datetime) as yearmonth, "adminId" as employeeid,"adminBonusSum" as goodsbonussum from goodsoperation
 union 
-select "officeId",date_trunc('month',datetime) as yearmonth, "masterId" as employeeid,"masterBonusSum" as goodsbonussum from goodsoperation) gb
+select "officeId",date_trunc('month',datetime) as yearmonth, "employeeId" as employeeid,"employeeBonusSum" as goodsbonussum from goodsoperation) gb
 {wherepart}
 group by "officeId",yearmonth,employeeid
 ) goodssum
