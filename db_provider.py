@@ -562,7 +562,7 @@ def generateQueryRead(args):
             
             if args['type'] in ['GetAdmins','GetMasters']:
                 if args['type'] == 'GetMasters':
-                    fields = 'employee.' + ',employee.'.join(args['fields']) + ',b."servicePercent" as "masterServicePercent"'
+                    fields = 'employee.*' + ',b."servicePercent" as "masterServicePercent"'
                     additionalpart = f"""
                     left join
                     (select id,"servicePercent" from barbercategory) b
