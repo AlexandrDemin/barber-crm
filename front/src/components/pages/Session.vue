@@ -49,21 +49,30 @@
         <label class="session-info-big-label">Премия, ₽</label>
       </div>
       <div class="session-info-block cell medium-2 small-12">
-        <router-link v-bind:to="'/EditSession/' + session.id.toString()" class="button secondary small">Изменить/закрыть смену</router-link>
+        <router-link v-bind:to="'/EditSession/' + session.id.toString()" class="button primary small">Изменить/закрыть смену</router-link>
       </div>
     </div>
     <div v-if="Object.keys(session).length" class="session-content">
       <div class="grid-x grid-margin-x grid-margin-y">
         <employeeCard
+          v-if="employee.role === 'master'"
+          v-for="employee in session.employees"
+          v-bind:key="employee.id"
+          v-bind:employee="employee"
+          />
+        <employeeCard
+          v-if="employee.role === 'officeAdmin'"
           v-for="employee in session.employees"
           v-bind:key="employee.id"
           v-bind:employee="employee"
           />
         <div class="cell large-6 columns card employee-card">
           <div class="employee-card-footer grid-x grid-padding-x grid-padding-y">
+            <vue-element-loading :active="isExpenseSaving" color="#1C457D"/>
             <h4 class="cell small-12">Внести расход</h4>
             <div class="cell medium-6">
               <v-select
+                @input="updateSpendSum"
                 :clearable="false"
                 v-model="selectedSpendType"
                 :reduce="s => s.id"
@@ -75,10 +84,10 @@
               </v-select>
             </div>
             <div class="cell auto">
-              <input v-model="spendSum" type="number" placeholder="Сумма"/>
+              <input v-model.number="spendSum" type="number" placeholder="Сумма"/>
             </div>
             <div class="cell shrink">
-              <button class="button secondary">Сохранить</button>
+              <button class="button secondary" @click="saveExpense">Сохранить</button>
             </div>
           </div>
         </div>
@@ -87,8 +96,8 @@
             <thead>
               <tr>
                 <th>Время</th>
-                <th>Сотрудник</th>
                 <th>Операция</th>
+                <th>Сотрудник</th>
                 <th>Сумма</th>
                 <th>Премия</th>
               </tr>
@@ -101,16 +110,16 @@
                   </router-link>
                 </td>
                 <td>
-                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                    {{$store.getters.getEmployeeNameFromOperation(operation)}}
-                  </router-link>
-                </td>
-                <td>
                   <router-link
                     v-bind:to="$store.getters.getOperationLink(operation)"
                     class="table-link"
                     v-html="$store.getters.getOperationContent(operation)"
                   ></router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getEmployeeNameFromOperation(operation)}}
+                  </router-link>
                 </td>
                 <td>
                   <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
@@ -126,8 +135,8 @@
             </tbody>
           </table>
         </div>
-        <div class="cell large-6 columns card">
-          <button class="button secondary small" @click="changeOffice">Изменить отделение</button>
+        <div class="cell large-6 columns">
+          <button class="button secondary" @click="changeOffice">Изменить отделение</button>
         </div>
       </div>
     </div>
@@ -137,6 +146,7 @@
 <script>
 import Menu from '@/components/Menu'
 import EmployeeCard from '@/components/EmployeeCard'
+import { HTTP } from '../../api/api.js'
 import VueElementLoading from 'vue-element-loading'
 import vSelect from 'vue-select'
 
@@ -148,7 +158,7 @@ export default {
     VueElementLoading,
     'v-select': vSelect
   },
-  mounted: function () {
+  created: function () {
     document.title = this.$route.meta.title
     setInterval(() => {
       this.time = this.getTime()
@@ -156,7 +166,11 @@ export default {
     }, 1000)
     this.$store.state.refreshCurrentSession = setInterval(() => {
       this.getCurrentSession()
-    }, 10000)
+    }, 30000)
+    if (this.spendTypes.length) {
+      this.selectedSpendType = this.spendTypes[0].id
+      this.spendSum = this.getSpendSum(this.spendTypes[0].id)
+    }
   },
   beforeRouteLeave (to, from, next) {
     if (this.$store.state.refreshCurrentSession) {
@@ -166,13 +180,45 @@ export default {
   },
   data () {
     return {
-      selectedSpendType: 1,
-      spendSum: '',
+      selectedSpendType: null,
+      spendSum: 0,
+      isExpenseSaving: false,
+      expenseSavingError: '',
       time: this.getTime(),
       date: this.getDate()
     }
   },
   methods: {
+    saveExpense: function () {
+      this.expenseSavingError = ''
+      this.isExpenseSaving = true
+      var expense = {
+        'type': 'spendoperation',
+        'id': null,
+        'expenseTypeId': this.selectedSpendType,
+        'sessionId': this.session.id,
+        'officeId': this.session.officeId,
+        'datetime': this.moment().utc(),
+        'sum': this.spendSum,
+        'comment': ''
+      }
+      HTTP.post(`EditOperations/`, [expense])
+        .then(response => {
+          this.$store.dispatch('getCurrentSession')
+          this.updateSpendSum()
+          this.isExpenseSaving = false
+        })
+        .catch(e => {
+          this.expenseSavingError = e
+          this.isExpenseSaving = false
+        })
+    },
+    updateSpendSum: function () {
+      this.spendSum = this.getSpendSum(this.selectedSpendType)
+    },
+    getSpendSum: function (spendId) {
+      return parseInt(this.spendTypes.filter(x => x.id === spendId)[0].defaultSum)
+    },
     getGreeting: function () {
       var date = new Date()
       var hour = date.getHours()
@@ -260,21 +306,21 @@ export default {
     },
     servicesCount: function () {
       if (Object.keys(this.session).length && this.session.operations) {
-        return this.session.operations.filter(operation => operation.operationType === 'serviceoperation').length
+        return this.session.operations.filter(operation => operation.type === 'serviceoperation').length
       }
       return 0
     },
     goodsCount: function () {
       if (Object.keys(this.session).length && this.session.operations) {
-        return this.session.operations.filter(operation => operation.operationType === 'goodsoperation').length
+        return this.session.operations.filter(operation => operation.type === 'goodsoperation').length
       }
       return 0
     },
     revenue: function () {
       if (Object.keys(this.session).length && this.session.operations) {
         var revenue = 0
-        var services = this.session.operations.filter(operation => operation.operationType === 'serviceoperation')
-        var goods = this.session.operations.filter(operation => operation.operationType === 'goodsoperation')
+        var services = this.session.operations.filter(operation => operation.type === 'serviceoperation')
+        var goods = this.session.operations.filter(operation => operation.type === 'goodsoperation')
         services.map(s => {
           revenue += s.cashSum + s.cashlessSum - s.discountSum
         })
@@ -288,8 +334,8 @@ export default {
     costs: function () {
       if (Object.keys(this.session).length && this.session.operations) {
         var costs = 0
-        var spends = this.session.operations.filter(operation => operation.operationType === 'spendoperation')
-        var employeePayments = this.session.operations.filter(operation => operation.operationType === 'employeePayment')
+        var spends = this.session.operations.filter(operation => operation.type === 'spendoperation')
+        var employeePayments = this.session.operations.filter(operation => operation.type === 'employeePayment')
         spends.map(s => {
           costs += s.sum
         })
@@ -303,13 +349,13 @@ export default {
     bonus: function () {
       if (Object.keys(this.session).length && this.session.operations) {
         var bonus = 0
-        var services = this.session.operations.filter(operation => operation.operationType === 'serviceoperation')
-        var goods = this.session.operations.filter(operation => operation.operationType === 'goodsoperation')
+        var services = this.session.operations.filter(operation => operation.type === 'serviceoperation')
+        var goods = this.session.operations.filter(operation => operation.type === 'goodsoperation')
         services.map(s => {
-          bonus += s.adminBonus + s.masterBonus
+          bonus += this.$store.getters.getOperationBonus(s)
         })
         goods.map(g => {
-          bonus += g.adminBonus + g.masterBonus
+          bonus += this.$store.getters.getOperationBonus(g)
         })
         return bonus
       }

@@ -72,7 +72,7 @@ argsconfig = {
     },
     'GetServicesPrices':{
         'table':'service',
-        'fields':['id','name','prices']
+        'fields':['id','name','prices', 'state']
     },
     'GetService':{
         'table':'service',

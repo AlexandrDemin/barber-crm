@@ -359,8 +359,8 @@ def EditOperations():
         data = request.get_json()
         results = []
         for elem in data:
-            table = elem['operationType']
-            del elem['operationType']
+            table = elem['type']
+            del elem['type']
             result = edit(table,elem)
             results.append(json.loads(result))
         return Response(results, 200, mimetype='application/json')

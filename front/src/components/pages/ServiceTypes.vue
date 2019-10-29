@@ -10,6 +10,7 @@
             <tr>
               <th>Название</th>
               <th>Цены</th>
+              <th>Статус</th>
             </tr>
           </thead>
           <tbody>
@@ -29,6 +30,11 @@
                       Все категории мастеров: {{price.price}}&nbsp;₽
                     </span>
                   </div>
+                </router-link>
+              </td>
+              <td>
+                <router-link v-bind:to="'/EditServiceType/' + item.id" class="table-link">
+                  {{$store.getters.getServiceStateName(item.state)}}
                 </router-link>
               </td>
             </tr>

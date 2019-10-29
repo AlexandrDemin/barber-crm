@@ -54,6 +54,16 @@ export default new Vuex.Store({
         name: 'Не работает'
       }
     ],
+    serviceStates: [
+      {
+        id: 'active',
+        name: 'Используется'
+      },
+      {
+        id: 'notactive',
+        name: 'Не используется'
+      }
+    ],
     goodsStates: [
       {
         id: 'active',
@@ -333,6 +343,13 @@ export default new Vuex.Store({
       }
       return '–'
     },
+    getServiceStateName: (state) => (id) => {
+      var serviceState = state.serviceStates.filter(e => e.id === id)[0]
+      if (serviceState) {
+        return serviceState.name
+      }
+      return '–'
+    },
     getGoodsStateName: (state) => (id) => {
       var goodsState = state.goodsStates.filter(e => e.id === id)[0]
       if (goodsState) {
@@ -411,11 +428,12 @@ export default new Vuex.Store({
         })
           .then(response => {
             var data = response.data
-            data.employees = data.employees.map(e => {
-              var employee = context.state.employees.filter(x => x.id === e.id)[0]
-              employee.role = e.role
-              return employee
-            })
+            if (data.employees && data.employees.length) {
+              data.employees = data.employees.map(e => {
+                var employee = context.state.employees.filter(x => x.id === e.id)[0]
+                return {...e, ...employee}
+              })
+            }
             context.commit('updateStore', {
               'name': 'currentSession',
               'value': data

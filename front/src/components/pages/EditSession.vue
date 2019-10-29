@@ -177,7 +177,7 @@ export default {
       var session = this.session
       if (needClose) {
         session.state = 'closed'
-        session.dateClosed = this.moment()
+        session.dateClosed = this.moment().utc()
       }
       if (session.dateClosed === null) {
         delete session.dateClosed
@@ -186,7 +186,7 @@ export default {
         .then(response => {
           this.isSaving = false
           this.$store.dispatch('getCurrentSession')
-          this.$router.push({ path: '/' })
+          this.$router.push('/')
         })
         .catch(e => {
           this.savingError = e
@@ -196,7 +196,7 @@ export default {
     getEmptyItem: function () {
       return {
         'id': null,
-        'dateOpened': this.moment(),
+        'dateOpened': this.moment().utc(),
         'dateClosed': null,
         'employees': [],
         'officeId': this.$store.state.currentOfficeId,

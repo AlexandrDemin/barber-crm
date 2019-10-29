@@ -12,6 +12,8 @@
       <div class="grid-x">
         <vue-element-loading :active="isLoading" color="#1C457D"/>
         <div class="cell large-6" v-if="operations.length">
+          <label>Время</label>
+          <input type="time" v-model="time"/>
           <label>Администратор</label>
           <v-select
             :clearable="false"
@@ -107,13 +109,13 @@
               <div slot="no-options">Ничего не найдено</div>
             </v-select>
             <label>Количество</label>
-            <input type="number" v-model="soldItem.amount" @input="updateSum(soldItem, index)">
+            <input type="number" v-model.number="soldItem.amount" @input="updateSum(soldItem, index)">
             <label>Сумма (наличка)</label>
-            <input type="number" v-model="soldItem.cashSum">
+            <input type="number" v-model.number="soldItem.cashSum">
             <label>Сумма (безнал)</label>
-            <input type="number" v-model="soldItem.cashlessSum">
+            <input type="number" v-model.number="soldItem.cashlessSum">
             <label>Скидка, руб.</label>
-            <input type="number" v-model="soldItem.discountSum">
+            <input type="number" v-model.number="soldItem.discountSum">
             <label>Комментарий</label>
           <textarea rows="2" v-model="soldItem.comment"></textarea>
           </div>
@@ -171,7 +173,8 @@ export default {
       operations: [],
       adminId: null,
       employeeId: null,
-      clientId: null
+      clientId: null,
+      time: this.moment().format('HH:mm')
     }
   },
   methods: {
@@ -179,17 +182,17 @@ export default {
       this.operations.push(this.getEmptyItem())
     },
     removeItem: function (item) {
-      var index = this.operations.findIndex(o => o.operationType === 'goodsoperation' && o.goodsId === item.goodsId && o.id === item.id)
+      var index = this.operations.findIndex(o => o.type === 'goodsoperation' && o.goodsId === item.goodsId && o.id === item.id)
       this.operations.splice(index, 1)
     },
     getEmptyItem: function () {
       return {
-        'operationType': 'goodsoperation',
+        'type': 'goodsoperation',
         'id': null,
         'goodsId': this.$route.query.goodTypeId || this.goodsTypes[0].id,
         'sessionId': this.currentSession.id,
         'officeId': this.currentSession.officeId,
-        'datetime': this.moment(),
+        'datetime': null,
         'adminId': this.adminId,
         'employeeId': this.employeeId,
         'clientId': null,
@@ -213,12 +216,13 @@ export default {
       HTTP.post(`GetGoodsOperation/`, {'id': id})
         .then(response => {
           var operation = response.data
-          operation.operationType = 'goodsoperation'
+          operation.type = 'goodsoperation'
           operation.datetime = this.moment.utc(operation.datetime, 'DD.MM.YYYY HH:mm').local()
           this.operations = [operation]
           this.adminId = operation.adminId
           this.employeeId = operation.employeeId
           this.clientId = operation.clientId
+          this.time = operation.datetime.format('HH:mm')
           this.isLoading = false
         })
         .catch(e => {
@@ -231,13 +235,14 @@ export default {
       this.savingError = ''
       var operations = this.operations
       for (var index in operations) {
-        operations[index].adminBonusSum = this.getAdminBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].adminId, operations[index].operationType)
+        operations[index].adminBonusSum = this.getAdminBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].adminId, operations[index].type)
         if (operations[index].employeeId && operations[index].employeeId !== operations[index].adminId) {
-          operations[index].employeeBonusSum = this.getEmployeeBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].employeeId, operations[index].operationType)
+          operations[index].employeeBonusSum = this.getEmployeeBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].employeeId, operations[index].type)
         }
         operations[index].adminId = this.adminId
         operations[index].employeeId = this.employeeId
         operations[index].clientId = this.clientId
+        operations[index].datetime = this.moment(this.time, 'HH:mm').utc()
       }
       this.operations = operations
       if (this.clientId === null) {
@@ -264,8 +269,8 @@ export default {
             HTTP.post(`EditOperations/`, this.operations)
               .then(response => {
                 this.$store.dispatch('getCurrentSession')
-                this.$router.push({ path: '/' })
                 this.isSaving = false
+                this.$router.push('/')
               })
               .catch(e => {
                 this.savingError = e
@@ -310,21 +315,21 @@ export default {
         ]
       }
     },
-    getAdminBonus: function (sum, adminId, operationType) {
+    getAdminBonus: function (sum, adminId, type) {
       var admin = this.admins.filter(x => x.id === adminId)[0]
-      if (operationType === 'serviceoperation') {
+      if (type === 'serviceoperation') {
         return sum * admin.servicePercent
       }
-      if (operationType === 'goodsoperation') {
+      if (type === 'goodsoperation') {
         return sum * admin.goodsPercent
       }
     },
-    getEmployeeBonus: function (sum, employeeId, operationType) {
+    getEmployeeBonus: function (sum, employeeId, type) {
       var employee = this.employees.filter(x => x.id === employeeId)[0]
-      if (operationType === 'serviceoperation') {
+      if (type === 'serviceoperation') {
         return sum * employee.servicePercent
       }
-      if (operationType === 'goodsoperation') {
+      if (type === 'goodsoperation') {
         return sum * employee.goodsPercent
       }
     },

@@ -17,11 +17,22 @@
         <div class="cell large-6">
           <label>Название</label>
           <input type="text" v-model="serviceType.name" autofocus/>
-          <div v-for="price in mergedPrices" v-bind:key="price">
+          <div v-for="price in serviceType.prices" v-bind:key="price">
             <label>Категория мастера: {{$store.getters.getMasterCategoryName(price.category)}}</label>
             <label>Цена</label>
-            <input type="number" v-model="price.price"/>
+            <input type="number" v-model.number="price.price"/>
           </div>
+          <label>Статус</label>
+          <v-select
+            :clearable="false"
+            v-model="serviceType.state"
+            :reduce="s => s.id"
+            :value="serviceType.state"
+            label="name"
+            :options="serviceStates"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
           <div>
             <vue-element-loading :active="isSaving" color="#1C457D"/>
             <button class="button primary" type="button" @click="save">Сохранить</button>
@@ -41,12 +52,14 @@
 import Menu from '@/components/Menu'
 import { HTTP } from '../../api/api.js'
 import VueElementLoading from 'vue-element-loading'
+import vSelect from 'vue-select'
 
 export default {
   name: 'EditServiceType',
   components: {
     appMenu: Menu,
-    VueElementLoading
+    VueElementLoading,
+    'v-select': vSelect
   },
   mounted: function () {
     document.title = this.$route.meta.title
@@ -80,11 +93,10 @@ export default {
     save: function () {
       this.isSaving = true
       this.savingError = ''
-      var serviceType = this.serviceType
-      serviceType.prices = this.mergedPrices
-      HTTP.post(`EditService/`, serviceType)
+      HTTP.post(`EditService/`, this.serviceType)
         .then(response => {
           this.isSaving = false
+          this.$router.push({name: 'ServiceTypes'})
         })
         .catch(e => {
           this.savingError = e
@@ -100,12 +112,11 @@ export default {
       return {
         id: null,
         name: '',
-        prices: []
+        prices: this.getMergedPrices(),
+        state: 'active'
       }
-    }
-  },
-  computed: {
-    mergedPrices () {
+    },
+    getMergedPrices: function () {
       var prices = []
       this.$store.state.masterCategories.map(x => {
         var price = 0
@@ -114,10 +125,17 @@ export default {
         } catch (e) {}
         prices.push({
           'category': x.id,
-          'price': price
+          'price': parseInt(price)
         })
       })
       return prices
+    }
+  },
+  computed: {
+    serviceStates: {
+      get () {
+        return this.$store.state.serviceStates
+      }
     }
   }
 }

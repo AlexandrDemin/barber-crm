@@ -25,9 +25,9 @@
             </label>
             <v-select
               :clearable="false"
-              v-model="payment.type"
+              v-model="payment.employeePaymentTypeId"
               :reduce="s => s.id"
-              :value="payment.type"
+              :value="payment.employeePaymentTypeId"
               label="name"
               :options="employeePaymentTypes"
             >
@@ -88,12 +88,12 @@ export default {
     if (this.$route.params.id) {
       this.operations = [
         {
-          'operationType': 'employeePayment',
+          'type': 'employeepayment',
           'id': 8,
           'officeId': 1,
           'sessionId': 1,
           'employeeId': 4,
-          'type': 2,
+          'employeePaymentTypeId': 2,
           'datetime': '21.09.2019 18:22',
           'sum': 600,
           'comment': ''
@@ -107,9 +107,9 @@ export default {
       isSaving: false,
       operations: [
         {
-          'operationType': 'employeePayment',
+          'type': 'employeepayment',
           'id': null,
-          'type': 1,
+          'employeePaymentTypeId': 1,
           'sessionId': this.$route.query.sessionId,
           'officeId': this.$route.query.officeId,
           'datetime': this.$store.getters.getDateTimeNow,
@@ -123,9 +123,9 @@ export default {
   methods: {
     addEmployeePayment: function () {
       this.operations.push({
-        'operationType': 'employeePayment',
+        'type': 'employeepayment',
         'id': null,
-        'type': 1,
+        'employeePaymentTypeId': 1,
         'sessionId': this.$route.query.sessionId,
         'officeId': this.$route.query.officeId,
         'datetime': this.$store.getters.getDateTimeNow,
@@ -135,7 +135,7 @@ export default {
       })
     },
     removeEmployeePayment: function (item) {
-      var index = this.operations.findIndex(o => o.operationType === 'employeePayment' && o.type === item.type && o.id === item.id)
+      var index = this.operations.findIndex(o => o.type === 'employeepayment' && o.type === item.type && o.id === item.id)
       this.operations.splice(index, 1)
     },
     save: function () {},
