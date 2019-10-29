@@ -163,15 +163,7 @@ contacts JSONB [],
 comment TEXT);
 
 CREATE ROLE read_only WITH LOGIN PASSWORD 'User_ro';
-GRANT SELECT on ALL tables in schema public to read_only;
-GRANT CONNECT ON DATABASE barbers to read_only;
-GRANT USAGE ON SCHEMA public  to read_only;
-
 CREATE ROLE read_write WITH LOGIN PASSWORD 'Rw_Us3r';
-GRANT SELECT,INSERT,UPDATE on ALL tables in schema public to read_write;
-GRANT USAGE ON SCHEMA public  to read_write;
-GRANT CONNECT ON DATABASE barbers to read_write;
-
 CREATE ROLE admin WITH LOGIN PASSWORD 'Adm1n1strat0r';
 
 ALTER DEFAULT PRIVILEGES in schema public
@@ -179,7 +171,7 @@ GRANT SELECT ON TABLES to read_only;
 ALTER DEFAULT PRIVILEGES
 GRANT USAGE ON SCHEMAS to read_only;
 ALTER DEFAULT PRIVILEGES in schema public
-GRANT SELECT,INSERT ON TABLES to read_write;
+GRANT SELECT,INSERT,UPDATE ON TABLES to read_write;
 ALTER DEFAULT PRIVILEGES
 GRANT USAGE ON SCHEMAS to read_write;
 ALTER DEFAULT PRIVILEGES in schema public
@@ -188,6 +180,12 @@ ALTER DEFAULT PRIVILEGES
 GRANT ALL PRIVILEGES ON SCHEMAS to admin;
 ALTER DEFAULT PRIVILEGES in schema public
 GRANT ALL PRIVILEGES ON FUNCTIONS to admin;
+GRANT SELECT,INSERT,UPDATE on ALL tables in schema public to read_write;
+GRANT USAGE ON SCHEMA public  to read_write;
+GRANT CONNECT ON DATABASE barbers to read_write;
+GRANT SELECT on ALL tables in schema public to read_only;
+GRANT CONNECT ON DATABASE barbers to read_only;
+GRANT USAGE ON SCHEMA public  to read_only;
 """
 
 conn = psycopg2.connect(host='localhost',database='barbers', user='postgres', password='postgres')
