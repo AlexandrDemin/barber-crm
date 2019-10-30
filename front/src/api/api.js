@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const HTTP = axios.create({
-  baseURL: `http://localhost:5000/api/`
+  baseURL: `/api/`
 })
 HTTP.interceptors.response.use(response => {
   if (typeof response.data === 'string') {
