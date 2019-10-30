@@ -24,13 +24,12 @@ import io
 from datetime import date,datetime, timedelta
 import requests
 import time
-import json
 import math
 import copy
 import urllib.parse
 import codecs
 import random
-from sqlalchemy import create_engine
+from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
 
@@ -39,20 +38,19 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 engine = create_engine('postgresql://read_write:Rw_Us3r@localhost/barbers', convert_unicode=True, echo=False)
 Base = declarative_base()
-Base.metadata.reflect(engine)
+meta = MetaData()
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://read_write:Rw_Us3r@localhost/barbers'
 app.config['SECRET_KEY'] = 's9cr9tk94'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-db.Model.metadata.reflect(db.engine)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 class User(db.Model, UserMixin):
-    __table__ = db.Model.metadata.tables['employee']
+    __table__ = Table('employee', meta, autoload=True, autoload_with=db.engine)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -362,8 +360,9 @@ def EditOperations():
             table = elem['type']
             del elem['type']
             result = edit(table,elem)
-            results.append(json.loads(result))
-        return Response(results, 200, mimetype='application/json')
+            result_as_dict = json.loads(json.loads(result))
+            results.append(result_as_dict)
+        return Response(json.dumps(results), 200, mimetype='application/json')
 
 @app.route('/api/EditEmployee/', methods=['POST'])
 # @login_required

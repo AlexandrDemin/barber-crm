@@ -133,6 +133,10 @@
             <vue-element-loading :active="isSaving" color="#1C457D"/>
             <button class="button primary" type="button" @click="save">Сохранить</button>
           </div>
+          <div v-if="savingError" class="callout alert">
+            <h5>Произошла ошибка при сохранении данных</h5>
+            <p>{{savingError}}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -159,8 +163,6 @@ export default {
     if (this.$route.params.id) {
       this.load(this.$route.params.id)
     }
-  },
-  mounted: function () {
     document.title = this.$route.meta.title
   },
   data () {
@@ -293,7 +295,7 @@ export default {
         HTTP.post(`EditOperations/`, this.operations)
           .then(response => {
             this.$store.dispatch('getCurrentSession')
-            this.$router.push({ path: '/' })
+            this.$router.push('/')
             this.isSaving = false
           })
           .catch(e => {

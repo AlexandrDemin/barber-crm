@@ -191,12 +191,9 @@ def select(args=None):
 def getResult(result,configkey=''):
     if type(result) == list:
         if len(result) == 1 and not re.match(r"^Get.*s$", configkey):
-            result = json.dumps(result[0],ensure_ascii=False, cls=DateEncoder)
-        else:
-            result = json.dumps([*map(dict, result)],ensure_ascii=False, cls=DateEncoder)
-    else:
-        result = json.dumps(result)
-    return result
+            return json.dumps(result[0], ensure_ascii=False, cls=DateEncoder)
+        return json.dumps([*map(dict, result)], ensure_ascii=False, cls=DateEncoder)
+    return json.dumps(result)
             
 def edit(table,data):
     result = upsert(table,data)

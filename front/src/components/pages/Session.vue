@@ -335,7 +335,7 @@ export default {
       if (Object.keys(this.session).length && this.session.operations) {
         var costs = 0
         var spends = this.session.operations.filter(operation => operation.type === 'spendoperation')
-        var employeePayments = this.session.operations.filter(operation => operation.type === 'employeePayment')
+        var employeePayments = this.session.operations.filter(operation => operation.type === 'employeepayment')
         spends.map(s => {
           costs += s.sum
         })

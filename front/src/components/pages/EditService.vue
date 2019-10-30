@@ -180,6 +180,7 @@
                 </button>
               </label>
               <v-select
+                @input="updateExpenseSum(expense)"
                 :clearable="false"
                 v-model="expense.expenseTypeId"
                 :reduce="s => s.id"
@@ -216,6 +217,7 @@
                 </button>
               </label>
               <v-select
+                @input="updateEmployeePaymentSum(payment)"
                 :clearable="false"
                 v-model="payment.employeePaymentTypeId"
                 :reduce="s => s.id"
@@ -243,6 +245,10 @@
           <div v-if="canEdit">
             <vue-element-loading :active="isSaving" color="#1C457D"/>
             <button class="button primary" type="button" @click="save">Сохранить</button>
+          </div>
+          <div v-if="savingError" class="callout alert">
+            <h5>Произошла ошибка при сохранении данных</h5>
+            <p>{{savingError}}</p>
           </div>
         </div>
       </div>
@@ -316,7 +322,7 @@ export default {
         'goodsId': this.goodsTypes[0].id,
         'sessionId': this.currentSession.id,
         'officeId': this.currentSession.officeId,
-        'datetime': this.moment().utc(),
+        'datetime': null,
         'adminId': this.service.adminId,
         'employeeId': this.service.masterId,
         'clientId': this.service.clientId,
@@ -341,6 +347,12 @@ export default {
       operation.cashSum = this.goodsTypes.filter(x => x.id === operation.goodsId)[0].price * operation.amount
       operation.cashlessSum = 0
     },
+    updateExpenseSum: function (operation) {
+      operation.sum = this.employeePaymentTypes.filter(x => x.id === operation.expenseTypeId)[0].defaultSum
+    },
+    updateEmployeePaymentSum: function (operation) {
+      operation.sum = this.employeePaymentTypes.filter(x => x.id === operation.employeePaymentTypeId)[0].defaultSum
+    },
     addExpense: function () {
       this.operations.push({
         'type': 'spendoperation',
@@ -348,7 +360,7 @@ export default {
         'expenseTypeId': this.spendTypes[0].id,
         'sessionId': this.currentSession.id,
         'officeId': this.currentSession.officeId,
-        'datetime': this.moment().utc(),
+        'datetime': null,
         'sum': this.spendTypes[0].defaultSum,
         'comment': ''
       })
@@ -364,7 +376,7 @@ export default {
         'employeePaymentTypeId': this.employeePaymentTypes[0].id,
         'sessionId': this.currentSession.id,
         'officeId': this.currentSession.officeId,
-        'datetime': this.moment().utc(),
+        'datetime': null,
         'employeeId': this.service.masterId,
         'sum': this.employeePaymentTypes[0].defaultSum,
         'comment': ''
@@ -406,9 +418,9 @@ export default {
           if (operations[index].employeeId && operations[index].employeeId !== operations[index].adminId) {
             operations[index].employeeBonusSum = this.getEmployeeBonus(operations[index].cashSum + operations[index].cashlessSum, operations[index].employeeId, operations[index].type)
           }
-          operations[index].datetime = operations[index].datetime.utc()
+          operations[index].datetime = this.moment().utc()
         } else {
-          operations[index].datetime = operations[index].datetime.utc()
+          operations[index].datetime = this.moment().utc()
         }
       }
       this.operations = operations

@@ -1,29 +1,32 @@
 <template>
   <main>
-    <appMenu :selected-element="operations[0].sessionId === $store.state.currentSession.id ? 'session' : 'history'"></appMenu>
+    <appMenu v-bind:selected-element="canEdit ? 'session' : 'history'"></appMenu>
     <div class="content">
       <nav>
         <ul class="breadcrumbs">
-          <li v-if="operations[0].sessionId === $store.state.currentSession.id"><router-link to="/Session">Смена</router-link></li>
+          <li v-if="canEdit"><router-link to="/">Назад</router-link></li>
           <li v-else><router-link to="/SessionsHistory">История смен и операций</router-link></li>
         </ul>
       </nav>
       <h1>Выплата сотруднику</h1>
       <div class="grid-x">
         <vue-element-loading :active="isLoading" color="#1C457D"/>
-        <div class="cell large-6">
+        <div class="cell large-6" v-if="operations.length">
+          <label>Время</label>
+          <input type="time" v-model="time"/>
           <div v-for="(payment, index) in operations" v-bind:key="payment.id">
             <label v-on:click.prevent class="grid-x">
               <span class="cell auto">Выплата сотруднику {{index > 0 ? index + 1 : ''}}</span>
               <button
                 type="button" class="button clear small cell shrink no-margin"
-                @click="removeEmployeePayment(payment)"
-                v-if="operations[0].sessionId === $store.state.currentSession.id && index > 0"
+                @click="removeItem(payment)"
+                v-if="canEdit && index > 0"
               >
                 Удалить
               </button>
             </label>
             <v-select
+              @input="updateSum(payment)"
               :clearable="false"
               v-model="payment.employeePaymentTypeId"
               :reduce="s => s.id"
@@ -33,11 +36,8 @@
             >
               <div slot="no-options">Ничего не найдено</div>
             </v-select>
-            <label>Время</label>
-            <input type="text" v-model="payment.datetime"/>
             <label>Сотрудник</label>
             <v-select
-              :clearable="false"
               v-model="payment.employeeId"
               :reduce="s => s.id"
               :value="payment.employeeId"
@@ -47,7 +47,7 @@
               <div slot="no-options">Ничего не найдено</div>
             </v-select>
             <label>Сумма</label>
-            <input type="number" v-model="payment.sum">
+            <input type="number" v-model.number="payment.sum">
             <label>Комментарий</label>
           <textarea rows="2" v-model="payment.comment"></textarea>
           </div>
@@ -55,15 +55,19 @@
             <button
               class="button secondary"
               type="button"
-              @click="addEmployeePayment"
-              v-if="operations[0].sessionId === $store.state.currentSession.id"
+              @click="addItem"
+              v-if="canEdit"
             >
               Добавить выплату сотруднику
             </button>
           </div>
-          <div v-if="operations[0].sessionId === $store.state.currentSession.id">
+          <div v-if="canEdit">
             <vue-element-loading :active="isSaving" color="#1C457D"/>
             <button class="button primary" type="button" @click="save">Сохранить</button>
+          </div>
+          <div v-if="savingError" class="callout alert">
+            <h5>Произошла ошибка при сохранении данных</h5>
+            <p>{{savingError}}</p>
           </div>
         </div>
       </div>
@@ -73,6 +77,7 @@
 
 <script>
 import Menu from '@/components/Menu'
+import { HTTP } from '../../api/api.js'
 import VueElementLoading from 'vue-element-loading'
 import vSelect from 'vue-select'
 
@@ -83,67 +88,95 @@ export default {
     VueElementLoading,
     'v-select': vSelect
   },
-  mounted: function () {
-    document.title = this.$route.meta.title
+  created: function () {
+    this.operations = [this.getEmptyItem()]
     if (this.$route.params.id) {
-      this.operations = [
-        {
-          'type': 'employeepayment',
-          'id': 8,
-          'officeId': 1,
-          'sessionId': 1,
-          'employeeId': 4,
-          'employeePaymentTypeId': 2,
-          'datetime': '21.09.2019 18:22',
-          'sum': 600,
-          'comment': ''
-        }
-      ]
+      this.load(this.$route.params.id)
     }
+    document.title = this.$route.meta.title
   },
   data () {
     return {
       isLoading: false,
       isSaving: false,
-      operations: [
-        {
-          'type': 'employeepayment',
-          'id': null,
-          'employeePaymentTypeId': 1,
-          'sessionId': this.$route.query.sessionId,
-          'officeId': this.$route.query.officeId,
-          'datetime': this.$store.getters.getDateTimeNow,
-          'employeeId': 4,
-          'sum': 500,
-          'comment': ''
-        }
-      ]
+      loadingError: '',
+      savingError: '',
+      operations: [],
+      time: this.moment().format('HH:mm')
     }
   },
   methods: {
-    addEmployeePayment: function () {
-      this.operations.push({
-        'type': 'employeepayment',
-        'id': null,
-        'employeePaymentTypeId': 1,
-        'sessionId': this.$route.query.sessionId,
-        'officeId': this.$route.query.officeId,
-        'datetime': this.$store.getters.getDateTimeNow,
-        'employeeId': 4,
-        'sum': 500,
-        'comment': ''
-      })
+    addItem: function () {
+      this.operations.push(this.getEmptyItem())
     },
-    removeEmployeePayment: function (item) {
-      var index = this.operations.findIndex(o => o.type === 'employeepayment' && o.type === item.type && o.id === item.id)
+    removeItem: function (item) {
+      var index = this.operations.findIndex(o => o.type === 'employeepayment' && o.employeePaymentTypeId === item.employeePaymentTypeId && o.id === item.id)
       this.operations.splice(index, 1)
     },
-    save: function () {},
-    deleteOperation: function () {}
+    getEmptyItem: function () {
+      return {
+        'type': 'employeepayment',
+        'id': null,
+        'employeePaymentTypeId': this.$route.query.employeePaymentTypeId || this.employeePaymentTypes[0].id,
+        'sessionId': this.currentSession.id,
+        'officeId': this.currentSession.officeId,
+        'datetime': null,
+        'employeeId': this.employees[0].id,
+        'sum': this.employeePaymentTypes[0].defaultSum,
+        'comment': ''
+      }
+    },
+    updateSum: function (operation) {
+      operation.sum = this.employeePaymentTypes.filter(x => x.id === operation.employeePaymentTypeId)[0].defaultSum
+    },
+    load: function (id) {
+      this.isLoading = true
+      this.loadingError = ''
+      HTTP.post(`GetEmployeePaymentOperation/`, {'id': id})
+        .then(response => {
+          var operation = response.data
+          operation.type = 'employeepayment'
+          operation.datetime = this.moment.utc(operation.datetime, 'DD.MM.YYYY HH:mm').local()
+          this.operations = [operation]
+          this.time = operation.datetime.format('HH:mm')
+          this.isLoading = false
+        })
+        .catch(e => {
+          this.loadingError = e
+          this.isLoading = false
+        })
+    },
+    save: function () {
+      this.isSaving = true
+      this.savingError = ''
+      var operations = this.operations
+      for (var index in operations) {
+        operations[index].datetime = this.moment(this.time, 'HH:mm').utc()
+      }
+      this.operations = operations
+      HTTP.post(`EditOperations/`, this.operations)
+        .then(response => {
+          this.$store.dispatch('getCurrentSession')
+          this.isSaving = false
+          this.$router.push('/')
+        })
+        .catch(e => {
+          this.savingError = e
+          this.isSaving = false
+        })
+    }
   },
   computed: {
+    currentSession: {
+      get () {
+        return this.$store.state.currentSession
+      }
+    },
     employees: {
       get () {
+        if (this.currentSession && Object.keys(this.currentSession).length) {
+          return this.currentSession.employees
+        }
         return this.$store.state.employees
       }
     },
@@ -151,6 +184,12 @@ export default {
       get () {
         return this.$store.state.employeePaymentTypes
       }
+    },
+    canEdit: function () {
+      if (this.operations[0]) {
+        return !this.operations[0].id || (this.operations[0].sessionId === this.currentSession.id)
+      }
+      return false
     }
   }
 }

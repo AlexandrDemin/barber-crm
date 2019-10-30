@@ -11,7 +11,7 @@
         <h5>{{employee.name}}</h5>
       </div>
       <div class="cell auto show-for-medium">
-        <p>Длина смены <strong>{{employee.workHours}}</strong> ч.</p>
+        Длина смены <strong>{{employee.workHours}}</strong> ч.
       </div>
     </div>
     <div class="employee-card-content grid-x grid-padding-x grid-padding-y">
@@ -33,9 +33,11 @@
       </div>
     </div>
     <div class="employee-card-footer grid-x grid-padding-x grid-padding-y">
+      <vue-element-loading :active="isSaving" color="#1C457D"/>
       <label class="cell small-12 no-padding-top-bottom">Выплата сотруднику</label>
       <div class="cell medium-6">
         <v-select
+          @input="updateSum"
           :clearable="false"
           v-model="selectedEmployeePayment"
           :reduce="s => s.id"
@@ -50,13 +52,18 @@
         <input v-model="paymentSum" type="number" placeholder="Сумма"/>
       </div>
       <div class="cell shrink">
-        <button class="button secondary">Сохранить</button>
+        <button class="button secondary" @click="save">Сохранить</button>
+      </div>
+      <div class="cell small-12 callout alert" v-if="savingError">
+        <h5>Произошла ошибка при сохранении данных</h5>
+        <p>{{savingError}}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { HTTP } from '../api/api.js'
 import VueElementLoading from 'vue-element-loading'
 import vSelect from 'vue-select'
 
@@ -67,15 +74,55 @@ export default {
     'v-select': vSelect
   },
   props: ['employee'],
+  created: function () {
+    this.selectedEmployeePayment = this.employeePaymentTypes[0].id
+    this.paymentSum = this.employeePaymentTypes[0].defaultSum
+  },
   data () {
     return {
-      selectedEmployeePayment: 1,
-      paymentSum: '',
+      selectedEmployeePayment: null,
+      paymentSum: 0,
       servicesSearch: '',
-      goodsSearch: ''
+      goodsSearch: '',
+      isSaving: false,
+      savingError: ''
+    }
+  },
+  methods: {
+    updateSum: function () {
+      this.paymentSum = this.employeePaymentTypes.filter(x => x.id === this.selectedEmployeePayment)[0].defaultSum
+    },
+    save: function () {
+      this.isSaving = true
+      this.savingError = ''
+      var operation = {
+        'type': 'employeepayment',
+        'id': null,
+        'employeePaymentTypeId': this.selectedEmployeePayment,
+        'sessionId': this.currentSession.id,
+        'officeId': this.currentSession.officeId,
+        'datetime': this.moment().utc(),
+        'employeeId': this.employee.id,
+        'sum': this.paymentSum,
+        'comment': ''
+      }
+      HTTP.post(`EditOperations/`, [operation])
+        .then(response => {
+          this.$store.dispatch('getCurrentSession')
+          this.isSaving = false
+        })
+        .catch(e => {
+          this.savingError = e
+          this.isSaving = false
+        })
     }
   },
   computed: {
+    currentSession: {
+      get () {
+        return this.$store.state.currentSession
+      }
+    },
     services: {
       get () {
         return this.$store.state.serviceTypes
