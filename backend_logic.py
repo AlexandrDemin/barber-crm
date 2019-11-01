@@ -128,12 +128,12 @@ argsconfig = {
     'GenerateEmployeeReport':{
         'type':'GenerateEmployeeReport',
         'dataneeded':True,
-        'groupings':['summary','byOffices','byEmployees','-']
+        'groupings':['summary','byOffices','byEmployees','byOfficeAndEmployee']
     },
     'GenerateClientReport':{
         'type':'GenerateClientReport',
         'dataneeded':True,
-        'groupings':['summary','byOffices','byClients','-']
+        'groupings':['summary','byOffices','byClients','byOfficeAndClient']
     },
     'GenerateFinanceReport':{
         'type':'GenerateFinanceReport',
