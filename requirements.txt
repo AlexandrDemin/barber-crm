@@ -5,9 +5,5 @@ flask_user
 flask_login
 functools
 pandas
-requests
 uwsgi
 psycopg2
-uuid
-io
-codecs
