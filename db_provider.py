@@ -418,9 +418,9 @@ select * from (select 'a' as joinfield, id as employeeid,name,roles,"categoryId"
     employeepaymentspart = f"""-- присоединяем данные по выплатам сотрудникам: зарплата, премия (за услуги и проданные товары), штрафы
 left join
 (select * from (select "officeId","employeeId" as employeeid,date_trunc('month',datetime) as yearmonth,
-sum(sum)filter (where "employeePaymentTypeId" = 1) as paidsalary, 
-sum(sum)filter (where "employeePaymentTypeId" = 2) as paidbonus,
-sum(sum)filter (where "employeePaymentTypeId" = 3) as penalty
+sum(sum)filter (where "paymentType" = 'salary') as paidsalary, 
+sum(sum)filter (where "paymentType" = 'bonus') as paidbonus,
+sum(sum)filter (where "paymentType" = 'penalty') as penalty
 from employeepayment
 group by "employeeId",yearmonth,"officeId") p
 {wherepart}) payments
