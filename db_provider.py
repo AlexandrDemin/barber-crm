@@ -212,8 +212,8 @@ def GenerateClientReportQuery(args):
     where = generateWhereFromList(wherelist)
     
     globalquery = 'select * from'
-    officegrouping = ''
-    globalqueryallofficepart = f'''sum(totalcash) as totalcash,
+    grouping = ''
+    globalquerysumpart = f'''sum(totalcash) as totalcash,
 sum(totalcashless) as totalcashless,
 sum(totaldiscount) as totaldiscount,
 sum(totalservicesum) as totalservicesum,
@@ -221,15 +221,21 @@ sum(totalgoodssum) as totalgoodssum,
 sum(totalsum) as totalsum,
 sum(totalvisitsduringperiod)::int as totalvisitsduringperiod'''
     
-    if args['data']['groupingtype'] == 'office':
+    if args['data']['groupingtype'] == 'byOffices':
         globalquery = f'''select "officeId",
-{globalqueryallofficepart}
+{globalquerysumpart}
 from'''
-        officegrouping = 'group by "officeId"'
+        grouping = 'group by "officeId"'
+
+    if args['data']['groupingtype'] == 'byClients':
+        globalquery = f'''select "clientId",
+{globalquerysumpart}
+from'''
+        grouping = 'group by "clientId"'
     
-    if args['data']['groupingtype'] == 'all':
+    if args['data']['groupingtype'] == 'summary':
         globalquery = f"""select
-{globalqueryallofficepart}
+{globalquerysumpart}
 from""" 
     
     lostdayscriterion = 60
@@ -311,7 +317,7 @@ group by "officeId","clientId") lastvisit
 using ("officeId","clientId"))) visitstats
 using ("officeId","clientId")
 {where}
-{officegrouping}"""
+{grouping}"""
     
     return query
 
@@ -334,13 +340,13 @@ def GenerateFinanceReportQuery(args):
     wherelist = [datepart,officeidspart]
     where = generateWhereFromList(wherelist)
 
-    if args['data']['groupingtype'] == 'all':
+    if args['data']['groupingtype'] == 'summary':
         globalquery = f"""select 
-sum(operationcount) as operationcount,sum(serviceoperationcount)::int as serviceoperationcount,sum(goodsoperationcount)::int as goodsoperationcount, sum(spendoperationcount)::int as spendoperationcount,
+sum(operationcount)::int as operationcount,sum(serviceoperationcount)::int as serviceoperationcount,sum(goodsoperationcount)::int as goodsoperationcount, sum(spendoperationcount)::int as spendoperationcount,
 sum(serviceIncome) as serviceIncome,sum(goodsIncome) as goodsIncome,
 sum(totalcash) as totalcash,sum(totalcashless) as totalcashless,
 sum(totalIncome) as totalIncome,sum(totalspend) as totalspend,sum(totalrevenue) as totalrevenue,
-sum(totalemployees)::int as totalemployees, sum(total_time) as total_time
+sum(totalemployees)::int as totalemployees, sum(total_time)::int as total_time
 from""" 
     
     query = f"""{globalquery}
@@ -486,8 +492,8 @@ left join
 using ("officeId")"""
     
     globalquery = 'select * from'
-    officegrouping = ''
-    globalqueryallofficepart = f'''sum(salary) as totalsalary,sum(paidsalary) as totalpaidsalary,sum(penalty) as totalpenalty,sum(unpaidsalary) as totalunpaidsalary,
+    grouping = ''
+    globalquerysumpart = f'''sum(salary) as totalsalary,sum(paidsalary) as totalpaidsalary,sum(penalty) as totalpenalty,sum(unpaidsalary) as totalunpaidsalary,
 sum(servicecount) as totalservicecount,sum(repeatingvisitscount) as totalrepeatingvisitscount,
 sum(servicebonus) as totalservicebonus,
 sum(goodsbonus) as totalgoodsbonus,
@@ -495,15 +501,22 @@ sum(paidbonus) as totalpaidbonus,
 sum(unpaidbonus) as totalunpaidbonus,
 sum(workload) as totalworkload'''
     
-    if args['data']['groupingtype'] == 'office':
+    if args['data']['groupingtype'] == 'byOffices':
         globalquery = f'''select "officeId",
-    {globalqueryallofficepart}
+    {globalquerysumpart}
     from'''
-        officegrouping = 'group by "officeId"'
+        grouping = 'group by "officeId"'
+        
+    if args['data']['groupingtype'] == 'byEmployees':
+        globalquery = f'''select "name",
+    {globalquerysumpart}
+    from'''
+        officenamejoinpart = ''
+        grouping = 'group by "name"'
 
-    if args['data']['groupingtype'] == 'all':
+    if args['data']['groupingtype'] == 'summary':
         globalquery = f'''select
-    {globalqueryallofficepart}
+    {globalquerysumpart}
     from'''
         officenamejoinpart = ''
 
@@ -525,7 +538,7 @@ from
 {totalworkinghourspart}
 ) reportmain
 {officenamejoinpart}
-{officegrouping}
+{grouping}
 """
     
     return query

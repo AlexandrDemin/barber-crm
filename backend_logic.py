@@ -127,15 +127,18 @@ argsconfig = {
     },
     'GenerateEmployeeReport':{
         'type':'GenerateEmployeeReport',
-        'dataneeded':True
+        'dataneeded':True,
+        'groupings':['summary','byOffices','byEmployees','-']
     },
     'GenerateClientReport':{
         'type':'GenerateClientReport',
-        'dataneeded':True
+        'dataneeded':True,
+        'groupings':['summary','byOffices','byClients','-']
     },
     'GenerateFinanceReport':{
         'type':'GenerateFinanceReport',
-        'dataneeded':True
+        'dataneeded':True,
+        'groupings':['summary','byOffices']
     }
 }
 
@@ -193,7 +196,7 @@ def getResult(result,configkey=''):
         if len(result) == 1 and not re.match(r"^Get.*s$", configkey):
             return json.dumps(result[0], ensure_ascii=False, cls=DateEncoder)
         return json.dumps([*map(dict, result)], ensure_ascii=False, cls=DateEncoder)
-    return json.dumps(result)
+    return json.dumps(result, ensure_ascii=False, cls=DateEncoder)
             
 def edit(table,data):
     result = upsert(table,data)
@@ -207,6 +210,14 @@ def get(configkey,args=None):
     if configkey == 'GetCurrentSession':
         raw_data['data']['state'] = 'open'
         raw_data['data']['withOperations'] = 'true'
+    if configkey in ['GenerateEmployeeReport','GenerateClientReport','GenerateFinanceReport']:
+        results = {}
+        for grouping in argsconfig[configkey]['groupings']:
+            raw_data['data']['groupingtype'] = grouping
+            result = select(raw_data)
+            results[grouping] = result
+        result = getResult(results)
+        return result    
     result = select(raw_data)
     result = getResult(result,configkey)
     return result
