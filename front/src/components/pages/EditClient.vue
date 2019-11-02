@@ -126,7 +126,7 @@ export default {
     VueElementLoading,
     'v-select': vSelect
   },
-  mounted: function () {
+  created: function () {
     document.title = this.$route.meta.title
     if (this.$route.params.id) {
       this.load(this.$route.params.id)

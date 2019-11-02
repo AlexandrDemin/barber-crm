@@ -25,28 +25,28 @@
     </div>
     <div v-if="Object.keys(session).length" class="session-info grid-x align-middle">
       <div class="session-info-block cell medium-auto small-6">
-        <span class="session-info-big-number">{{time}}</span>
-        <label class="session-info-big-label">{{date}}</label>
+        <span class="big-number">{{time}}</span>
+        <label>{{date}}</label>
       </div>
       <div class="session-info-block cell medium-auto small-6">
-        <span class="session-info-big-number">{{servicesCount}}</span>
-        <label class="session-info-big-label">Услуг оказано</label>
+        <span class="big-number">{{servicesCount}}</span>
+        <label>Услуг оказано</label>
       </div>
       <div class="session-info-block cell medium-auto small-6">
-        <span class="session-info-big-number">{{goodsCount}}</span>
-        <label class="session-info-big-label">Товаров продано</label>
+        <span class="big-number">{{goodsCount}}</span>
+        <label>Товаров продано</label>
       </div>
       <div class="session-info-block cell medium-auto small-6">
-        <span class="session-info-big-number">{{revenue}}</span>
-        <label class="session-info-big-label">Выручка, ₽</label>
+        <span class="big-number">{{revenue}}</span>
+        <label>Выручка, ₽</label>
       </div>
       <div class="session-info-block cell medium-auto small-6">
-        <span class="session-info-big-number">{{costs}}</span>
-        <label class="session-info-big-label">Расход, ₽</label>
+        <span class="big-number">{{costs}}</span>
+        <label>Расход, ₽</label>
       </div>
       <div class="session-info-block cell medium-auto small-6">
-        <span class="session-info-big-number">{{bonus}}</span>
-        <label class="session-info-big-label">Премия, ₽</label>
+        <span class="big-number">{{bonus}}</span>
+        <label>Премия, ₽</label>
       </div>
       <div class="session-info-block cell medium-2 small-12">
         <router-link v-bind:to="'/EditSession/' + session.id.toString()" class="button primary small">Изменить/закрыть смену</router-link>

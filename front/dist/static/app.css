@@ -56,6 +56,9 @@ label .button {
 .margin-top-20px {
     margin-top: 20px;
 }
+.margin-bottom-10px {
+    margin-bottom: 10px;
+}
 .table-link {
   color: inherit;
   display: block;
@@ -75,6 +78,10 @@ label .button {
     height: 100vh;
     overflow: auto;
     background-position: center;
+}
+.big-number {
+    font-size: 20px;
+    font-weight: 900;
 }
 
 /*
@@ -240,10 +247,6 @@ Session
 }
 .session-info .session-info-block {
     text-align: center;
-}
-.session-info .session-info-block .session-info-big-number {
-    font-size: 20px;
-    font-weight: 900;
 }
 .session-info .session-info-block .button {
     margin: 0;

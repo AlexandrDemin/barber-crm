@@ -291,7 +291,7 @@ left join
 case 
     WHEN lastvisit.lastvisitdatetime < now() - interval '60 days'::interval THEN 'lost'
     WHEN lastvisit.lastvisitdatetime < now() - interval '40 days'::interval and
-    lastvisit.lastvisitdatetime >= now() - interval '60 days'::interval THEN ' likely lost'
+    lastvisit.lastvisitdatetime >= now() - interval '60 days'::interval THEN 'likely lost'
     when visits.lastndaysvisitscount >= 3 then 'loyal'
     when visits.lastndaysvisitscount >= 2 then 'likely loyal'
     ELSE 'ambivalent'
