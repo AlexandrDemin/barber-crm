@@ -15,36 +15,38 @@
           <h5>Произошла ошибка при загрузке данных</h5>
           <p>{{error}}</p>
         </div>
-        <table class="hover">
-          <thead>
-            <tr>
-              <th>Имя</th>
-              <th>Контакты</th>
-              <th>Комментарий</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="client in clients" v-bind:key="client.id">
-              <td>
-                <router-link v-bind:to="'/EditClient/' + client.id" class="table-link">
-                  {{client.name}}
-                </router-link>
-              </td>
-              <td>
-                <router-link v-bind:to="'/EditClient/' + client.id" class="table-link">
-                  <div v-for="(contact, index) in client.contacts" v-bind:key="index">
-                    {{$store.getters.getContactTypeName(contact.type)}}: {{contact.value}}
-                  </div>
-                </router-link>
-              </td>
-              <td>
-                <router-link v-bind:to="'/EditClient/' + client.id" class="table-link">
-                  {{client.comment}}
-                </router-link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-container">
+          <table class="hover">
+            <thead>
+              <tr>
+                <th class="sticky-header">Имя</th>
+                <th class="sticky-header">Контакты</th>
+                <th class="sticky-header">Комментарий</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="client in clients" v-bind:key="client.id">
+                <td>
+                  <router-link v-bind:to="'/EditClient/' + client.id" class="table-link">
+                    {{client.name}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="'/EditClient/' + client.id" class="table-link">
+                    <div v-for="(contact, index) in client.contacts" v-bind:key="index">
+                      {{$store.getters.getContactTypeName(contact.type)}}: {{contact.value}}
+                    </div>
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="'/EditClient/' + client.id" class="table-link">
+                    {{client.comment}}
+                  </router-link>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>

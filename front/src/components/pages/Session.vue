@@ -92,48 +92,50 @@
           </div>
         </div>
         <div class="cell small-12 columns card" v-if="session.operations">
-          <table class="operations-table stack hover">
-            <thead>
-              <tr>
-                <th>Время</th>
-                <th>Операция</th>
-                <th>Сотрудник</th>
-                <th>Сумма</th>
-                <th>Премия</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="operation in session.operations" v-bind:key="operation.id">
-                <td>
-                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                    {{$store.getters.getTimeFromOperation(operation)}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link
-                    v-bind:to="$store.getters.getOperationLink(operation)"
-                    class="table-link"
-                    v-html="$store.getters.getOperationContent(operation)"
-                  ></router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                    {{$store.getters.getEmployeeNameFromOperation(operation)}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                    {{$store.getters.getOperationSum(operation)}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                    {{$store.getters.getOperationBonus(operation)}}
-                  </router-link>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-container">
+            <table class="operations-table hover">
+              <thead>
+                <tr>
+                  <th class="sticky-header">Время</th>
+                  <th class="sticky-header">Операция</th>
+                  <th class="sticky-header">Сотрудник</th>
+                  <th class="sticky-header">Сумма</th>
+                  <th class="sticky-header">Премия</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="operation in session.operations" v-bind:key="operation.id">
+                  <td>
+                    <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                      {{$store.getters.getTimeFromOperation(operation)}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link
+                      v-bind:to="$store.getters.getOperationLink(operation)"
+                      class="table-link"
+                      v-html="$store.getters.getOperationContent(operation)"
+                    ></router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                      {{$store.getters.getEmployeeNameFromOperation(operation)}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                      {{$store.getters.getOperationSum(operation)}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                      {{$store.getters.getOperationBonus(operation)}}
+                    </router-link>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
         <div class="cell large-6 columns">
           <button class="button secondary" @click="changeOffice">Изменить отделение</button>

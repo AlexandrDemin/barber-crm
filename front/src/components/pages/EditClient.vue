@@ -66,48 +66,50 @@
       </div>
       <div v-if="client.id > 0">
         <h2>История операций по клиенту</h2>
-        <table class="operations-table hover">
-          <thead>
-            <tr>
-              <th>Дата</th>
-              <th>Мастер</th>
-              <th>Услуга / товар</th>
-              <th>Сумма</th>
-              <th>Премия</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="operation in client.operations" v-bind:key="operation.id">
-              <td>
-                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                  {{$store.getters.getDateTimeFromOperation(operation)}}
-                </router-link>
-              </td>
-              <td>
-                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                  {{$store.getters.getEmployeeNameFromOperation(operation)}}
-                </router-link>
-              </td>
-              <td>
-                <router-link
-                  v-bind:to="$store.getters.getOperationLink(operation)"
-                  class="table-link"
-                  v-html="$store.getters.getOperationContent(operation)"
-                ></router-link>
-              </td>
-              <td>
-                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                  {{$store.getters.getOperationSum(operation)}}
-                </router-link>
-              </td>
-              <td>
-                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                  {{$store.getters.getOperationBonus(operation)}}
-                </router-link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-container">
+          <table class="operations-table hover">
+            <thead>
+              <tr>
+                <th class="sticky-header">Дата</th>
+                <th class="sticky-header">Мастер</th>
+                <th class="sticky-header">Услуга / товар</th>
+                <th class="sticky-header">Сумма</th>
+                <th class="sticky-header">Премия</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="operation in client.operations" v-bind:key="operation.id">
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getDateTimeFromOperation(operation)}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getEmployeeNameFromOperation(operation)}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link
+                    v-bind:to="$store.getters.getOperationLink(operation)"
+                    class="table-link"
+                    v-html="$store.getters.getOperationContent(operation)"
+                  ></router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getOperationSum(operation)}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getOperationBonus(operation)}}
+                  </router-link>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>

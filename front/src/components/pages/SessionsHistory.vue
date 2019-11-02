@@ -82,48 +82,50 @@
         v-bind:key="session.id"
       >
         <h4><router-link :to="'/EditSession/' + session.id.toString()">Смена {{moment.utc(session.dateOpened, 'DD.MM.YYYY HH:mm').local().format('DD.MM.YY')}} {{$store.getters.getOfficeName(session.officeId)}}</router-link></h4>
-        <table class="operations-table hover margin-bottom-30px">
-          <thead>
-            <tr>
-              <th>Время</th>
-              <th>Сотрудник</th>
-              <th>Операция</th>
-              <th>Сумма</th>
-              <th>Премия</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="operation in session.operations" v-bind:key="operation">
-              <td>
-                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                  {{$store.getters.getTimeFromOperation(operation)}}
-                </router-link>
-              </td>
-              <td>
-                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                  {{$store.getters.getEmployeeNameFromOperation(operation)}}
-                </router-link>
-              </td>
-              <td>
-                <router-link
-                  v-bind:to="$store.getters.getOperationLink(operation)"
-                  class="table-link"
-                  v-html="$store.getters.getOperationContent(operation)"
-                ></router-link>
-              </td>
-              <td>
-                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                  {{$store.getters.getOperationSum(operation)}}
-                </router-link>
-              </td>
-              <td>
-                <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
-                  {{$store.getters.getOperationBonus(operation)}}
-                </router-link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-container margin-bottom-30px">
+          <table class="operations-table hover">
+            <thead>
+              <tr>
+                <th class="sticky-header">Время</th>
+                <th class="sticky-header">Сотрудник</th>
+                <th class="sticky-header">Операция</th>
+                <th class="sticky-header">Сумма</th>
+                <th class="sticky-header">Премия</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="operation in session.operations" v-bind:key="operation">
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getTimeFromOperation(operation)}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getEmployeeNameFromOperation(operation)}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link
+                    v-bind:to="$store.getters.getOperationLink(operation)"
+                    class="table-link"
+                    v-html="$store.getters.getOperationContent(operation)"
+                  ></router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getOperationSum(operation)}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="$store.getters.getOperationLink(operation)" class="table-link">
+                    {{$store.getters.getOperationBonus(operation)}}
+                  </router-link>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>

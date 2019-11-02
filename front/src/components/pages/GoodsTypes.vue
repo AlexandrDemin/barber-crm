@@ -5,34 +5,36 @@
       <h1>Товары <router-link to="/EditGoodsType/" class="button no-margion">Добавить</router-link></h1>
       <div>
         <vue-element-loading :active="isLoading" color="#1C457D"/>
-        <table class="hover">
-          <thead>
-            <tr>
-              <th>Название</th>
-              <th>Цена</th>
-              <th>Статус</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in goodsTypes" v-bind:key="item.id">
-              <td>
-                <router-link v-bind:to="'/EditGoodsType/' + item.id" class="table-link">
-                  {{item.name}}
-                </router-link>
-              </td>
-              <td>
-                <router-link v-bind:to="'/EditGoodsType/' + item.id" class="table-link">
-                  {{item.price}}
-                </router-link>
-              </td>
-              <td>
-                <router-link v-bind:to="'/EditGoodsType/' + item.id" class="table-link">
-                  {{$store.getters.getGoodsStateName(item.state)}}
-                </router-link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-container">
+          <table class="hover">
+            <thead>
+              <tr>
+                <th class="sticky-header">Название</th>
+                <th class="sticky-header">Цена</th>
+                <th class="sticky-header">Статус</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in goodsTypes" v-bind:key="item.id">
+                <td>
+                  <router-link v-bind:to="'/EditGoodsType/' + item.id" class="table-link">
+                    {{item.name}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="'/EditGoodsType/' + item.id" class="table-link">
+                    {{item.price}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="'/EditGoodsType/' + item.id" class="table-link">
+                    {{$store.getters.getGoodsStateName(item.state)}}
+                  </router-link>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>

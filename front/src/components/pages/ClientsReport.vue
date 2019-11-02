@@ -56,35 +56,35 @@
         <div v-if="!loadingError && !isLoading && summary && summary.totalvisitsduringperiod">
           <h2>Итого</h2>
           <div class="grid-x grid-margin-x grid-margin-y margin-bottom-10px">
-            <div class="cell medium-4 large-auto">
+            <div class="cell small-6 medium-4 large-auto">
               <div class="big-number">{{uniqueClientsCount || 0}}</div>
               <label>{{inclineWord(uniqueClientsCount, 'Клиент', 'Клиента', 'Клиентов')}}</label>
             </div>
-            <div class="cell medium-4 large-auto">
+            <div class="cell small-6 medium-4 large-auto">
               <div class="big-number">{{summary.totalvisitsduringperiod || 0}}</div>
               <label>{{inclineWord(summary.totalvisitsduringperiod, 'Посещение', 'Посещения', 'Посещений')}}</label>
             </div>
-            <div class="cell medium-4 large-auto">
+            <div class="cell small-6 medium-4 large-auto">
               <div class="big-number">{{summary.totalsum || 0}}</div>
               <label>Выручка, ₽</label>
             </div>
-            <div class="cell medium-4 large-auto">
+            <div class="cell small-6 medium-4 large-auto">
               <div class="big-number">{{summary.totalservicesum || 0}}</div>
               <label>Выручка от&nbsp;услуг, ₽</label>
             </div>
-            <div class="cell medium-4 large-auto">
+            <div class="cell small-6 medium-4 large-auto">
               <div class="big-number">{{summary.totalgoodssum || 0}}</div>
               <label>Выручка от&nbsp;продажи товаров, ₽</label>
             </div>
-            <div class="cell medium-4 large-auto">
+            <div class="cell small-6 medium-4 large-auto">
               <div class="big-number">{{summary.totalcash || 0}}</div>
               <label>Наличка, ₽</label>
             </div>
-            <div class="cell medium-4 large-auto">
+            <div class="cell small-6 medium-4 large-auto">
               <div class="big-number">{{summary.totalcashless || 0}}</div>
               <label>Безнал, ₽</label>
             </div>
-            <div class="cell medium-4 large-auto">
+            <div class="cell small-6 medium-4 large-auto">
               <div class="big-number">{{summary.totaldiscount || 0}}</div>
               <label>Скидки, ₽</label>
             </div>
@@ -196,35 +196,35 @@
           >
             <h4>{{$store.getters.getOfficeName(office.officeId)}}</h4>
             <div class="grid-x grid-margin-x grid-margin-y margin-bottom-10px">
-              <div class="cell medium-4 large-auto">
+              <div class="cell small-6 medium-4 large-auto">
                 <div class="big-number">{{office.uniqueClientsCount || 0}}</div>
                 <label>{{inclineWord(office.uniqueClientsCount, 'Клиент', 'Клиента', 'Клиентов')}}</label>
               </div>
-              <div class="cell medium-4 large-auto">
+              <div class="cell small-6 medium-4 large-auto">
                 <div class="big-number">{{office.totalvisitsduringperiod || 0}}</div>
                 <label>{{inclineWord(office.totalvisitsduringperiod, 'Посещение', 'Посещения', 'Посещений')}}</label>
               </div>
-              <div class="cell medium-4 large-auto">
+              <div class="cell small-6 medium-4 large-auto">
                 <div class="big-number">{{office.totalsum || 0}}</div>
                 <label>Выручка, ₽</label>
               </div>
-              <div class="cell medium-4 large-auto">
+              <div class="cell small-6 medium-4 large-auto">
                 <div class="big-number">{{office.totalservicesum || 0}}</div>
                 <label>Выручка от&nbsp;услуг, ₽</label>
               </div>
-              <div class="cell medium-4 large-auto">
+              <div class="cell small-6 medium-4 large-auto">
                 <div class="big-number">{{office.totalgoodssum || 0}}</div>
                 <label>Выручка от&nbsp;продажи товаров, ₽</label>
               </div>
-              <div class="cell medium-4 large-auto">
+              <div class="cell small-6 medium-4 large-auto">
                 <div class="big-number">{{office.totalcash || 0}}</div>
                 <label>Наличка, ₽</label>
               </div>
-              <div class="cell medium-4 large-auto">
+              <div class="cell small-6 medium-4 large-auto">
                 <div class="big-number">{{office.totalcashless || 0}}</div>
                 <label>Безнал, ₽</label>
               </div>
-              <div class="cell medium-4 large-auto">
+              <div class="cell small-6 medium-4 large-auto">
                 <div class="big-number">{{office.totaldiscount || 0}}</div>
                 <label>Скидки, ₽</label>
               </div>
