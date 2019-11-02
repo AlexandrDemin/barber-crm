@@ -222,16 +222,28 @@ sum(totalsum) as totalsum,
 sum(totalvisitsduringperiod)::int as totalvisitsduringperiod'''
     
     if args['data']['groupingtype'] == 'byOffices':
-        globalquery = f'''select "officeId",
+        globalquery = f'''select "officeId",max(lastvisitdatetimeoffice),
 {globalquerysumpart}
 from'''
         grouping = 'group by "officeId"'
 
     if args['data']['groupingtype'] == 'byClients':
-        globalquery = f'''select "clientId",
-{globalquerysumpart}
+        globalquery = f'''select * from (select "clientId",max(lastvisitdatetime) as lastvisitdatetime,name,loyalty,newclient,
+{globalquerysumpart},
+sum(totalvisitsduringperiod)::int as totalvisitsduringperiod, sum(totalvisits)::int as totalvisits, sum(lastndaysvisitscount)::int as lastndaysvisitscount
 from'''
-        grouping = 'group by "clientId"'
+        grouping = f'''group by "clientId",name,loyalty,newclient) withoutmastervisits
+left join
+(select "clientId",yearmonth, array_agg(mastervisits) as  mastervisits from
+(select date_trunc('month',"finishDatetime") as yearmonth,"clientId",json_build_object('masterId',usr.id,'name',usr.name,'count',count(*)) as mastervisits from serviceoperation s
+left join
+(select id,name from employee) usr
+on s."masterId"=usr.id
+group by "clientId",name,yearmonth,usr.id) mv
+{where}
+group by "clientId",yearmonth
+) as masternames
+using ("clientId")'''
     
     if args['data']['groupingtype'] == 'summary':
         globalquery = f"""select
@@ -268,11 +280,11 @@ select 'good' as type,"officeId","clientId",date_trunc('month',datetime) as year
 group by yearmonth,"officeId","clientId") finance
 left join
 (select "officeId","clientId",yearmonth, array_agg(mastervisits) as  mastervisits from
-(select date_trunc('month',"finishDatetime") as yearmonth,"officeId","clientId",json_build_object('name',usr.name,'count',count(*)) as mastervisits from serviceoperation s
+(select date_trunc('month',"finishDatetime") as yearmonth,"officeId","clientId",json_build_object('masterId',usr.id,'name',usr.name,'count',count(*)) as mastervisits from serviceoperation s
 left join
 (select id,name from employee) usr
 on s."masterId"=usr.id
-group by "officeId","clientId",name,yearmonth) mv
+group by "officeId","clientId",name,yearmonth,usr.id) mv
 group by "officeId","clientId",yearmonth
 ) as masternames
 using (yearmonth,"officeId","clientId")
@@ -287,7 +299,7 @@ left join
 (select id as "clientId",name from client) cl
 using ("clientId")
 left join
-(select visits.*,lastvisit.lastvisitdatetime,
+(select visits.*,"officeId",lastvisitdatetime,lastvisitdatetimeoffice,
 case 
     WHEN lastvisit.lastvisitdatetime < now() - interval '60 days'::interval THEN 'lost'
     WHEN lastvisit.lastvisitdatetime < now() - interval '40 days'::interval and
@@ -302,19 +314,37 @@ case
 end as newclient from 
 ((select "clientId","officeId",
 count(*) as totalvisits,
-count(*) filter (where datetime >= now() - '120 days'::interval) as lastndaysvisitscount 
+count(*) filter (where datetime >= now() - '120 days'::interval) as lastndaysvisitscountoffice 
 from ( 
 select "officeId","clientId","finishDatetime"::date as datetime from serviceoperation
 union
 select "officeId","clientId",datetime::date as datetime from goodsoperation) v
-group by "officeId","clientId") visits
+group by "officeId","clientId") visitsoffice
 inner join
-(select "officeId","clientId",max("finishDatetime"::date) as lastvisitdatetime from serviceoperation
-group by "officeId","clientId"
+(select "clientId",
+count(*) as totalvisits,
+count(*) filter (where datetime >= now() - '120 days'::interval) as lastndaysvisitscount 
+from ( 
+select "clientId","finishDatetime"::date as datetime from serviceoperation
 union
-select "officeId","clientId",max(datetime::date) as lastvisitdatetime from goodsoperation
-group by "officeId","clientId") lastvisit
-using ("officeId","clientId"))) visitstats
+select "clientId",datetime::date as datetime from goodsoperation) v
+group by "clientId") visits
+using("clientId")
+inner join
+(select "clientId",max(lastvisitdatetime) as lastvisitdatetime from
+(select "clientId","finishDatetime"::date as lastvisitdatetime from serviceoperation
+union
+select "clientId",datetime::date as lastvisitdatetime from goodsoperation) l 
+group by ("clientId")) lastvisit
+using ("clientId")
+inner join
+(select "officeId","clientId",max(lastvisitdatetimeoffice) as lastvisitdatetimeoffice from
+(select "officeId","clientId","finishDatetime"::date as lastvisitdatetimeoffice from serviceoperation
+union
+select "officeId","clientId",datetime::date as lastvisitdatetimeoffice from goodsoperation) l 
+group by ("officeId","clientId")) lastvisitoffice
+using ("officeId","clientId")
+)) visitstats
 using ("officeId","clientId")
 {where}
 {grouping}"""
@@ -499,7 +529,9 @@ sum(servicebonus) as totalservicebonus,
 sum(goodsbonus) as totalgoodsbonus,
 sum(paidbonus) as totalpaidbonus,
 sum(unpaidbonus) as totalunpaidbonus,
-sum(workload) as totalworkload'''
+sum(total_time) as total_time,
+sum(estimatedworkhours) as estimatedworkhours,
+avg(workload) as meanworkload'''
     
     if args['data']['groupingtype'] == 'byOffices':
         globalquery = f'''select "officeId",
