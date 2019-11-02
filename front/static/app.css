@@ -83,6 +83,17 @@ label .button {
     font-size: 20px;
     font-weight: 900;
 }
+.table-container {
+    max-width: 100%;
+    max-height: 100vh;
+    overflow: auto;
+}
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--gray-100);
+}
 
 /*
 Login

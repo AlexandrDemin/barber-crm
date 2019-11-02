@@ -46,184 +46,292 @@
           <button class="button primary" type="button" @click="load">Показать</button>
         </div>
       </div>
-      <div v-if="loadingError" class="callout alert">
-        <h5>Произошла ошибка при загрузке данных</h5>
-        <p>{{loadingError}}</p>
-      </div>
-      <div v-if="isLoading">
+      <div>
         <vue-element-loading :active="isLoading" color="#1C457D"/>
-      </div>
-      <div v-if="!isLoading && summary">
-        <h2>Итого</h2>
-        <div class="grid-x grid-margin-x">
-          <div class="cell medium-4 large-auto">
-            <div class="big-number">{{summary.totalvisitsduringperiod || 0}}</div>
-            <label>{{inclineWord(summary.totalvisitsduringperiod, 'Посещение', 'Посещения', 'Посещений')}}</label>
-          </div>
-          <div class="cell medium-4 large-auto">
-            <div class="big-number">{{summary.totalsum || 0}}</div>
-            <label>Выручка, ₽</label>
-          </div>
-          <div class="cell medium-4 large-auto">
-            <div class="big-number">{{summary.totalservicesum || 0}}</div>
-            <label>Выручка от услуг, ₽</label>
-          </div>
-          <div class="cell medium-4 large-auto">
-            <div class="big-number">{{summary.totalgoodssum || 0}}</div>
-            <label>Выручка от продажи товаров, ₽</label>
-          </div>
-          <div class="cell medium-4 large-auto">
-            <div class="big-number">{{summary.totalcash || 0}}</div>
-            <label>Наличка, ₽</label>
-          </div>
-          <div class="cell medium-4 large-auto">
-            <div class="big-number">{{summary.totalcashless || 0}}</div>
-            <label>Безнал, ₽</label>
-          </div>
-          <div class="cell medium-4 large-auto">
-            <div class="big-number">{{summary.totaldiscount || 0}}</div>
-            <label>Скидки, ₽</label>
-          </div>
+        <div v-if="loadingError" class="callout alert">
+          <h5>Произошла ошибка при загрузке данных</h5>
+          <p>{{loadingError}}</p>
         </div>
-      </div>
-      <div v-if="!isLoading && byOffices && byOffices.length">
-        <h2>По отделениям</h2>
-        <div
-          v-if="!isLoading"
-          v-for="office in byOffices"
-          v-bind:key="office.id"
-        >
-          <h4>{{$store.getters.getOfficeName(office.officeId)}}</h4>
-          <div class="grid-x grid-margin-x">
+        <div v-if="!loadingError && !isLoading && summary && (!summary.totalvisitsduringperiod || (byOffices.length && byOffices.warning))">Нет данных по выбранным фильтрам</div>
+        <div v-if="!loadingError && !isLoading && summary && summary.totalvisitsduringperiod">
+          <h2>Итого</h2>
+          <div class="grid-x grid-margin-x grid-margin-y margin-bottom-10px">
             <div class="cell medium-4 large-auto">
-              <div class="big-number">{{office.totalvisitsduringperiod || 0}}</div>
-              <label>{{inclineWord(office.totalvisitsduringperiod, 'Посещение', 'Посещения', 'Посещений')}}</label>
+              <div class="big-number">{{uniqueClientsCount || 0}}</div>
+              <label>{{inclineWord(uniqueClientsCount, 'Клиент', 'Клиента', 'Клиентов')}}</label>
             </div>
             <div class="cell medium-4 large-auto">
-              <div class="big-number">{{office.totalsum || 0}}</div>
+              <div class="big-number">{{summary.totalvisitsduringperiod || 0}}</div>
+              <label>{{inclineWord(summary.totalvisitsduringperiod, 'Посещение', 'Посещения', 'Посещений')}}</label>
+            </div>
+            <div class="cell medium-4 large-auto">
+              <div class="big-number">{{summary.totalsum || 0}}</div>
               <label>Выручка, ₽</label>
             </div>
             <div class="cell medium-4 large-auto">
-              <div class="big-number">{{office.totalservicesum || 0}}</div>
-              <label>Выручка от услуг, ₽</label>
+              <div class="big-number">{{summary.totalservicesum || 0}}</div>
+              <label>Выручка от&nbsp;услуг, ₽</label>
             </div>
             <div class="cell medium-4 large-auto">
-              <div class="big-number">{{office.totalgoodssum || 0}}</div>
-              <label>Выручка от продажи товаров, ₽</label>
+              <div class="big-number">{{summary.totalgoodssum || 0}}</div>
+              <label>Выручка от&nbsp;продажи товаров, ₽</label>
             </div>
             <div class="cell medium-4 large-auto">
-              <div class="big-number">{{office.totalcash || 0}}</div>
+              <div class="big-number">{{summary.totalcash || 0}}</div>
               <label>Наличка, ₽</label>
             </div>
             <div class="cell medium-4 large-auto">
-              <div class="big-number">{{office.totalcashless || 0}}</div>
+              <div class="big-number">{{summary.totalcashless || 0}}</div>
               <label>Безнал, ₽</label>
             </div>
             <div class="cell medium-4 large-auto">
-              <div class="big-number">{{office.totaldiscount || 0}}</div>
+              <div class="big-number">{{summary.totaldiscount || 0}}</div>
               <label>Скидки, ₽</label>
             </div>
           </div>
-          <div>
-            <button class="button secondary small" @click="showOfficeDetails(office)">
-              {{office.detailsShown ? 'Скрыть' : 'Показать' + ' детализацию по клиентам отделения'}}
-            </button>
+          <div class="table-container margin-bottom-30px">
+            <table class="hover">
+              <thead>
+                <tr>
+                  <th class="sticky-header">Клиент</th>
+                  <th class="sticky-header">Выручка</th>
+                  <th class="sticky-header">Выручка от&nbsp;услуг</th>
+                  <th class="sticky-header">Выручка от&nbsp;продажи товаров</th>
+                  <th class="sticky-header">Наличка</th>
+                  <th class="sticky-header">Безнал</th>
+                  <th class="sticky-header">Скидки</th>
+                  <th class="sticky-header">Посещения&nbsp;за выбранный период</th>
+                  <th class="sticky-header">Посещения мастеров за&nbsp;всё время</th>
+                  <th class="sticky-header">Посещения всего</th>
+                  <th class="sticky-header">Посещения&nbsp;за последние 6&nbsp;мес.</th>
+                  <th class="sticky-header">Предыдущее посещение</th>
+                  <th class="sticky-header">Новый клиент</th>
+                  <th class="sticky-header">Лояльность</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="client in byClients" v-bind:key="client.clientId">
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.name || 'Неизвестно'}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.totalsum || 0}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.totalservicesum || 0}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.totalgoodssum || 0}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.totalcash || 0}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.totalcashless || 0}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.totaldiscount || 0}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.totalvisitsduringperiod}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      <div v-for="visit in client.mastervisits" v-bind:key="visit">
+                        <div><router-link :to="'/EditEmployee/' + visit.masterId.toString()">{{visit.name}}</router-link></div>
+                        <div class="margin-bottom-10px">{{visit.count || 0}} {{inclineWord(visit.count, 'раз', 'раза', 'раз')}}</div>
+                      </div>
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.totalvisits}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.lastndaysvisitscount || 0}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.lastvisitdatetime || 0}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                      {{client.newclient ? 'Да' : 'Нет'}}
+                    </router-link>
+                  </td>
+                  <td>
+                    <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link" v-html="getLoyalityDescription(client.loyalty)"></router-link>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <table class="hover margin-bottom-30px" v-if="office.detailsShown">
-            <thead>
-              <tr>
-                <th>Клиент</th>
-                <th>Выручка</th>
-                <th>Выручка от услуг</th>
-                <th>Выручка от продажи товаров</th>
-                <th>Наличка</th>
-                <th>Безнал</th>
-                <th>Скидки</th>
-                <th>Посещения за выбранный период</th>
-                <th>Посещения по мастерам</th>
-                <th>Посещения всего</th>
-                <th>Посещения за последние 6 мес.</th>
-                <th>Предыдущее посещение</th>
-                <th>Новый клиент</th>
-                <th>Лояльность</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="client in office.clients" v-bind:key="client.id">
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.name || 'Неизвестно'}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.totalsum || 0}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.totalservicesum || 0}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.totalgoodssum || 0}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.totalcash || 0}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.totalcashless || 0}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.totaldiscount || 0}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.totalvisitsduringperiod}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    <div v-for="visit in client.mastervisits" v-bind:key="visit">
-                      <div>{{visit.name}}</div>
-                      <div class="margin-bottom-10px">{{visit.count || 0}} {{inclineWord(visit.count, 'раз', 'раза', 'раз')}}</div>
-                    </div>
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.totalvisits}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.lastndaysvisitscount || 0}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.lastvisitdatetime || 0}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
-                    {{client.newclient ? 'Да' : 'Нет'}}
-                  </router-link>
-                </td>
-                <td>
-                  <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link" v-html="getLoyalityDescription(client.loyalty)"></router-link>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        </div>
+        <div v-if="!loadingError && !isLoading && byOffices && byOffices.length && !byOffices.warning">
+          <h2>По отделениям</h2>
+          <div
+            v-if="!isLoading"
+            v-for="office in byOffices"
+            v-bind:key="office.id"
+          >
+            <h4>{{$store.getters.getOfficeName(office.officeId)}}</h4>
+            <div class="grid-x grid-margin-x grid-margin-y margin-bottom-10px">
+              <div class="cell medium-4 large-auto">
+                <div class="big-number">{{office.uniqueClientsCount || 0}}</div>
+                <label>{{inclineWord(office.uniqueClientsCount, 'Клиент', 'Клиента', 'Клиентов')}}</label>
+              </div>
+              <div class="cell medium-4 large-auto">
+                <div class="big-number">{{office.totalvisitsduringperiod || 0}}</div>
+                <label>{{inclineWord(office.totalvisitsduringperiod, 'Посещение', 'Посещения', 'Посещений')}}</label>
+              </div>
+              <div class="cell medium-4 large-auto">
+                <div class="big-number">{{office.totalsum || 0}}</div>
+                <label>Выручка, ₽</label>
+              </div>
+              <div class="cell medium-4 large-auto">
+                <div class="big-number">{{office.totalservicesum || 0}}</div>
+                <label>Выручка от&nbsp;услуг, ₽</label>
+              </div>
+              <div class="cell medium-4 large-auto">
+                <div class="big-number">{{office.totalgoodssum || 0}}</div>
+                <label>Выручка от&nbsp;продажи товаров, ₽</label>
+              </div>
+              <div class="cell medium-4 large-auto">
+                <div class="big-number">{{office.totalcash || 0}}</div>
+                <label>Наличка, ₽</label>
+              </div>
+              <div class="cell medium-4 large-auto">
+                <div class="big-number">{{office.totalcashless || 0}}</div>
+                <label>Безнал, ₽</label>
+              </div>
+              <div class="cell medium-4 large-auto">
+                <div class="big-number">{{office.totaldiscount || 0}}</div>
+                <label>Скидки, ₽</label>
+              </div>
+            </div>
+            <div>
+              <button class="button secondary small" @click="showOfficeDetails(office)">
+                {{office.detailsShown ? 'Скрыть' : 'Показать' + ' детализацию по клиентам отделения'}}
+              </button>
+            </div>
+            <div class="table-container margin-bottom-30px" v-if="office.detailsShown">
+              <table class="hover">
+                <thead>
+                  <tr>
+                    <th class="sticky-header">Клиент</th>
+                    <th class="sticky-header">Выручка</th>
+                    <th class="sticky-header">Выручка от&nbsp;услуг</th>
+                    <th class="sticky-header">Выручка от&nbsp;продажи товаров</th>
+                    <th class="sticky-header">Наличка</th>
+                    <th class="sticky-header">Безнал</th>
+                    <th class="sticky-header">Скидки</th>
+                    <th class="sticky-header">Посещения&nbsp;за выбранный период</th>
+                    <th class="sticky-header">Посещения мастеров за&nbsp;всё время</th>
+                    <th class="sticky-header">Посещения всего</th>
+                    <th class="sticky-header">Посещения&nbsp;за последние 6&nbsp;мес.</th>
+                    <th class="sticky-header">Предыдущее посещение</th>
+                    <th class="sticky-header">Новый клиент</th>
+                    <th class="sticky-header">Лояльность</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="client in office.clients" v-bind:key="client.clietnId">
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.name || 'Неизвестно'}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.totalsum || 0}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.totalservicesum || 0}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.totalgoodssum || 0}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.totalcash || 0}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.totalcashless || 0}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.totaldiscount || 0}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.totalvisitsduringperiod}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        <div v-for="visit in client.mastervisits" v-bind:key="visit">
+                          <div><router-link :to="'/EditEmployee/' + visit.masterId.toString()">{{visit.name}}</router-link></div>
+                          <div class="margin-bottom-10px">{{visit.count || 0}} {{inclineWord(visit.count, 'раз', 'раза', 'раз')}}</div>
+                        </div>
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.totalvisits}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.lastndaysvisitscount || 0}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.lastvisitdatetime || 0}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
+                        {{client.newclient ? 'Да' : 'Нет'}}
+                      </router-link>
+                    </td>
+                    <td>
+                      <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link" v-html="getLoyalityDescription(client.loyalty)"></router-link>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -276,10 +384,13 @@ export default {
       HTTP.post(`GenerateClientReport/`, data)
         .then(response => {
           this.summary = response.data.summary[0]
-          for (var index in response.data.byOffices) {
-            var office = response.data.byOffices[index]
-            office.clients = response.data.byOfficeAndClient.filter(x => x.officeId === office.officeId)
-            office.detailsShown = false
+          if (!response.data.byOfficeAndClient.warning) {
+            for (var index in response.data.byOffices) {
+              var office = response.data.byOffices[index]
+              office.clients = response.data.byOfficeAndClient.filter(x => x.officeId === office.officeId)
+              office.detailsShown = false
+              office.uniqueClientsCount = new Set(office.clients.map(x => x.clientId)).size
+            }
           }
           this.byOffices = response.data.byOffices
           this.byClients = response.data.byClients
@@ -288,20 +399,27 @@ export default {
         })
         .catch(e => {
           this.loadingError = e
+          this.summary = null
+          this.byOffices = []
+          this.byClients = []
+          this.byOfficesAndClients = []
           this.isLoading = false
         })
     },
     inclineWord: function (num, form1, form2, form3) {
-      var lastDigit = num.toString()[num.toString().length - 1]
-      if (lastDigit === '1') {
-        return form1
+      if (num) {
+        var lastDigit = num.toString()[num.toString().length - 1]
+        if (['5', '6', '7', '8', '9', '0'].includes(lastDigit) || (num % 100 > 10 && num % 100 < 20)) {
+          return form3
+        }
+        if (['2', '3', '4'].includes(lastDigit)) {
+          return form2
+        }
+        if (lastDigit === '1') {
+          return form1
+        }
       }
-      if (['2', '3', '4'].includes(lastDigit)) {
-        return form2
-      }
-      if (['5', '6', '7', '8', '9', '0'].includes(lastDigit)) {
-        return form3
-      }
+      return form1
     },
     showOfficeDetails: function (office) {
       office.detailsShown = !office.detailsShown
@@ -339,6 +457,11 @@ export default {
         periods.push(this.moment().subtract(i, 'months').format('MM YYYY'))
       }
       return periods
+    },
+    uniqueClientsCount () {
+      if (this.byClients && this.byClients.length && !this.byClients.warning && !this.byClients.error) {
+        return new Set(this.byClients.map(x => x.clientId)).size
+      }
     }
   }
 }
