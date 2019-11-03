@@ -239,8 +239,8 @@ left join
 left join
 (select id,name from employee) usr
 on s."masterId"=usr.id
-group by "clientId",name,yearmonth,usr.id) mv
 {where}
+group by "clientId",name,yearmonth,usr.id) mv
 group by "clientId",yearmonth
 ) as masternames
 using ("clientId")'''
