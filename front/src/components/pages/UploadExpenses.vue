@@ -219,8 +219,8 @@ export default {
                   for (var i in byEmployees) {
                     var employee = byEmployees[i]
                     employee.operations = [
-                      this.getEmptyEmployeePayment(employee.employeeId, 'salary', employee.totalunpaidsalary),
-                      this.getEmptyEmployeePayment(employee.employeeId, 'bonus', employee.totalunpaidbonus)
+                      this.getEmptyEmployeePayment(employee.employeeId, 'salary', employee.totalunpaidsalary > 0 ? employee.totalunpaidsalary : 0),
+                      this.getEmptyEmployeePayment(employee.employeeId, 'bonus', employee.totalunpaidbonus > 0 ? employee.totalunpaidbonus : 0)
                     ]
                   }
                   this.byEmployees = byEmployees
