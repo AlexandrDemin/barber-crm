@@ -2,7 +2,7 @@
 # coding: utf-8
 
 
-import json
+import simplejson as json
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import traceback
@@ -270,10 +270,10 @@ from"""
 
     query = f"""{globalquery} 
 (select yearmonth,"officeId","clientId",
-sum("cashSum") as totalCash,sum("cashlessSum") as totalCashless,sum("discountSum") as totalDiscount,
-sum("cashSum")filter (where type = 'service') + sum("cashlessSum")filter (where type = 'service')  as totalServiceSum,
-sum("cashSum")filter (where type = 'good') + sum("cashlessSum")filter (where type = 'good') as totalGoodsSum,
-sum("cashlessSum") + sum("cashSum") as totalSum
+coalesce(sum("cashSum"),0) as totalCash,coalesce(sum("cashlessSum"),0) as totalCashless,coalesce(sum("discountSum"),0) as totalDiscount,
+coalesce(sum("cashSum")filter (where type = 'service') + sum("cashlessSum")filter (where type = 'service'),0)  as totalServiceSum,
+coalesce(sum("cashSum")filter (where type = 'good') + sum("cashlessSum")filter (where type = 'good'),0) as totalGoodsSum,
+coalesce(sum("cashlessSum") + sum("cashSum"),0) as totalSum
 from 
 (select 'service' as type,"officeId","clientId", date_trunc('month',"finishDatetime") as yearmonth,"cashSum","cashlessSum","discountSum" from serviceoperation
 union
@@ -376,7 +376,7 @@ def GenerateFinanceReportQuery(args):
 sum(operationcount)::int as operationcount,sum(serviceoperationcount)::int as serviceoperationcount,sum(goodsoperationcount)::int as goodsoperationcount, sum(spendoperationcount)::int as spendoperationcount,
 sum(serviceIncome) as serviceIncome,sum(goodsIncome) as goodsIncome,
 sum(totalcash) as totalcash,sum(totalcashless) as totalcashless,
-sum(totalIncome) as totalIncome,sum(totalspend) as totalspend,sum(totalrevenue) as totalrevenue,
+sum(totalIncome) as totalIncome,sum(totalspend) as totalspend, sum(totalIncome) - sum(totalspend) as totalprofit,
 sum(totalemployees)::int as totalemployees, sum(total_time)::int as total_time
 from""" 
     
@@ -387,20 +387,20 @@ count(*) filter (where category = 'spend') as spendoperationcount,
 sum("cashSum")filter (where category = 'serviceoperation')+sum("cashlessSum")filter (where category = 'serviceoperation') as serviceIncome,
 sum("cashSum")filter (where category = 'goodsoperation')+sum("cashlessSum")filter (where category = 'goodsoperation') as goodsIncome,
 sum("cashSum") as totalcash, sum("cashlessSum") as totalcashless,
-sum(totalIncome) as totalIncome, sum(totalspend) as totalspend, sum(totalIncome) - sum(totalspend) as totalrevenue
+sum(totalIncome) as totalIncome, sum(totalspend) as totalspend, sum(totalIncome) - sum(totalspend) as totalprofit
 from 
-(select 'serviceoperation' as category,"officeId",date_trunc('month',"finishDatetime") as yearmonth,"cashSum","cashlessSum","cashSum"+"cashlessSum" as totalIncome, null::float as totalspend
+(select 'serviceoperation' as category,"officeId",date_trunc('month',"finishDatetime") as yearmonth,coalesce("cashSum",0) as "cashSum",coalesce("cashlessSum",0) as "cashlessSum",coalesce("cashSum"+"cashlessSum",0) as totalIncome, 0::float as totalspend
 from serviceoperation
 union all
-select 'goodsoperation' as category,"officeId",date_trunc('month',datetime) as yearmonth,"cashSum","cashlessSum","cashSum"+"cashlessSum" as totalIncome, null::float as totalspend
+select 'goodsoperation' as category,"officeId",date_trunc('month',datetime) as yearmonth,coalesce("cashSum",0) as "cashSum",coalesce("cashlessSum",0) as "cashlessSum",coalesce("cashSum"+"cashlessSum",0) as totalIncome, 0::float as totalspend
 from goodsoperation
 union all
-select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, null as "cashSum", null as "cashlessSum", null::float as totalIncome,sum as totalspend from spendoperation
+select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, 0 as "cashSum", 0 as "cashlessSum", 0::float as totalIncome,sum as totalspend from spendoperation
 union all
-select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, null as "cashSum", null as "cashlessSum", null::float as totalIncome,sum as totalspend from employeepayment) finance
+select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, 0 as "cashSum", 0 as "cashlessSum", 0::float as totalIncome,sum as totalspend from employeepayment) finance
 group by "officeId",yearmonth) finance
 left join
-(select "officeId", count(distinct employeeid) as totalemployees,sum(total_time) as total_time,yearmonth from
+(select "officeId", count(distinct employeeid) as totalemployees,coalesce(sum(total_time),0) as total_time,yearmonth from
 (select "officeId",date_trunc('month',"dateOpened") as yearmonth,
 cast((unnest(employees)->'id')::text as int) as employeeid,
 cast((unnest(employees)->'workHours')::text as int) as total_time
@@ -449,9 +449,9 @@ select * from (select 'a' as joinfield, id as employeeid,name,roles,"categoryId"
     employeepaymentspart = f"""-- присоединяем данные по выплатам сотрудникам: зарплата, премия (за услуги и проданные товары), штрафы
 left join
 (select * from (select "officeId","employeeId" as employeeid,date_trunc('month',datetime) as yearmonth,
-sum(sum)filter (where "employeePaymentTypeId" in (select id from employeepaymenttype where type = 'salary')) as paidsalary, 
-sum(sum)filter (where "employeePaymentTypeId" in (select id from employeepaymenttype where type = 'bonus')) as paidbonus,
-sum(sum)filter (where "employeePaymentTypeId" in (select id from employeepaymenttype where type = 'penalty')) as penalty
+coalesce(sum(sum)filter (where "employeePaymentTypeId" in (select id from employeepaymenttype where type = 'salary')),0) as paidsalary, 
+coalesce(sum(sum)filter (where "employeePaymentTypeId" in (select id from employeepaymenttype where type = 'bonus')),0) as paidbonus,
+coalesce(sum(sum)filter (where "employeePaymentTypeId" in (select id from employeepaymenttype where type = 'penalty')),0) as penalty
 from employeepayment
 group by "employeeId",yearmonth,"officeId") p
 {wherepart}) payments
@@ -460,9 +460,9 @@ using (employeeid)"""
     servicebonuspart = f"""-- присоединяем сумму бонусов с операций по услугам
 left join
 (select "officeId",yearmonth,employeeid,sum(serviceBonusSum) as servicebonus, count(*) filter(where type = 'master') as servicecount from 
-(select 'admin' as type,"officeId",date_trunc('month',"finishDatetime") as yearmonth, "adminId" as employeeid,"adminBonusSum" as serviceBonusSum from serviceoperation
+(select 'admin' as type,"officeId",date_trunc('month',"finishDatetime") as yearmonth, "adminId" as employeeid,coalesce("adminBonusSum",0) as serviceBonusSum from serviceoperation
 union 
-select 'master' as type,"officeId",date_trunc('month',"finishDatetime") as yearmonth, "masterId" as employeeid,"masterBonusSum" as serviceBonusSum from serviceoperation) sb
+select 'master' as type,"officeId",date_trunc('month',"finishDatetime") as yearmonth, "masterId" as employeeid,coalesce("masterBonusSum",0) as serviceBonusSum from serviceoperation) sb
 {wherepart}
 group by "officeId",yearmonth,employeeid) servicesum
 using (employeeid)"""
@@ -470,9 +470,9 @@ using (employeeid)"""
     goodsbonuspart = f"""-- присоединяем сумму бонусов с операций по товарам
 left join
 (select "officeId",yearmonth,employeeid,sum(goodsbonussum) as goodsbonus from 
-(select "officeId",date_trunc('month',datetime) as yearmonth, "adminId" as employeeid,"adminBonusSum" as goodsbonussum from goodsoperation
+(select "officeId",date_trunc('month',datetime) as yearmonth, "adminId" as employeeid,coalesce("adminBonusSum",0) as goodsbonussum from goodsoperation
 union 
-select "officeId",date_trunc('month',datetime) as yearmonth, "employeeId" as employeeid,"employeeBonusSum" as goodsbonussum from goodsoperation) gb
+select "officeId",date_trunc('month',datetime) as yearmonth, "employeeId" as employeeid,coalesce("employeeBonusSum",0) as goodsbonussum from goodsoperation) gb
 {wherepart}
 group by "officeId",yearmonth,employeeid
 ) goodssum
@@ -505,7 +505,7 @@ using (employeeid)"""
     totalworkinghourspart = f"""-- присоединяем общее число рабочих часов в периоде по дням, когда хотя бы в одном отделении была хотя бы одна операция
 -- просто перем список дат операций, урезанных до дня, считаем количество уникальных дней и умножаем на 8
 left join
-(select 'a' as joinfield, '8 hours'::interval*count(*) as estimatedworkhours from
+(select 'a' as joinfield, 8*count(*) as estimatedworkhours from
 (select date_trunc('day',"finishDatetime") as yearmonthday,date_trunc('month',"finishDatetime") as yearmonth from serviceoperation
 union
 select date_trunc('day',datetime) as yearmonthday,date_trunc('month',datetime) as yearmonth from goodsoperation
@@ -524,15 +524,15 @@ using ("officeId")"""
     
     globalquery = 'select * from'
     grouping = ''
-    globalquerysumpart = f'''sum(salary) as totalsalary,sum(paidsalary) as totalpaidsalary,sum(penalty) as totalpenalty,sum(unpaidsalary) as totalunpaidsalary,
-sum(servicecount) as totalservicecount,sum(repeatingvisitscount) as totalrepeatingvisitscount,
-sum(servicebonus) as totalservicebonus,
-sum(goodsbonus) as totalgoodsbonus,
-sum(paidbonus) as totalpaidbonus,
-sum(unpaidbonus) as totalunpaidbonus,
-sum(total_time) as total_time,
-sum(estimatedworkhours) as estimatedworkhours,
-avg(workload) as meanworkload'''
+    globalquerysumpart = f'''coalesce(sum(salary),0) as totalsalary,coalesce(sum(paidsalary),0) as totalpaidsalary,coalesce(sum(penalty),0) as totalpenalty,coalesce(sum(salary) - sum(paidsalary) + sum(penalty),0) as totalunpaidsalary,
+coalesce(sum(servicecount),0) as totalservicecount,coalesce(sum(repeatingvisitscount),0) as totalrepeatingvisitscount,
+coalesce(sum(servicebonus),0) as totalservicebonus,
+coalesce(sum(goodsbonus),0) as totalgoodsbonus,
+coalesce(sum(paidbonus),0) as totalpaidbonus,
+coalesce(sum(servicebonus) + sum(goodsbonus) - sum(paidbonus),0) as totalunpaidbonus,
+coalesce(sum(total_time),0) as total_time,
+coalesce(sum(estimatedworkhours),0) as estimatedworkhours,
+coalesce(sum(total_time),0)/sum(estimatedworkhours) as meanworkload'''
     
     if args['data']['groupingtype'] == 'byOffices':
         globalquery = f'''select "officeId",
@@ -559,8 +559,8 @@ avg(workload) as meanworkload'''
 (select employeeid,name, worktime."officeId" as "officeId",state, roles,
 salary,paidsalary,penalty,salary - paidsalary + penalty as unpaidsalary,
 servicecount::int, repeatingvisitscount::int,
-servicebonus,goodsbonus,paidbonus,servicebonus+goodsbonus-paidbonus as unpaidbonus,
-total_time::int,estimatedworkhours,total_time/ EXTRACT(epoch FROM estimatedworkhours) as workload
+servicebonus,goodsbonus,paidbonus,servicebonus + goodsbonus - paidbonus as unpaidbonus,
+total_time::int,estimatedworkhours,total_time/estimatedworkhours as workload
 from
 ({employeeinfopart}
 {employeepaymentspart}

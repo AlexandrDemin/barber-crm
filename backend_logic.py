@@ -6,7 +6,7 @@ import pandas as pd
 from datetime import date, datetime, timedelta
 import requests
 import time
-import json
+import simplejson as json
 import math
 import copy
 import urllib.parse
