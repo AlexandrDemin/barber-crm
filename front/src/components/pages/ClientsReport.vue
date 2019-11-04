@@ -194,7 +194,7 @@
             v-for="office in byOffices"
             v-bind:key="office.id"
           >
-            <h4>{{$store.getters.getOfficeName(office.officeId)}}</h4>
+            <h3>{{$store.getters.getOfficeName(office.officeId)}}</h3>
             <div class="grid-x grid-margin-x grid-margin-y margin-bottom-10px">
               <div class="cell small-6 medium-4 large-auto">
                 <div class="big-number">{{office.uniqueClientsCount || 0}}</div>
@@ -255,7 +255,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="client in office.clients" v-bind:key="client.clietnId">
+                  <tr v-for="client in office.clients" v-bind:key="client.clientId">
                     <td>
                       <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
                         {{client.name || 'Неизвестно'}}

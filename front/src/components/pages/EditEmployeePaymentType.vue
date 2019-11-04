@@ -19,6 +19,17 @@
           <input type="text" v-model="employeePaymentType.name" autofocus/>
           <label>Сумма по умолчанию</label>
           <input type="number" v-model="employeePaymentType.defaultSum" autofocus/>
+          <label>Тип</label>
+          <v-select
+            :clearable="false"
+            v-model="employeePaymentType.type"
+            :reduce="s => s.id"
+            :value="employeePaymentType.type"
+            label="name"
+            :options="employeePaymentTypeTypes"
+          >
+            <div slot="no-options">Ничего не найдено</div>
+          </v-select>
           <label>Статус</label>
           <v-select
             :clearable="false"
@@ -58,10 +69,12 @@ export default {
     VueElementLoading,
     'v-select': vSelect
   },
-  mounted: function () {
+  created: function () {
     document.title = this.$route.meta.title
     if (this.$route.params.id) {
       this.load(this.$route.params.id)
+    } else {
+      this.employeePaymentType = this.getEmptyItem()
     }
   },
   data () {
@@ -70,7 +83,7 @@ export default {
       isSaving: false,
       loadingError: '',
       savingError: '',
-      employeePaymentType: this.getEmptyItem()
+      employeePaymentType: {}
     }
   },
   methods: {
@@ -109,6 +122,7 @@ export default {
         id: null,
         name: '',
         defaultSum: 0,
+        type: this.employeePaymentTypeTypes[0].id,
         state: 'active'
       }
     }
@@ -117,6 +131,11 @@ export default {
     employeePaymentTypeStates: {
       get () {
         return this.$store.state.employeePaymentTypeStates
+      }
+    },
+    employeePaymentTypeTypes: {
+      get () {
+        return this.$store.state.employeePaymentTypeTypes
       }
     }
   }

@@ -170,6 +170,20 @@ export default new Vuex.Store({
         name: 'Другое'
       }
     ],
+    employeePaymentTypeTypes: [
+      {
+        id: 'salary',
+        name: 'Зарплата'
+      },
+      {
+        id: 'bonus',
+        name: 'Премия'
+      },
+      {
+        id: 'penalty',
+        name: 'Штраф'
+      }
+    ],
     serviceTypes: [],
     goodsTypes: [],
     employeePaymentTypes: [],
@@ -389,6 +403,13 @@ export default new Vuex.Store({
       var userRole = state.userRoles.filter(e => e.id === id)[0]
       if (userRole) {
         return userRole.name
+      }
+      return '–'
+    },
+    getEmployeePaymentTypeTypeName: (state) => (id) => {
+      var type = state.employeePaymentTypeTypes.filter(e => e.id === id)[0]
+      if (type) {
+        return type.name
       }
       return '–'
     },

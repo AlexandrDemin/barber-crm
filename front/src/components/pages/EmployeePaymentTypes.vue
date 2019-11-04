@@ -10,6 +10,7 @@
             <tr>
               <th>Название</th>
               <th>Сумма по умолчанию</th>
+              <th>Тип</th>
               <th>Статус</th>
             </tr>
           </thead>
@@ -23,6 +24,11 @@
               <td>
                 <router-link v-bind:to="'/EditEmployeePaymentType/' + item.id" class="table-link">
                   {{item.defaultSum}}
+                </router-link>
+              </td>
+              <td>
+                <router-link v-bind:to="'/EditEmployeePaymentType/' + item.id" class="table-link">
+                  {{$store.getters.getEmployeePaymentTypeTypeName(item.type)}}
                 </router-link>
               </td>
               <td>
