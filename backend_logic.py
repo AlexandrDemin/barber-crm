@@ -216,6 +216,7 @@ def get(configkey,args=None):
             raw_data['data']['groupingtype'] = grouping
             result = select(raw_data)
             results[grouping] = result
+        print(result,'\n')
         result = getResult(results)
         return result    
     result = select(raw_data)

@@ -228,6 +228,7 @@ from'''
         grouping = 'group by "officeId"'
 
     if args['data']['groupingtype'] == 'byClients':
+        where2 = where.replace('yearmonth','date_trunc(\'month\',"finishDatetime")')
         globalquery = f'''select * from (select "clientId",max(lastvisitdatetime) as lastvisitdatetime,name,loyalty,newclient,
 {globalquerysumpart},
 sum(totalvisitsduringperiod)::int as totalvisitsduringperiod, sum(totalvisits)::int as totalvisits, sum(lastndaysvisitscount)::int as lastndaysvisitscount
@@ -239,7 +240,7 @@ left join
 left join
 (select id,name from employee) usr
 on s."masterId"=usr.id
-{where}
+{where2}
 group by "clientId",name,yearmonth,usr.id) mv
 group by "clientId",yearmonth
 ) as masternames
@@ -394,14 +395,14 @@ union all
 select 'goodsoperation' as category,"officeId",date_trunc('month',datetime) as yearmonth,"cashSum","cashlessSum","cashSum"+"cashlessSum" as totalIncome, null::float as totalspend
 from goodsoperation
 union all
-select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, null as "cashSum", null as "cashlessSum", null::float as totalIncome,"cashSum"+"cashlessSum" as totalspend from spendoperation
+select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, null as "cashSum", null as "cashlessSum", null::float as totalIncome,sum as totalspend from spendoperation
 union all
-select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, null as "cashSum", null as "cashlessSum", null::float as totalIncome,"cashSum"+"cashlessSum" as totalspend from employeepayment) finance
+select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, null as "cashSum", null as "cashlessSum", null::float as totalIncome,sum as totalspend from employeepayment) finance
 group by "officeId",yearmonth) finance
 left join
 (select "officeId", count(distinct employeeid) as totalemployees,sum(total_time) as total_time,yearmonth from
 (select "officeId",date_trunc('month',"dateOpened") as yearmonth,
-cast((unnest(employees)->'userId')::text as int) as employeeid,
+cast((unnest(employees)->'id')::text as int) as employeeid,
 cast((unnest(employees)->'workHours')::text as int) as total_time
 from session) a
 group by "officeId",yearmonth) worktime 
@@ -481,7 +482,7 @@ using (employeeid)"""
 left join 
 (select "officeId",employeeid, sum(total_time) as total_time,yearmonth from
 (select "officeId",date_trunc('month',"dateOpened") as yearmonth,
-cast((unnest(employees)->'userId')::text as int) as employeeid,
+cast((unnest(employees)->'id')::text as int) as employeeid,
 cast((unnest(employees)->'workHours')::text as int) as total_time
 from session) a
 {wherepart}
@@ -540,11 +541,11 @@ avg(workload) as meanworkload'''
         grouping = 'group by "officeId"'
         
     if args['data']['groupingtype'] == 'byEmployees':
-        globalquery = f'''select "name",
+        globalquery = f'''select employeeid,"name",
     {globalquerysumpart}
     from'''
         officenamejoinpart = ''
-        grouping = 'group by "name"'
+        grouping = 'group by employeeid,"name"'
 
     if args['data']['groupingtype'] == 'summary':
         globalquery = f'''select
@@ -555,11 +556,11 @@ avg(workload) as meanworkload'''
     query = f"""{globalquery}
 -- следующий селект - селект поверх большого числа джоинов. 
 -- в нем выбираются все нужные параметры и высчитываются недостающие
-(select name, worktime."officeId" as "officeId",state, roles,
+(select employeeid,name, worktime."officeId" as "officeId",state, roles,
 salary,paidsalary,penalty,salary - paidsalary + penalty as unpaidsalary,
-servicecount::int, repeatingvisitscount,
+servicecount::int, repeatingvisitscount::int,
 servicebonus,goodsbonus,paidbonus,servicebonus+goodsbonus-paidbonus as unpaidbonus,
-total_time,estimatedworkhours,total_time/ EXTRACT(epoch FROM estimatedworkhours) as workload
+total_time::int,estimatedworkhours,total_time/ EXTRACT(epoch FROM estimatedworkhours) as workload
 from
 ({employeeinfopart}
 {employeepaymentspart}
@@ -651,7 +652,7 @@ using (id)"""
             wherepart = generateWhere(args['data'])            
             
         query = f"""select {fields} from {table}{additionalpart}{wherepart}{orderpart}"""
-    print(query)
+    print(query, '\n\n')
     return query
 
 def goToBase(host,database,user,password,query,commit=False):
