@@ -407,7 +407,7 @@ union all
 select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, 0 as "cashSum", 0 as "cashlessSum", 0::float as totalIncome,sum as totalspend from employeepayment) finance
 group by "officeId",yearmonth) finance
 left join
-(select "officeId", count(distinct employeeid) as totalemployees,coalesce(sum(total_time),0) as total_time,yearmonth from
+(select "officeId", count(distinct "employeeId") as totalemployees,coalesce(sum(total_time),0) as total_time,yearmonth from
 (select "officeId",date_trunc('month',"dateOpened") as yearmonth,
 cast((unnest(employees)->'id')::text as int) as "employeeId",
 cast((unnest(employees)->'workHours')::text as int) as total_time
