@@ -11,6 +11,10 @@
       <h1>Расход</h1>
       <div class="grid-x">
         <vue-element-loading :active="isLoading" color="#1C457D"/>
+        <div v-if="loadingError" class="callout alert">
+          <h5>Произошла ошибка при загрузке данных</h5>
+          <p>{{loadingError}}</p>
+        </div>
         <div class="cell large-6">
           <label>Время</label>
           <input type="time" v-model="time"/>
@@ -47,6 +51,10 @@
           <div v-if="canEdit">
             <vue-element-loading :active="isSaving" color="#1C457D"/>
             <button class="button primary" type="button" @click="save">Сохранить</button>
+          </div>
+          <div v-if="savingError" class="callout alert">
+            <h5>Произошла ошибка при сохранении данных</h5>
+            <p>{{savingError}}</p>
           </div>
         </div>
       </div>

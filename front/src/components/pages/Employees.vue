@@ -5,32 +5,44 @@
       <h1>Сотрудники <router-link to="/EditEmployee/" class="button no-margion">Добавить</router-link></h1>
       <div>
         <vue-element-loading :active="isLoading" color="#1C457D"/>
-        <table class="hover">
-          <thead>
-            <tr>
-              <th>Сотрудник</th>
-              <th>Роли</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in employees" v-bind:key="item.id">
-              <td>
-                <router-link v-bind:to="'/EditEmployee/' + item.id" class="table-link">
-                  <img v-if="item.photo" v-bind:src="'url(' + item.photo + ')'">
-                  <div v-if="!item.photo">{{$store.getters.getUserPicturePlaceholderText(item.name)}}</div>
-                  {{item.name}}
-                </router-link>
-              </td>
-              <td>
-                <router-link v-bind:to="'/EditEmployee/' + item.id" class="table-link">
-                  <div v-for="role in item.roles" v-bind:key="role">
-                      {{$store.getters.getUserRoleName(role)}}
-                  </div>
-                </router-link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-container">
+          <table class="hover">
+            <thead>
+              <tr>
+                <th class="sticky-header">Сотрудник</th>
+                <th class="sticky-header">Роли</th>
+                <th class="sticky-header">Категория мастера</th>
+                <th class="sticky-header">Статус</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in employees" v-bind:key="item.id">
+                <td>
+                  <router-link v-bind:to="'/EditEmployee/' + item.id" class="table-link">
+                    {{item.name}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="'/EditEmployee/' + item.id" class="table-link">
+                    <div v-for="role in item.roles" v-bind:key="role">
+                        {{$store.getters.getUserRoleName(role)}}
+                    </div>
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="'/EditEmployee/' + item.id" class="table-link">
+                    {{$store.getters.getMasterCategoryName(item.categoryId)}}
+                  </router-link>
+                </td>
+                <td>
+                  <router-link v-bind:to="'/EditEmployee/' + item.id" class="table-link">
+                    {{$store.getters.getEmployeeStateName(item.state)}}
+                  </router-link>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>

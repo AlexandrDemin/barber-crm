@@ -44,22 +44,6 @@
           <h2>Итого</h2>
           <div class="grid-x grid-margin-x grid-margin-y margin-bottom-10px">
             <div class="cell small-6 medium-4 large-2">
-              <div class="big-number">{{summary.operationcount || 0}}</div>
-              <label>{{inclineWord(summary.operationcount, 'Операция', 'Операции', 'Операций')}}</label>
-            </div>
-            <div class="cell small-6 medium-4 large-2">
-              <div class="big-number">{{summary.serviceoperationcount || 0}}</div>
-              <label>Услуг оказано</label>
-            </div>
-            <div class="cell small-6 medium-4 large-2">
-              <div class="big-number">{{summary.goodsoperationcount || 0}}</div>
-              <label>Товаров продано</label>
-            </div>
-            <div class="cell small-6 medium-4 large-2">
-              <div class="big-number">{{summary.spendoperationcount || 0}}</div>
-              <label>Расходов внесено</label>
-            </div>
-            <div class="cell small-6 medium-4 large-2">
               <div class="big-number">{{summary.totalincome.toFixed(2) || 0}}</div>
               <label>Выручка, ₽</label>
             </div>
@@ -87,6 +71,22 @@
               <div class="big-number">{{summary.totalrevenue.toFixed(2) || 0}}</div>
               <label>Прибыль, ₽</label>
             </div>
+            <div class="cell small-6 medium-4 large-2">
+              <div class="big-number">{{summary.operationcount || 0}}</div>
+              <label>{{inclineWord(summary.operationcount, 'Операция', 'Операции', 'Операций')}}</label>
+            </div>
+            <div class="cell small-6 medium-4 large-2">
+              <div class="big-number">{{summary.serviceoperationcount || 0}}</div>
+              <label>{{inclineWord(summary.operationcount, 'Услуга оказана', 'Услуги оказано', 'Услуг оказано')}}</label>
+            </div>
+            <div class="cell small-6 medium-4 large-2">
+              <div class="big-number">{{summary.goodsoperationcount || 0}}</div>
+              <label>{{inclineWord(summary.operationcount, 'Товар продан', 'Товара продано', 'Товаров продано')}}</label>
+            </div>
+            <div class="cell small-6 medium-4 large-2">
+              <div class="big-number">{{summary.spendoperationcount || 0}}</div>
+              <label>{{inclineWord(summary.operationcount, 'Расход внесен', 'Расхода внесено', 'Расходов внесено')}}</label>
+            </div>
           </div>
         </div>
         <div v-if="!loadingError && !isLoading && byOffices && byOffices.length && !byOffices.warning">
@@ -98,22 +98,6 @@
           >
             <h3>{{$store.getters.getOfficeName(office.officeId)}}</h3>
             <div class="grid-x grid-margin-x grid-margin-y margin-bottom-10px">
-              <div class="cell small-6 medium-4 large-2">
-                <div class="big-number">{{office.operationcount || 0}}</div>
-                <label>{{inclineWord(office.operationcount, 'Операция', 'Операции', 'Операций')}}</label>
-              </div>
-              <div class="cell small-6 medium-4 large-2">
-                <div class="big-number">{{office.serviceoperationcount || 0}}</div>
-                <label>Услуг оказано</label>
-              </div>
-              <div class="cell small-6 medium-4 large-2">
-                <div class="big-number">{{office.goodsoperationcount || 0}}</div>
-                <label>Товаров продано</label>
-              </div>
-              <div class="cell small-6 medium-4 large-2">
-                <div class="big-number">{{office.spendoperationcount || 0}}</div>
-                <label>Расходов внесено</label>
-              </div>
               <div class="cell small-6 medium-4 large-2">
                 <div class="big-number">{{office.totalincome.toFixed(2) || 0}}</div>
                 <label>Выручка, ₽</label>
@@ -141,6 +125,22 @@
               <div class="cell small-6 medium-4 large-2">
                 <div class="big-number">{{office.totalrevenue.toFixed(2) || 0}}</div>
                 <label>Прибыль, ₽</label>
+              </div>
+              <div class="cell small-6 medium-4 large-2">
+                <div class="big-number">{{office.operationcount || 0}}</div>
+                <label>{{inclineWord(office.operationcount, 'Операция', 'Операции', 'Операций')}}</label>
+              </div>
+              <div class="cell small-6 medium-4 large-2">
+                <div class="big-number">{{office.serviceoperationcount || 0}}</div>
+                <label>{{inclineWord(office.operationcount, 'Услуга оказана', 'Услуги оказано', 'Услуг оказано')}}</label>
+              </div>
+              <div class="cell small-6 medium-4 large-2">
+                <div class="big-number">{{office.goodsoperationcount || 0}}</div>
+                <label>{{inclineWord(office.operationcount, 'Товар продан', 'Товара продано', 'Товаров продано')}}</label>
+              </div>
+              <div class="cell small-6 medium-4 large-2">
+                <div class="big-number">{{office.spendoperationcount || 0}}</div>
+                <label>{{inclineWord(office.operationcount, 'Расход внесен', 'Расхода внесено', 'Расходов внесено')}}</label>
               </div>
             </div>
           </div>
