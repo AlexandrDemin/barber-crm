@@ -11,6 +11,10 @@
       <h1>Выплата сотруднику</h1>
       <div class="grid-x">
         <vue-element-loading :active="isLoading" color="#1C457D"/>
+        <div v-if="loadingError" class="callout alert">
+          <h5>Произошла ошибка при загрузке данных</h5>
+          <p>{{loadingError}}</p>
+        </div>
         <div class="cell large-6" v-if="operations.length">
           <label>Время</label>
           <input type="time" v-model="time"/>
@@ -49,7 +53,7 @@
             <label>Сумма</label>
             <input type="number" v-model.number="payment.sum">
             <label>Комментарий</label>
-          <textarea rows="2" v-model="payment.comment"></textarea>
+            <textarea rows="2" v-model="payment.comment"></textarea>
           </div>
           <div>
             <button
