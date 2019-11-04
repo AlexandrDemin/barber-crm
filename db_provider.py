@@ -236,14 +236,17 @@ from'''
         grouping = f'''group by "clientId",name,loyalty,newclient) withoutmastervisits
 left join
 (select "clientId",yearmonth, array_agg(mastervisits) as  mastervisits from
-(select date_trunc('month',"finishDatetime") as yearmonth,"clientId",json_build_object('masterId',usr.id,'name',usr.name,'count',count(*)) as mastervisits from serviceoperation s
+(select yearmonth,"clientId",json_build_object('masterId',usr.id,'name',usr.name,'dailyvisitscount',sum(dailyvisitscount)) as mastervisits from 
+(select "clientId","masterId",
+date_trunc('month',"finishDatetime") as yearmonth,date_trunc('day',"finishDatetime") as yearmonthday,
+count(distinct("clientId","masterId",date_trunc('day',"finishDatetime"))) as dailyvisitscount from serviceoperation
+group by "clientId","masterId",date_trunc('day',"finishDatetime"),date_trunc('month',"finishDatetime")) s
 left join
 (select id,name from employee) usr
 on s."masterId"=usr.id
-{where2}
 group by "clientId",name,yearmonth,usr.id) mv
-group by "clientId",yearmonth
-) as masternames
+{where}
+group by "clientId",yearmonth) as masternames
 using ("clientId")'''
     
     if args['data']['groupingtype'] == 'summary':
@@ -281,11 +284,15 @@ select 'good' as type,"officeId","clientId",date_trunc('month',datetime) as year
 group by yearmonth,"officeId","clientId") finance
 left join
 (select "officeId","clientId",yearmonth, array_agg(mastervisits) as  mastervisits from
-(select date_trunc('month',"finishDatetime") as yearmonth,"officeId","clientId",json_build_object('masterId',usr.id,'name',usr.name,'count',count(*)) as mastervisits from serviceoperation s
+(select "officeId",yearmonth,"clientId",json_build_object('masterId',usr.id,'name',usr.name,'dailyvisitscount',sum(dailyvisitscount)) as mastervisits from 
+(select "officeId","clientId","masterId",
+date_trunc('month',"finishDatetime") as yearmonth,date_trunc('day',"finishDatetime") as yearmonthday,
+count(distinct("clientId","officeId","masterId",date_trunc('day',"finishDatetime"))) as dailyvisitscount from serviceoperation
+group by "clientId","officeId","masterId",date_trunc('day',"finishDatetime"),date_trunc('month',"finishDatetime")) s
 left join
 (select id,name from employee) usr
 on s."masterId"=usr.id
-group by "officeId","clientId",name,yearmonth,usr.id) mv
+group by "clientId","officeId",name,yearmonth,usr.id) mv
 group by "officeId","clientId",yearmonth
 ) as masternames
 using (yearmonth,"officeId","clientId")
