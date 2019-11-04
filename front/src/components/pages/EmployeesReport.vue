@@ -105,7 +105,7 @@
               <label>Отработанные часы</label>
             </div>
             <div class="cell small-6 medium-4 large-2">
-              <div class="big-number">{{((summary.meanworkload || 0) * 100).toString() + '%'}}</div>
+              <div class="big-number">{{((summary.meanworkload || 0) * 100).toFixed(2).toString() + '%'}}</div>
               <label>% отработанных часов</label>
             </div>
           </div>
@@ -192,7 +192,7 @@
                   </td>
                   <td>
                     <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                      {{((employee.meanworkload || 0) * 100).toString() + '%'}}
+                      {{((employee.meanworkload || 0) * 100).toFixed(2).toString() + '%'}}
                     </router-link>
                   </td>
                 </tr>
@@ -258,7 +258,7 @@
                 <label>Отработанные часы</label>
               </div>
               <div class="cell small-6 medium-4 large-2">
-                <div class="big-number">{{((office.meanworkload || 0) * 100).toString() + '%'}}</div>
+                <div class="big-number">{{((office.meanworkload || 0) * 100).toFixed(2).toString() + '%'}}</div>
                 <label>% отработанных часов</label>
               </div>
             </div>
@@ -350,7 +350,7 @@
                     </td>
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{((employee.meanworkload || 0) * 100).toString() + '%'}}
+                        {{((employee.meanworkload || 0) * 100).toFixed(2).toString() + '%'}}
                       </router-link>
                     </td>
                   </tr>

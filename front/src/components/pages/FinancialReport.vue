@@ -40,7 +40,7 @@
           <p>{{loadingError}}</p>
         </div>
         <div v-if="!loadingError && !isLoading && summary && (!summary.operationcount || (byOffices.length && byOffices.warning))">Нет данных по выбранным фильтрам</div>
-        <div v-if="!loadingError && !isLoading && summary && summary.totalsalary">
+        <div v-if="!loadingError && !isLoading && summary && summary.operationcount">
           <h2>Итого</h2>
           <div class="grid-x grid-margin-x grid-margin-y margin-bottom-10px">
             <div class="cell small-6 medium-4 large-2">
@@ -84,7 +84,7 @@
               <label>Расходы, ₽</label>
             </div>
             <div class="cell small-6 medium-4 large-2">
-              <div class="big-number">{{summary.totalrevenue || 0}}</div>
+              <div class="big-number">{{summary.totalrevenue.toFixed(2) || 0}}</div>
               <label>Прибыль, ₽</label>
             </div>
           </div>
@@ -115,7 +115,7 @@
                 <label>Расходов внесено</label>
               </div>
               <div class="cell small-6 medium-4 large-2">
-                <div class="big-number">{{office.totalincome || 0}}</div>
+                <div class="big-number">{{office.totalincome.toFixed(2) || 0}}</div>
                 <label>Выручка, ₽</label>
               </div>
               <div class="cell small-6 medium-4 large-2">
@@ -139,7 +139,7 @@
                 <label>Расходы, ₽</label>
               </div>
               <div class="cell small-6 medium-4 large-2">
-                <div class="big-number">{{office.totalrevenue || 0}}</div>
+                <div class="big-number">{{office.totalrevenue.toFixed(2) || 0}}</div>
                 <label>Прибыль, ₽</label>
               </div>
             </div>
