@@ -228,10 +228,9 @@ from'''
         grouping = 'group by "officeId"'
 
     if args['data']['groupingtype'] == 'byClients':
-        where2 = where.replace('yearmonth','date_trunc(\'month\',"finishDatetime")')
         globalquery = f'''select * from (select "clientId",max(lastvisitdatetime) as lastvisitdatetime,name,loyalty,newclient,
 {globalquerysumpart},
-sum(totalvisitsduringperiod)::int as totalvisitsduringperiod, sum(totalvisits)::int as totalvisits, sum(lastndaysvisitscount)::int as lastndaysvisitscount
+sum(totalvisitsduringperiod)::int as totalvisitsduringperiod, max(totalvisits)::int as totalvisits, max(lastndaysvisitscount)::int as lastndaysvisitscount
 from'''
         grouping = f'''group by "clientId",name,loyalty,newclient) withoutmastervisits
 left join
@@ -321,7 +320,7 @@ case
     else true
 end as newclient from 
 ((select "clientId","officeId",
-count(*) as totalvisits,
+count(*) as totalvisitsoffice,
 count(*) filter (where datetime >= now() - '120 days'::interval) as lastndaysvisitscountoffice 
 from ( 
 select "officeId","clientId","finishDatetime"::date as datetime from serviceoperation
@@ -402,8 +401,6 @@ union all
 select 'goodsoperation' as category,"officeId",date_trunc('month',datetime) as yearmonth,coalesce("cashSum",0) as "cashSum",coalesce("cashlessSum",0) as "cashlessSum",coalesce("cashSum"+"cashlessSum",0) as totalIncome, 0::float as totalspend
 from goodsoperation
 union all
-select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, 0 as "cashSum", 0 as "cashlessSum", 0::float as totalIncome,sum as totalspend from spendoperation
-union all
 select 'spend' as category,"officeId",date_trunc('month',datetime) as yearmonth, 0 as "cashSum", 0 as "cashlessSum", 0::float as totalIncome,sum as totalspend from employeepayment) finance
 group by "officeId",yearmonth) finance
 left join
@@ -448,13 +445,18 @@ def GenerateEmployeeReportQuery(args):
     
     wherelistdate = [datepart]
     wherepartyearmonth = generateWhereFromList(wherelistdate)
-
-    employeeinfopart = f"""-- сперва выбираем общую справочную информацию по всем работникам
-select * from (select 'a' as joinfield, id as "employeeId",name,roles,"categoryId",salary,state from employee) u
-{wherepartemployeeid}) userinfo"""
+    
+    worktimepart = f"""-- присоединяем количество часов, отработанных работниками, их достаем из json-ов
+select "officeId","employeeId", sum(total_time) as total_time,yearmonth from
+(select "officeId",date_trunc('month',"dateOpened") as yearmonth,
+cast((unnest(employees)->'id')::text as int) as "employeeId",
+cast((unnest(employees)->'workHours')::text as int) as total_time
+from session) a
+{wherepart}
+group by "officeId","employeeId",yearmonth) worktime"""
 
     employeepaymentspart = f"""-- присоединяем данные по выплатам сотрудникам: зарплата, премия (за услуги и проданные товары), штрафы
-left join
+full outer join
 (select * from (select "officeId","employeeId",date_trunc('month',datetime) as yearmonth,
 coalesce(sum(sum)filter (where "employeePaymentTypeId" in (select id from employeepaymenttype where type = 'salary')),0) as paidsalary, 
 coalesce(sum(sum)filter (where "employeePaymentTypeId" in (select id from employeepaymenttype where type = 'bonus')),0) as paidbonus,
@@ -462,41 +464,37 @@ coalesce(sum(sum)filter (where "employeePaymentTypeId" in (select id from employ
 from employeepayment
 group by "employeeId",yearmonth,"officeId") p
 {wherepart}) payments
-using ("employeeId")"""
+using ("officeId","employeeId")"""
 
     servicebonuspart = f"""-- присоединяем сумму бонусов с операций по услугам
-left join
+full outer join
 (select "officeId",yearmonth,"employeeId",sum(serviceBonusSum) as servicebonus, count(*) filter(where type = 'master') as servicecount from 
-(select 'admin' as type,"officeId",date_trunc('month',"finishDatetime") as yearmonth, "adminId" as "employeeId",coalesce("adminBonusSum",0) as serviceBonusSum from serviceoperation
+(select id,'admin' as type,"officeId",date_trunc('month',"finishDatetime") as yearmonth, "adminId" as "employeeId",coalesce("adminBonusSum",0) as serviceBonusSum from serviceoperation
 union 
-select 'master' as type,"officeId",date_trunc('month',"finishDatetime") as yearmonth, "masterId" as "employeeId",coalesce("masterBonusSum",0) as serviceBonusSum from serviceoperation) sb
+select id,'master' as type,"officeId",date_trunc('month',"finishDatetime") as yearmonth, "masterId" as "employeeId",coalesce("masterBonusSum",0) as serviceBonusSum from serviceoperation) sb
 {wherepart}
 group by "officeId",yearmonth,"employeeId") servicesum
-using ("employeeId")"""
+using ("officeId","employeeId")"""
 
     goodsbonuspart = f"""-- присоединяем сумму бонусов с операций по товарам
-left join
+full outer join
 (select "officeId",yearmonth,"employeeId",sum(goodsbonussum) as goodsbonus from 
-(select "officeId",date_trunc('month',datetime) as yearmonth, "adminId" as "employeeId",coalesce("adminBonusSum",0) as goodsbonussum from goodsoperation
+(select id,"officeId",date_trunc('month',datetime) as yearmonth, "adminId" as "employeeId",coalesce("adminBonusSum",0) as goodsbonussum from goodsoperation
 union 
-select "officeId",date_trunc('month',datetime) as yearmonth, "employeeId" as "employeeId",coalesce("employeeBonusSum",0) as goodsbonussum from goodsoperation) gb
+select id,"officeId",date_trunc('month',datetime) as yearmonth, "employeeId" as "employeeId",coalesce("employeeBonusSum",0) as goodsbonussum from goodsoperation) gb
 {wherepart}
 group by "officeId",yearmonth,"employeeId"
 ) goodssum
+using ("officeId","employeeId")"""
+        
+    ###JOINS!!!
+        
+    employeeinfojoinpart = f"""-- сперва выбираем общую справочную информацию по всем работникам
+left join
+(select id as "employeeId",name as "employeeName",roles,"categoryId",salary,state from employee) u
 using ("employeeId")"""
-
-    worktimepart = f"""-- присоединяем количество часов, отработанных работниками, их достаем из json-ов
-left join 
-(select "officeId","employeeId", sum(total_time) as total_time,yearmonth from
-(select "officeId",date_trunc('month',"dateOpened") as yearmonth,
-cast((unnest(employees)->'id')::text as int) as "employeeId",
-cast((unnest(employees)->'workHours')::text as int) as total_time
-from session) a
-{wherepart}
-group by "officeId","employeeId",yearmonth) worktime
-using ("employeeId")"""
-
-    repeatingvisitscount = f"""    -- присоединяем рассчитанное количество повторных визитов
+    
+    repeatingvisitscountjoinpart = f"""-- присоединяем рассчитанное количество повторных визитов
 -- здесь во вложенном запросе сперва считается количество уникальных комбинаций мастер-клиент
 -- затем комбинация мастер-клиент встречается больше 1 раза, то к счетчику повторных визитов прибавляется 1
 left join 
@@ -508,8 +506,8 @@ where ("masterId", "clientId") in (
 group by "masterId", "clientId") repeatingvisits
 group by "employeeId") repeatingvisitscount
 using ("employeeId")"""
-        
-    totalworkinghourspart = f"""-- присоединяем общее число рабочих часов в периоде по дням, когда хотя бы в одном отделении была хотя бы одна операция
+    
+    totalworkinghoursjoinpart = f"""-- присоединяем общее число рабочих часов в периоде по дням, когда хотя бы в одном отделении была хотя бы одна операция
 -- просто перем список дат операций, урезанных до дня, считаем количество уникальных дней и умножаем на 8
 left join
 (select 'a' as joinfield, 8*count(*) as estimatedworkhours from
@@ -529,17 +527,24 @@ left join
 (select id as "officeId",name as officename from office) office
 using ("officeId")"""
     
-    globalquery = 'select * from'
+    globalquery = '''select "employeeId", "employeeName",roles,"categoryId",salary,state,
+"officeId",officename,
+repeatingvisitscount,
+paidsalary,penalty,servicecount,servicebonus,goodsbonus,paidbonus,unpaidbonus,
+total_time,estimatedworkhours as estimatedworkhours,
+coalesce(coalesce(total_time::int,0)/nullif(estimatedworkhours,0)::float,0) as workload from'''
+    
     grouping = ''
-    globalquerysumpart = f'''coalesce(sum(salary),0) as totalsalary,coalesce(sum(paidsalary),0) as totalpaidsalary,coalesce(sum(penalty),0) as totalpenalty,coalesce(sum(salary) - sum(paidsalary) + sum(penalty),0) as totalunpaidsalary,
-coalesce(sum(servicecount),0) as totalservicecount,coalesce(sum(repeatingvisitscount),0) as totalrepeatingvisitscount,
+    globalquerysumpart = f'''coalesce(max(salary),0) as totalsalary,coalesce(sum(paidsalary),0) as totalpaidsalary,coalesce(sum(penalty),0) as totalpenalty,
+coalesce(coalesce(max(salary),0) - coalesce(sum(paidsalary),0) + coalesce(sum(penalty),0)) as totalunpaidsalary,
+coalesce(sum(servicecount),0) as totalservicecount,coalesce(max(repeatingvisitscount),0) as totalrepeatingvisitscount,
 coalesce(sum(servicebonus),0) as totalservicebonus,
 coalesce(sum(goodsbonus),0) as totalgoodsbonus,
 coalesce(sum(paidbonus),0) as totalpaidbonus,
-coalesce(sum(servicebonus) + sum(goodsbonus) - sum(paidbonus),0) as totalunpaidbonus,
+coalesce(coalesce(sum(servicebonus),0) + coalesce(sum(goodsbonus),0) - coalesce(sum(paidbonus),0),0) as totalunpaidbonus,
 coalesce(sum(total_time),0) as total_time,
-coalesce(sum(estimatedworkhours),0) as estimatedworkhours,
-coalesce(sum(total_time),0)/sum(estimatedworkhours) as meanworkload'''
+coalesce(max(estimatedworkhours),0) as estimatedworkhours,
+coalesce(coalesce(sum(total_time),0)/nullif(max(estimatedworkhours),0)::float,0) as meanworkload'''
     
     if args['data']['groupingtype'] == 'byOffices':
         globalquery = f'''select "officeId",
@@ -548,11 +553,11 @@ coalesce(sum(total_time),0)/sum(estimatedworkhours) as meanworkload'''
         grouping = 'group by "officeId"'
         
     if args['data']['groupingtype'] == 'byEmployees':
-        globalquery = f'''select "employeeId","name",
+        globalquery = f'''select "employeeId","employeeName",
     {globalquerysumpart}
     from'''
         officenamejoinpart = ''
-        grouping = 'group by "employeeId","name"'
+        grouping = 'group by "employeeId","employeeName"'
 
     if args['data']['groupingtype'] == 'summary':
         globalquery = f'''select
@@ -563,21 +568,21 @@ coalesce(sum(total_time),0)/sum(estimatedworkhours) as meanworkload'''
     query = f"""{globalquery}
 -- следующий селект - селект поверх большого числа джоинов. 
 -- в нем выбираются все нужные параметры и высчитываются недостающие
-(select "employeeId",name, worktime."officeId" as "officeId",state, roles,
-salary,paidsalary,penalty,salary - paidsalary + penalty as unpaidsalary,
-servicecount::int, repeatingvisitscount::int,
-servicebonus,goodsbonus,paidbonus,servicebonus + goodsbonus - paidbonus as unpaidbonus,
-total_time::int,estimatedworkhours,total_time/estimatedworkhours as workload
+(select 'a' as joinfield,"employeeId", "officeId",
+coalesce(paidsalary,0) as paidsalary,coalesce(penalty,0) as penalty,
+coalesce(servicecount::int,0) as servicecount,
+coalesce(servicebonus,0) as servicebonus,coalesce(goodsbonus,0) as goodsbonus,coalesce(paidbonus,0) as paidbonus,coalesce(coalesce(servicebonus,0) + coalesce(goodsbonus,0) - coalesce(paidbonus,0),0) as unpaidbonus,
+coalesce(total_time::int,0) as total_time
 from
-({employeeinfopart}
+({worktimepart}
 {employeepaymentspart}
 {servicebonuspart}
 {goodsbonuspart}
-{worktimepart}
-{repeatingvisitscount}
-{totalworkinghourspart}
 ) reportmain
 {officenamejoinpart}
+{employeeinfojoinpart}
+{repeatingvisitscountjoinpart}
+{totalworkinghoursjoinpart}
 {grouping}
 """
     
