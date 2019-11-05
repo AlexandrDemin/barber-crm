@@ -85,12 +85,15 @@ export default {
           this.isLoading = false
         })
     },
-    save: function () {
+    save: function (noReturnToList) {
       this.isSaving = true
       this.savingError = ''
       HTTP.post(`EditOffice/`, this.office)
         .then(response => {
           this.isSaving = false
+          if (!noReturnToList) {
+            this.$router.push('/Offices')
+          }
         })
         .catch(e => {
           this.savingError = e
@@ -98,7 +101,7 @@ export default {
         })
     },
     saveAndAddMore: function () {
-      this.save()
+      this.save(true)
       this.office = this.getEmptyItem()
       this.$router.push('/EditOffice')
     },
@@ -107,10 +110,10 @@ export default {
         id: null,
         name: '',
         state: 'open',
-        city: 'null',
-        address: 'null',
-        coordinatex: 'null',
-        coordinatey: 'null'
+        city: '',
+        address: '',
+        coordinatex: 0,
+        coordinatey: 0
       }
     }
   },
