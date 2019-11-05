@@ -64,11 +64,11 @@
               <label>Выручка (безнал), ₽</label>
             </div>
             <div class="cell small-6 medium-4 large-2">
-              <div class="big-number">{{summary.totalspend || 0}}</div>
+              <div class="big-number">{{summary.totalspend.toFixed(2) || 0}}</div>
               <label>Расходы, ₽</label>
             </div>
             <div class="cell small-6 medium-4 large-2">
-              <div class="big-number">{{summary.totalrevenue.toFixed(2) || 0}}</div>
+              <div class="big-number">{{summary.totalprofit.toFixed(2) || 0}}</div>
               <label>Прибыль, ₽</label>
             </div>
             <div class="cell small-6 medium-4 large-2">
@@ -119,11 +119,11 @@
                 <label>Выручка (безнал), ₽</label>
               </div>
               <div class="cell small-6 medium-4 large-2">
-                <div class="big-number">{{office.totalspend || 0}}</div>
+                <div class="big-number">{{office.totalspend.toFixed(0) || 0}}</div>
                 <label>Расходы, ₽</label>
               </div>
               <div class="cell small-6 medium-4 large-2">
-                <div class="big-number">{{office.totalrevenue.toFixed(2) || 0}}</div>
+                <div class="big-number">{{office.totalprofit.toFixed(2) || 0}}</div>
                 <label>Прибыль, ₽</label>
               </div>
               <div class="cell small-6 medium-4 large-2">

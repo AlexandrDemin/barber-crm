@@ -155,7 +155,7 @@
                     <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
                       <div v-for="visit in client.mastervisits" v-bind:key="visit">
                         <div><router-link :to="'/EditEmployee/' + visit.masterId.toString()">{{visit.name}}</router-link></div>
-                        <div class="margin-bottom-10px">{{visit.count || 0}} {{inclineWord(visit.count, 'раз', 'раза', 'раз')}}</div>
+                        <div class="margin-bottom-10px">{{visit.dailyvisitscount || 0}} {{inclineWord(visit.dailyvisitscount, 'раз', 'раза', 'раз')}}</div>
                       </div>
                     </router-link>
                   </td>
@@ -300,7 +300,7 @@
                       <router-link v-bind:to="/EditClient/ + parseInt(client.clientId)" class="table-link">
                         <div v-for="visit in client.mastervisits" v-bind:key="visit">
                           <div><router-link :to="'/EditEmployee/' + visit.masterId.toString()">{{visit.name}}</router-link></div>
-                          <div class="margin-bottom-10px">{{visit.count || 0}} {{inclineWord(visit.count, 'раз', 'раза', 'раз')}}</div>
+                          <div class="margin-bottom-10px">{{visit.dailyvisitscount || 0}} {{inclineWord(visit.dailyvisitscount, 'раз', 'раза', 'раз')}}</div>
                         </div>
                       </router-link>
                     </td>
