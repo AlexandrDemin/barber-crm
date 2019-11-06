@@ -188,6 +188,7 @@ GRANT SELECT on ALL tables in schema public to read_only;
 GRANT CONNECT ON DATABASE barbers to read_only;
 GRANT USAGE ON SCHEMA public  to read_only;
 GRANT ALL PRIVILEGES on ALL tables in schema public to admin;
+GRANT ALL PRIVILEGES on ALL SEQUENCES IN SCHEMA public to admin;
 """
 
 conn = psycopg2.connect(host='localhost',database='barbers', user='postgres', password='postgres')
