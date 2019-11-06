@@ -183,7 +183,6 @@ def upsert(table,data):
         query = db_provider.generateQueryUpdate(table,i)
         r = db_provider.goToBase("localhost","barbers","admin","Adm1n1strat0r",query,commit=True)
         result.append(r)
-    result = getResult(result)
     return result
 
 def select(args=None):
@@ -194,9 +193,15 @@ def select(args=None):
 def getResult(result,configkey=''):
     if type(result) == list:
         if len(result) == 1 and not re.match(r"^Get.*s$", configkey):
-            return json.dumps(result[0], ensure_ascii=False, cls=DateEncoder)
-        return json.dumps([*map(dict, result)], ensure_ascii=False, cls=DateEncoder)
-    return json.dumps(result, ensure_ascii=False, cls=DateEncoder)
+            r = json.dumps(dict(result[0]), ensure_ascii=False, cls=DateEncoder)
+            return json.dumps(dict(result[0]), ensure_ascii=False, cls=DateEncoder)
+        else:
+            r = json.dumps([*map(dict, result)], ensure_ascii=False, cls=DateEncoder)
+            return json.dumps([*map(dict, result)], ensure_ascii=False, cls=DateEncoder)
+    else:
+        r = json.dumps(result, ensure_ascii=False, cls=DateEncoder)
+        return json.dumps(result, ensure_ascii=False, cls=DateEncoder)
+    
             
 def edit(table,data):
     result = upsert(table,data)
@@ -216,7 +221,6 @@ def get(configkey,args=None):
             raw_data['data']['groupingtype'] = grouping
             result = select(raw_data)
             results[grouping] = result
-        print(result,'\n')
         result = getResult(results)
         return result    
     result = select(raw_data)

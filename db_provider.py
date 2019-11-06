@@ -664,7 +664,6 @@ using (id)"""
             wherepart = generateWhere(args['data'])            
             
         query = f"""select {fields} from {table}{additionalpart}{wherepart}{orderpart}"""
-    print(query, '\n\n')
     return query
 
 def goToBase(host,database,user,password,query,commit=False):
