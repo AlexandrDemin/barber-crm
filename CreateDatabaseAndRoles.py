@@ -41,7 +41,7 @@ contacts JSONB []);
 CREATE TABLE BARBERCATEGORY(
 id SERIAL PRIMARY KEY NOT NULL,
 "name" TEXT NOT NULL,
-"servicePercent" FLOAT(2) NOT NULL,
+"servicePercent" FLOAT(2),
 "state" TEXT NOT NULL);
 
 CREATE TABLE OFFICE(
