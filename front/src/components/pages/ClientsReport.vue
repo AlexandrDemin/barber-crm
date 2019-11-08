@@ -103,7 +103,7 @@
                   <th class="sticky-header">Посещения&nbsp;за выбранный период</th>
                   <th class="sticky-header">Посещения мастеров за&nbsp;всё время</th>
                   <th class="sticky-header">Посещения всего</th>
-                  <th class="sticky-header">Посещения&nbsp;за последние 6&nbsp;мес.</th>
+                  <th class="sticky-header">Посещения&nbsp;за последние 4&nbsp;мес.</th>
                   <th class="sticky-header">Предыдущее посещение</th>
                   <th class="sticky-header">Новый клиент</th>
                   <th class="sticky-header">Лояльность</th>
@@ -248,7 +248,7 @@
                     <th class="sticky-header">Посещения&nbsp;за выбранный период</th>
                     <th class="sticky-header">Посещения мастеров за&nbsp;всё время</th>
                     <th class="sticky-header">Посещения всего</th>
-                    <th class="sticky-header">Посещения&nbsp;за последние 6&nbsp;мес.</th>
+                    <th class="sticky-header">Посещения&nbsp;за последние 4&nbsp;мес.</th>
                     <th class="sticky-header">Предыдущее посещение</th>
                     <th class="sticky-header">Новый клиент</th>
                     <th class="sticky-header">Лояльность</th>
