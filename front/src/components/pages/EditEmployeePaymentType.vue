@@ -100,12 +100,15 @@ export default {
           this.isLoading = false
         })
     },
-    save: function () {
+    save: function (noReturnToList) {
       this.isSaving = true
       this.savingError = ''
       HTTP.post(`EditEmployeePaymentType/`, this.employeePaymentType)
         .then(response => {
           this.isSaving = false
+          if (!noReturnToList) {
+            this.$router.push({name: 'EmployeePaymentTypes'})
+          }
         })
         .catch(e => {
           this.savingError = e
@@ -113,7 +116,7 @@ export default {
         })
     },
     saveAndAddMore: function () {
-      this.save()
+      this.save(true)
       this.employeePaymentType = this.getEmptyItem()
       this.$router.push('/EditEmployeePaymentType')
     },

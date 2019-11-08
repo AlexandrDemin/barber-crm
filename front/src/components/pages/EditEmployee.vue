@@ -17,9 +17,9 @@
         <div class="cell large-6">
           <label>Имя</label>
           <input type="text" v-model="employee.name" autofocus/>
-          <label>Фото</label>
+          <!-- <label>Фото</label>
           <button type="button" class="button secondary">Выбрать</button>
-          <input type="file" accept="image/*" style="display:none" ref="photoSelector">
+          <input type="file" accept="image/*" style="display:none" ref="photoSelector"> -->
           <label>Статус</label>
           <v-select
             :clearable="false"
@@ -56,7 +56,7 @@
           <label>Логин</label>
           <input type="text" v-model="employee.login"/>
           <label>Пароль</label>
-          <input type="password" v-model="employee.password"/>
+          <input type="text" v-model="employee.password"/>
           <div v-for="(contact, index) in employee.contacts" v-bind:key="contact">
             <label v-on:click.prevent class="grid-x">
               <span class="cell auto">Контакт {{index > 0 ? index + 1 : ''}}</span>
@@ -163,7 +163,7 @@ export default {
           this.isLoading = false
         })
     },
-    save: function () {
+    save: function (notGoToList) {
       this.isSaving = true
       this.savingError = ''
       var employee = this.employee
@@ -176,6 +176,9 @@ export default {
       HTTP.post(`EditEmployee/`, employee)
         .then(response => {
           this.isSaving = false
+          if (!notGoToList) {
+            this.$router.push({name: 'Employees'})
+          }
         })
         .catch(e => {
           this.savingError = e
@@ -183,7 +186,7 @@ export default {
         })
     },
     saveAndAddMore: function () {
-      this.save()
+      this.save(true)
       this.employee = this.getEmptyItem()
       this.$router.push('/EditEmployee/')
     },

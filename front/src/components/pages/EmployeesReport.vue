@@ -132,7 +132,7 @@
                 <tr v-for="employee in byEmployees" v-bind:key="employee.employeeId">
                   <td>
                     <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                      {{employee.name || 'Неизвестно'}}
+                      {{employee.employeeName || 'Неизвестно'}}
                     </router-link>
                   </td>
                   <td>
@@ -290,52 +290,52 @@
                   <tr v-for="employee in office.employees" v-bind:key="employee.employeeId">
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{employee.name || 'Неизвестно'}}
+                        {{employee.employeeName || 'Неизвестно'}}
                       </router-link>
                     </td>
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{employee.totalsalary || 0}}
+                        {{employee.salary || 0}}
                       </router-link>
                     </td>
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{employee.totalpenalty || 0}}
+                        {{employee.penalty || 0}}
                       </router-link>
                     </td>
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{employee.totalpaidsalary || 0}}
+                        {{employee.paidsalary || 0}}
                       </router-link>
                     </td>
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{employee.totalunpaidsalary || 0}}
+                        {{employee.unpaidsalary || 0}}
                       </router-link>
                     </td>
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{(employee.totalgoodsbonus || 0) + (employee.totalservicebonus || 0) || 0}}
+                        {{(employee.goodsbonus || 0) + (employee.servicebonus || 0) || 0}}
                       </router-link>
                     </td>
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{employee.totalservicebonus || 0}}
+                        {{employee.servicebonus || 0}}
                       </router-link>
                     </td>
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{employee.totalgoodsbonus || 0}}
+                        {{employee.goodsbonus || 0}}
                       </router-link>
                     </td>
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{employee.totalpaidbonus || 0}}
+                        {{employee.paidbonus || 0}}
                       </router-link>
                     </td>
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{employee.totalunpaidbonus || 0}}
+                        {{employee.unpaidbonus || 0}}
                       </router-link>
                     </td>
                     <td>
@@ -345,7 +345,7 @@
                     </td>
                     <td>
                       <router-link v-bind:to="/EditEmployee/ + parseInt(employee.employeeId)" class="table-link">
-                        {{employee.total_time || 0}}
+                        {{employee._time || 0}}
                       </router-link>
                     </td>
                     <td>

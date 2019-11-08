@@ -139,10 +139,10 @@ export default {
       }
     },
     filteredServices: function () {
-      return this.services.filter(service => service.name.toLowerCase().includes(this.servicesSearch.toLowerCase()))
+      return this.services.filter(service => service.name.toLowerCase().includes(this.servicesSearch.toLowerCase()) && service.state === 'active')
     },
     filteredGoods: function () {
-      return this.goods.filter(good => good.name.toLowerCase().includes(this.goodsSearch.toLowerCase()))
+      return this.goods.filter(good => good.name.toLowerCase().includes(this.goodsSearch.toLowerCase()) && good.state === 'active')
     },
     adminId: function () {
       return this.$store.state.currentSession.employees.filter(e => e.role === 'officeAdmin')[0].id

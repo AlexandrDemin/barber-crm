@@ -92,7 +92,7 @@ export default {
         .then(response => {
           this.isSaving = false
           if (!noReturnToList) {
-            this.$router.push('/Offices')
+            this.$router.push({name: 'Offices'})
           }
         })
         .catch(e => {

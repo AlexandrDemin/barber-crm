@@ -110,7 +110,7 @@ export default new Router({
       name: 'UploadExpenses',
       component: UploadExpenses,
       meta: {
-        title: 'Внести расходы'
+        title: 'Загрузка расходов'
       }
     },
     {
