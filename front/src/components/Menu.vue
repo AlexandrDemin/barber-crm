@@ -6,7 +6,6 @@
   >
     <ul class="cell auto" v-bind:class="adminSubmenuShown ? 'submenu shown' : 'submenu hidden'">
       <li class="close-item" v-on:click="closeMenus(true)"><button type="button" class="close-button">&times;</button></li>
-      <li><router-link to="/UploadExpenses">Внести расходы</router-link></li>
       <li><router-link to="/Offices">Отделения</router-link></li>
       <li><router-link to="/ServiceTypes">Услуги</router-link></li>
       <li><router-link to="/GoodsTypes">Товары</router-link></li>
@@ -20,6 +19,7 @@
       <li><router-link to="/EmployeesReport">Отчёт по сотрудникам</router-link></li>
       <li><router-link to="/ClientsReport">Отчёт по клиентам</router-link></li>
       <li><router-link to="/FinancialReport">Финансовый отчёт</router-link></li>
+      <li><router-link to="/UploadExpenses">Загрузка расходов</router-link></li>
     </ul>
     <ul>
       <li

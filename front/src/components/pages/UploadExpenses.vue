@@ -1,8 +1,8 @@
 <template>
   <main>
-    <appMenu selected-element="admin"></appMenu>
+    <appMenu selected-element="reports"></appMenu>
     <div class="content">
-      <h1>Внести расходы</h1>
+      <h1>Загрузка расходов</h1>
       <div>
         <vue-element-loading :active="isLoading" color="#1C457D"/>
         <div v-if="loadingError" class="callout alert">

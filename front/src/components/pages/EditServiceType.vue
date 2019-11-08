@@ -90,13 +90,15 @@ export default {
           this.isLoading = false
         })
     },
-    save: function () {
+    save: function (notGoToList) {
       this.isSaving = true
       this.savingError = ''
       HTTP.post(`EditService/`, this.serviceType)
         .then(response => {
           this.isSaving = false
-          this.$router.push({name: 'ServiceTypes'})
+          if (!notGoToList) {
+            this.$router.push({name: 'ServiceTypes'})
+          }
         })
         .catch(e => {
           this.savingError = e
@@ -104,7 +106,7 @@ export default {
         })
     },
     saveAndAddMore: function () {
-      this.save()
+      this.save(true)
       this.serviceType = this.getEmptyItem()
       this.$router.push('/EditServiceType')
     },

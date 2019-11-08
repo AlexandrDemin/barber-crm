@@ -298,6 +298,9 @@ export default {
     },
     spendTypes: {
       get () {
+        if (this.$store.state.spendTypes && this.$store.state.spendTypes.length) {
+          return this.$store.state.spendTypes.filter(x => x.state === 'active')
+        }
         return this.$store.state.spendTypes
       }
     },
