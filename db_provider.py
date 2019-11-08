@@ -277,9 +277,9 @@ coalesce(sum("cashSum")filter (where type = 'service') + sum("cashlessSum")filte
 coalesce(sum("cashSum")filter (where type = 'good') + sum("cashlessSum")filter (where type = 'good'),0) as totalGoodsSum,
 coalesce(sum("cashlessSum") + sum("cashSum"),0) as totalSum
 from 
-(select 'service' as type,"officeId","clientId", date_trunc('month',"finishDatetime") as yearmonth,"cashSum","cashlessSum","discountSum" from serviceoperation
+(select id,'service' as type,"officeId","clientId", date_trunc('month',"finishDatetime") as yearmonth,"cashSum","cashlessSum","discountSum" from serviceoperation
 union
-select 'good' as type,"officeId","clientId",date_trunc('month',datetime) as yearmonth,"cashSum","cashlessSum","discountSum" from goodsoperation) u
+select id,'good' as type,"officeId","clientId",date_trunc('month',datetime) as yearmonth,"cashSum","cashlessSum","discountSum" from goodsoperation) u
 group by yearmonth,"officeId","clientId") finance
 left join
 (select "officeId","clientId",yearmonth, array_agg(mastervisits) as  mastervisits from
@@ -296,9 +296,10 @@ group by "officeId","clientId",yearmonth
 ) as masternames
 using (yearmonth,"officeId","clientId")
 left join
-(select "officeId","clientId",yearmonth,count(*) as totalvisitsduringperiod from (select "officeId","clientId", date_trunc('month',"finishDatetime") as yearmonth from serviceoperation
+(select "officeId","clientId",yearmonth,count(*) as totalvisitsduringperiod from 
+(select "officeId","clientId", date_trunc('month',"finishDatetime") as yearmonth, "finishDatetime"::date as yearmonthday from serviceoperation
 union
-select "officeId","clientId",date_trunc('month',datetime) as yearmonth from goodsoperation) cnt
+select "officeId","clientId",date_trunc('month',datetime) as yearmonth, datetime::date as yearmonthday from goodsoperation) cnt
 group by "officeId","clientId",yearmonth
 ) visitcount
 using (yearmonth,"officeId","clientId")
