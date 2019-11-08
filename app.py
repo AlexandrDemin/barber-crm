@@ -360,9 +360,9 @@ def EditOperations():
             table = elem['type']
             del elem['type']
             result = edit(table,elem)
-            result_as_dict = json.loads(json.loads(result))
-            results.append(result_as_dict)
-        return Response(json.dumps(results), 200, mimetype='application/json')
+            results.append(json.loads(result))
+        results = json.dumps(results)
+        return Response(results, 200, mimetype='application/json')
 
 @app.route('/api/EditEmployee/', methods=['POST'])
 # @login_required
